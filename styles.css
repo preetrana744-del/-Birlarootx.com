@@ -14,3 +14,27 @@
 @media(min-width:901px){.product-grid{grid-template-columns:repeat(6,minmax(0,1fr))}.product-card{grid-column:span 2}.product-card:nth-child(4){grid-column:2/span 2}.product-card:nth-child(5){grid-column:4/span 2}}
 @media(max-width:900px){.product-card{grid-column:auto}.product-card:nth-child(5){grid-column:1/-1;width:calc(50% - 8px);justify-self:center}}
 @media(max-width:620px){.product-card:nth-child(5){width:57%}}
+
+/* Detail links and the manually controlled feature carousel. */
+.hero-image-wrap{display:block}
+.hero-image-wrap img{transition:opacity .2s ease}
+.hero-controls{position:absolute;top:34px;left:30px;display:flex;align-items:center;gap:11px;z-index:2}
+.hero-arrow{display:grid;place-items:center;width:35px;height:35px;border:1px solid rgba(27,40,25,.55);border-radius:50%;background:rgba(244,242,233,.83);color:var(--ink);font-size:16px;transition:background .2s,color .2s,transform .2s}
+.hero-arrow:hover{background:var(--ink);color:var(--white);transform:translateY(-1px)}
+.hero-dots{display:flex;align-items:center;gap:7px;padding:0 4px}
+.hero-dots button{width:7px;height:7px;border:0;border-radius:50%;padding:0;background:rgba(27,40,25,.42);transition:width .2s,background .2s}
+.hero-dots button[aria-current="true"]{width:21px;border-radius:6px;background:var(--ink)}
+.product-card h3 a{transition:color .2s}
+.product-card h3 a:hover{color:var(--olive)}
+.product-details-link{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding:11px 0 9px;color:var(--muted);font:8px var(--mono);letter-spacing:.055em;text-transform:uppercase}
+.product-details-link span{color:var(--ink);font-size:14px;transition:transform .2s}
+.product-details-link:hover{color:var(--ink)}
+.product-details-link:hover span{transform:translate(2px,-2px)}
+@media(max-width:620px){.hero-controls{top:19px;left:18px;gap:8px}.hero-arrow{width:31px;height:31px}.hero-dots{gap:6px}.product-details-link{font-size:7px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.marquee-track{animation:none}*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
+
+/* Requested emphasis: product names and prices only. */
+.product-card h3,.product-card h3 a{color:#172116;font-weight:700}
+.product-price{color:#121a11;font-weight:600}
+.hero-caption b{font-weight:700}
+.hero-caption>span:last-child{font-weight:600}
