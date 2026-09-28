@@ -80,8 +80,6 @@ function renderProductPage() {
   detailImage.alt = `${product.name} by Birla RootX, ${product.format}`;
   $('[data-detail-add]').dataset.product = Object.keys(products).find((key) => products[key] === product);
   $('[data-pack-notes]').innerHTML = product.packNotes.map((note) => `<li>${note}</li>`).join('');
-  $('[data-product-detail-link]').href = `product.html?product=${product.slug}`;
-
   const related = productList.filter((item) => item !== product);
   $('[data-related-products]').innerHTML = related.map((item) => `
     <a class="related-card" href="product.html?product=${item.slug}">
