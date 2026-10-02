@@ -85,6 +85,12 @@ jobs:
             echo "::warning::birlarootx.com does not currently resolve from this runner. Static SEO checks passed; live checks skipped until DNS is configured."
             exit 0
           fi
+          echo "DNS resolution:"
+          getent ahosts birlarootx.com || true
+          echo "HTTP headers:"
+          curl -sSIL --max-time 15 http://birlarootx.com || true
+          echo "HTTPS headers (certificate verification bypassed for diagnosis only):"
+          curl -ksSIL --max-time 15 https://birlarootx.com || true
           set -e
 
           check_url() {
