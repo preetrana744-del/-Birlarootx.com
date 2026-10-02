@@ -41,6 +41,16 @@ const $ = (selector, root = document) => root.querySelector(selector);
 const rupees = (value) => `₹${value.toLocaleString('en-IN')}`;
 const productList = Object.values(products);
 
+function setSeoMetaContent(selector, attributes, content) {
+  let element = document.head.querySelector(selector);
+  if (!element) {
+    element = document.createElement('meta');
+    Object.entries(attributes).forEach(([key, value]) => element.setAttribute(key, value));
+    document.head.appendChild(element);
+  }
+  element.setAttribute('content', content);
+}
+
 function renderBag() {
   const entries = [...bag.entries()];
   const itemCount = entries.reduce((sum, [, quantity]) => sum + quantity, 0);
@@ -66,8 +76,56 @@ function renderProductPage() {
   const productIndex = productList.indexOf(product);
   const detailImage = $('[data-detail-image]');
 
+  const seoDescription = `${product.name} by Birla RootX. ${product.summary} Price ₹1,999.`;
+  const canonicalUrl = `https://birlarootx.com/product.html?product=${encodeURIComponent(product.slug)}`;
+  const imageUrl = `https://birlarootx.com/${product.image}`;
+
   document.title = `${product.name} | Birla RootX`;
-  $('meta[name="description"]')?.setAttribute('content', `${product.name} by Birla RootX. ${product.summary} Price ₹1,999.`);
+  $('meta[name="description"]')?.setAttribute('content', seoDescription);
+
+  let canonical = document.head.querySelector('link[rel="canonical"]');
+  if (!canonical) {
+    canonical = document.createElement('link');
+    canonical.rel = 'canonical';
+    document.head.appendChild(canonical);
+  }
+  canonical.href = canonicalUrl;
+
+  setSeoMetaContent('meta[property="og:title"]', { property: 'og:title' }, document.title);
+  setSeoMetaContent('meta[property="og:description"]', { property: 'og:description' }, seoDescription);
+  setSeoMetaContent('meta[property="og:url"]', { property: 'og:url' }, canonicalUrl);
+  setSeoMetaContent('meta[property="og:image"]', { property: 'og:image' }, imageUrl);
+  setSeoMetaContent('meta[name="twitter:title"]', { name: 'twitter:title' }, document.title);
+  setSeoMetaContent('meta[name="twitter:description"]', { name: 'twitter:description' }, seoDescription);
+  setSeoMetaContent('meta[name="twitter:image"]', { name: 'twitter:image' }, imageUrl);
+
+  const structuredData = document.getElementById('product-structured-data');
+  if (structuredData) {
+    structuredData.textContent = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'Product',
+          '@id': `${canonicalUrl}#product`,
+          name: product.name,
+          url: canonicalUrl,
+          image: [imageUrl],
+          description: product.summary,
+          category: product.category,
+          brand: { '@type': 'Brand', name: 'Birla RootX' }
+        },
+        {
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://birlarootx.com/' },
+            { '@type': 'ListItem', position: 2, name: 'Performance Series', item: 'https://birlarootx.com/#products' },
+            { '@type': 'ListItem', position: 3, name: product.name, item: canonicalUrl }
+          ]
+        }
+      ]
+    });
+  }
+
   page.dataset.tone = product.tone;
   $$('[data-detail-number]').forEach((element) => { element.textContent = product.number; });
   $$('[data-detail-name]').forEach((element) => { element.textContent = product.name; });
