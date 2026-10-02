@@ -1,0 +1,59 @@
+# Birla RootX — Expanded LLM Context
+
+> Birla RootX presents a five-product Performance Series at birlarootx.com. The website currently lists every product at ₹1,999.
+
+## Brand
+
+Name: Birla RootX
+Website: https://birlarootx.com/
+Series: Performance Series
+Brand line: Rooted in nature. Engineered for strength.
+Current listed price: ₹1,999 per product
+
+## Product catalog
+
+### Carbs Slayer
+URL: https://birlarootx.com/product.html?product=carbs-slayer
+Format: 60 capsules
+Category: Health supplement
+Front-pack context: The supplied front label describes Carbs Slayer as a nutrient partitioning complex. The pack shown contains 60 capsules.
+Listed price: ₹1,999
+
+### Jacked Pre-Workout
+URL: https://birlarootx.com/product.html?product=jacked-pre-workout
+Format: 40 ultra-concentrated scoops
+Category: Dietary supplement
+Front-pack context: A pre-workout product presented in a concentrated scoop format. Its front label names a training matrix and an advance formula.
+Listed price: ₹1,999
+
+### Spilan Test
+URL: https://birlarootx.com/product.html?product=spilan-test
+Format: 60 capsules
+Category: Health supplement
+Front-pack context: The supplied front label names SA3X™ and describes a specialised extract. The pack shown contains 60 capsules.
+Listed price: ₹1,999
+
+### Epic Burn Pro
+URL: https://birlarootx.com/product.html?product=epic-burn-pro
+Format: 60 capsules
+Category: Dietary supplement
+Front-pack context: Epic Burn Pro is presented on its front label as a thermogenic formula. The pack shown contains 60 capsules.
+Listed price: ₹1,999
+
+### Growth Factor
+URL: https://birlarootx.com/product.html?product=growth-factor
+Format: 60 capsules
+Category: Health supplement
+Front-pack context: The supplied front label identifies Growth Factor as a sleep support formula. The pack shown contains 60 capsules.
+Listed price: ₹1,999
+
+## Product-information limitation
+
+The currently supplied website imagery shows front-pack information only. It does not provide the complete ingredients panel, serving directions, allergen information, warnings, or other full-label details. For those details, the complete physical product label should be treated as the source of truth.
+
+## Discovery resources
+
+Homepage: https://birlarootx.com/
+Sitemap: https://birlarootx.com/sitemap.xml
+Robots: https://birlarootx.com/robots.txt
+LLM index: https://birlarootx.com/llms.txt
