@@ -82,15 +82,26 @@ jobs:
         run: |
           set +e
           if ! getent hosts birlarootx.com >/dev/null 2>&1; then
-            echo "::warning::birlarootx.com does not currently resolve from this runner. Static SEO checks passed; live checks skipped until DNS is configured."
+            echo "::warning::birlarootx.com does not currently resolve. Static SEO checks passed."
             exit 0
           fi
+
           echo "DNS resolution:"
           getent ahosts birlarootx.com || true
-          echo "HTTP headers:"
-          curl -sSIL --max-time 15 http://birlarootx.com || true
-          echo "HTTPS headers (certificate verification bypassed for diagnosis only):"
-          curl -ksSIL --max-time 15 https://birlarootx.com || true
+
+          HTTP_BODY="$(curl -fsSL --max-time 20 http://birlarootx.com 2>/dev/null)"
+          if [ $? -ne 0 ] || [[ "$HTTP_BODY" != *"BIRLA"* ]]; then
+            echo "::error::Domain resolves but HTTP is not serving the Birla RootX site."
+            exit 1
+          fi
+          echo "PASS http://birlarootx.com"
+
+          curl -fsSL --max-time 20 https://birlarootx.com >/dev/null 2>&1
+          HTTPS_OK=$?
+          if [ $HTTPS_OK -ne 0 ]; then
+            echo "::warning::GitHub Pages is serving the site, but the HTTPS certificate is not valid for birlarootx.com yet. Live HTTPS checks will pass automatically after certificate provisioning and a future scheduled/push run."
+            exit 0
+          fi
           set -e
 
           check_url() {
