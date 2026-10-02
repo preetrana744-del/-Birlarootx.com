@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://birlarootx.com/sitemap.xml
