@@ -1,0 +1,55 @@
+name: Notify IndexNow
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "*.html"
+      - "script.js"
+      - "sitemap.xml"
+      - "robots.txt"
+      - "0b7c4c2a2b68db13f1fbac1c20436b7e.txt"
+      - ".github/workflows/indexnow.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  notify-indexnow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Wait for key file to be live
+        env:
+          INDEXNOW_KEY: 0b7c4c2a2b68db13f1fbac1c20436b7e
+        shell: bash
+        run: |
+          for i in {1..18}; do
+            if curl -fsS --max-time 10 "https://birlarootx.com/${INDEXNOW_KEY}.txt" | tr -d '\r\n' | grep -qx "${INDEXNOW_KEY}"; then
+              echo "IndexNow key is live."
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::warning::IndexNow key was not reachable before timeout; submitting anyway."
+
+      - name: Submit sitemap URLs to IndexNow
+        env:
+          INDEXNOW_KEY: 0b7c4c2a2b68db13f1fbac1c20436b7e
+        shell: bash
+        run: |
+          mapfile -t URLS < <(sed -n 's:.*<loc>\(.*\)</loc>.*:\1:p' sitemap.xml)
+          URL_JSON="$(printf '%s\n' "${URLS[@]}" | jq -R . | jq -s .)"
+          PAYLOAD="$(jq -n \
+            --arg host "birlarootx.com" \
+            --arg key "${INDEXNOW_KEY}" \
+            --arg keyLocation "https://birlarootx.com/${INDEXNOW_KEY}.txt" \
+            --argjson urlList "${URL_JSON}" \
+            '{host:$host,key:$key,keyLocation:$keyLocation,urlList:$urlList}')"
+          curl --fail-with-body --retry 3 --retry-delay 5 \
+            -H "Content-Type: application/json; charset=utf-8" \
+            --data-binary "${PAYLOAD}" \
+            "https://api.indexnow.org/indexnow"
