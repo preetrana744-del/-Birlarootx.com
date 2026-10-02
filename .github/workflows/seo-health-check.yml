@@ -1,0 +1,101 @@
+name: SEO Health Check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "*.html"
+      - "script.js"
+      - "robots.txt"
+      - "sitemap.xml"
+      - ".github/workflows/seo-health-check.yml"
+  workflow_dispatch:
+  schedule:
+    - cron: "29 3 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  seo-health:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Validate SEO files
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import re, sys
+          from pathlib import Path
+          from xml.etree import ElementTree as ET
+
+          errors=[]
+          for required in ("index.html","product.html","robots.txt","sitemap.xml","CNAME"):
+              if not Path(required).exists():
+                  errors.append(f"missing {required}")
+
+          for name in ("index.html","product.html"):
+              if not Path(name).exists():
+                  continue
+              html=Path(name).read_text(encoding="utf-8",errors="ignore")
+              for pattern,label in [
+                  (r"<title>\s*[^<]+\s*</title>","title"),
+                  (r'<meta\s+name=["\']description["\']',"description"),
+                  (r'<meta\s+name=["\']robots["\']',"robots meta"),
+              ]:
+                  if not re.search(pattern,html,re.I|re.S):
+                      errors.append(f"{name}: missing {label}")
+              if len(re.findall(r"<h1\b",html,re.I)) != 1:
+                  errors.append(f"{name}: expected exactly one H1")
+              if "noindex" in html.lower():
+                  errors.append(f"{name}: contains noindex")
+
+          if Path("sitemap.xml").exists():
+              try:
+                  root=ET.parse("sitemap.xml").getroot()
+                  ns={"s":"http://www.sitemaps.org/schemas/sitemap/0.9"}
+                  urls=[n.text.strip() for n in root.findall("s:url/s:loc",ns) if n.text]
+                  if len(urls) != 6:
+                      errors.append(f"sitemap.xml: expected 6 URLs, found {len(urls)}")
+                  if "https://birlarootx.com/" not in urls:
+                      errors.append("sitemap.xml: homepage missing")
+              except Exception as e:
+                  errors.append(f"sitemap.xml invalid XML: {e}")
+
+          if Path("robots.txt").exists():
+              robots=Path("robots.txt").read_text(encoding="utf-8")
+              if "Sitemap: https://birlarootx.com/sitemap.xml" not in robots:
+                  errors.append("robots.txt: canonical sitemap reference missing")
+
+          if errors:
+              print("\n".join("ERROR: "+e for e in errors))
+              sys.exit(1)
+          print("Birla RootX static SEO checks passed.")
+          PY
+
+      - name: Check live endpoints when DNS is available
+        shell: bash
+        env:
+          INDEXNOW_KEY: 0b7c4c2a2b68db13f1fbac1c20436b7e
+        run: |
+          set +e
+          if ! getent hosts birlarootx.com >/dev/null 2>&1; then
+            echo "::warning::birlarootx.com does not currently resolve from this runner. Static SEO checks passed; live checks skipped until DNS is configured."
+            exit 0
+          fi
+          set -e
+
+          check_url() {
+            url="$1"
+            expected="$2"
+            body="$(curl -fsSL --max-time 20 "$url")"
+            [[ "$body" == *"$expected"* ]] || { echo "::error::Live SEO check failed: $url"; exit 1; }
+            echo "PASS $url"
+          }
+
+          check_url "https://birlarootx.com/" "BIRLA"
+          check_url "https://birlarootx.com/robots.txt" "Sitemap: https://birlarootx.com/sitemap.xml"
+          check_url "https://birlarootx.com/sitemap.xml" "https://birlarootx.com/"
+          check_url "https://birlarootx.com/${INDEXNOW_KEY}.txt" "${INDEXNOW_KEY}"
