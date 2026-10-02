@@ -22,34 +22,49 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v6
 
-      - name: Wait for key file to be live
+      - name: Resolve live IndexNow key location
         env:
           INDEXNOW_KEY: 0b7c4c2a2b68db13f1fbac1c20436b7e
         shell: bash
         run: |
-          for i in {1..18}; do
-            if curl -fsS --max-time 10 "https://birlarootx.com/${INDEXNOW_KEY}.txt" | tr -d '\r\n' | grep -qx "${INDEXNOW_KEY}"; then
-              echo "IndexNow key is live."
-              exit 0
-            fi
-            sleep 10
-          done
-          echo "::warning::IndexNow key was not reachable before timeout; submitting anyway."
+          HTTPS_KEY="https://birlarootx.com/${INDEXNOW_KEY}.txt"
+          HTTP_KEY="http://birlarootx.com/${INDEXNOW_KEY}.txt"
+
+          if curl -fsS --max-time 15 "$HTTPS_KEY" | tr -d '\r\n' | grep -qx "${INDEXNOW_KEY}"; then
+            echo "KEY_LOCATION=$HTTPS_KEY" >> "$GITHUB_ENV"
+            echo "Using HTTPS IndexNow key location."
+          elif curl -fsS --max-time 15 "$HTTP_KEY" | tr -d '\r\n' | grep -qx "${INDEXNOW_KEY}"; then
+            echo "KEY_LOCATION=$HTTP_KEY" >> "$GITHUB_ENV"
+            echo "::warning::HTTPS certificate is pending; using the valid HTTP root key location for this submission."
+          else
+            echo "::warning::IndexNow key file is not publicly reachable yet. Skipping submission until the custom domain is ready."
+            echo "SKIP_INDEXNOW=1" >> "$GITHUB_ENV"
+          fi
 
       - name: Submit sitemap URLs to IndexNow
+        if: env.SKIP_INDEXNOW != '1'
         env:
           INDEXNOW_KEY: 0b7c4c2a2b68db13f1fbac1c20436b7e
         shell: bash
         run: |
           mapfile -t URLS < <(sed -n 's:.*<loc>\(.*\)</loc>.*:\1:p' sitemap.xml)
+
+          if [ "${#URLS[@]}" -eq 0 ]; then
+            echo "No URLs found in sitemap.xml"
+            exit 1
+          fi
+
           URL_JSON="$(printf '%s\n' "${URLS[@]}" | jq -R . | jq -s .)"
           PAYLOAD="$(jq -n \
             --arg host "birlarootx.com" \
             --arg key "${INDEXNOW_KEY}" \
-            --arg keyLocation "https://birlarootx.com/${INDEXNOW_KEY}.txt" \
+            --arg keyLocation "${KEY_LOCATION}" \
             --argjson urlList "${URL_JSON}" \
             '{host:$host,key:$key,keyLocation:$keyLocation,urlList:$urlList}')"
+
           curl --fail-with-body --retry 3 --retry-delay 5 \
             -H "Content-Type: application/json; charset=utf-8" \
             --data-binary "${PAYLOAD}" \
             "https://api.indexnow.org/indexnow"
+
+          echo "Submitted ${#URLS[@]} URLs to IndexNow."
