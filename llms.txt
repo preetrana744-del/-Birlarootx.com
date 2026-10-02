@@ -1,0 +1,20 @@
+# Birla RootX
+
+> Birla RootX is a performance supplement brand with five products in its Performance Series. Each product is currently listed at ₹1,999 on birlarootx.com.
+
+Important: Product information on this website is based on supplied front-pack images. Full ingredients, directions, warnings, allergen information, and other regulated label details should be taken from the complete physical product label.
+
+## Main pages
+
+- [Home](https://birlarootx.com/): Brand overview and the complete five-product Performance Series.
+- [Carbs Slayer](https://birlarootx.com/product.html?product=carbs-slayer): 60-capsule product page.
+- [Jacked Pre-Workout](https://birlarootx.com/product.html?product=jacked-pre-workout): 40-scoop pre-workout product page.
+- [Spilan Test](https://birlarootx.com/product.html?product=spilan-test): 60-capsule product page.
+- [Epic Burn Pro](https://birlarootx.com/product.html?product=epic-burn-pro): 60-capsule product page.
+- [Growth Factor](https://birlarootx.com/product.html?product=growth-factor): 60-capsule product page.
+
+## Machine-readable resources
+
+- [XML sitemap](https://birlarootx.com/sitemap.xml): Canonical crawl list for the homepage and five product URLs.
+- [Robots rules](https://birlarootx.com/robots.txt): Public crawler access rules.
+- [Expanded LLM context](https://birlarootx.com/llms-full.txt): Concise product-by-product context for agents.
