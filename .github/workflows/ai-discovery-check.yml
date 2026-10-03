@@ -1,0 +1,128 @@
+name: AI Discovery Check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "llms.txt"
+      - "llms-full.txt"
+      - "robots.txt"
+      - "sitemap.xml"
+      - "index.html"
+      - "product.html"
+      - ".github/workflows/ai-discovery-check.yml"
+  workflow_dispatch:
+  schedule:
+    - cron: "17 4 * * 2"
+
+permissions:
+  contents: read
+
+jobs:
+  ai-discovery:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Validate AI discovery files
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import re, sys
+          from pathlib import Path
+          from xml.etree import ElementTree as ET
+
+          errors=[]
+          warnings=[]
+
+          for required in ("index.html","product.html","robots.txt","sitemap.xml","llms.txt","llms-full.txt"):
+              if not Path(required).exists():
+                  errors.append(f"missing {required}")
+
+          if Path("robots.txt").exists():
+              robots=Path("robots.txt").read_text(encoding="utf-8",errors="ignore")
+              low=robots.lower()
+              if "user-agent: *" not in low:
+                  warnings.append("robots.txt has no wildcard crawler section")
+              if re.search(r"user-agent:\s*oai-searchbot[\s\S]{0,300}disallow:\s*/", low):
+                  errors.append("OAI-SearchBot appears blocked")
+              if "sitemap: https://birlarootx.com/sitemap.xml" not in low:
+                  errors.append("robots.txt missing canonical sitemap")
+
+          if Path("sitemap.xml").exists():
+              try:
+                  root=ET.parse("sitemap.xml").getroot()
+                  ns={"s":"http://www.sitemaps.org/schemas/sitemap/0.9"}
+                  urls=[n.text.strip() for n in root.findall("s:url/s:loc",ns) if n.text]
+                  if len(urls) != 6:
+                      warnings.append(f"expected 6 catalog URLs in sitemap, found {len(urls)}")
+                  if "https://birlarootx.com/" not in urls:
+                      errors.append("homepage missing from sitemap")
+              except Exception as e:
+                  errors.append(f"invalid sitemap XML: {e}")
+
+          for name in ("index.html","product.html"):
+              if Path(name).exists():
+                  html=Path(name).read_text(encoding="utf-8",errors="ignore")
+                  checks=[
+                      (r"<title>[^<]+</title>", "title"),
+                      (r'<meta\s+name=["\']description["\']', "meta description"),
+                      (r'application/ld\+json', "JSON-LD structured data"),
+                      (r'property=["\']og:title["\']', "Open Graph title"),
+                  ]
+                  for pattern,label in checks:
+                      if not re.search(pattern,html,re.I|re.S):
+                          errors.append(f"{name}: missing {label}")
+
+          if Path("llms.txt").exists():
+              text=Path("llms.txt").read_text(encoding="utf-8",errors="ignore")
+              if "https://birlarootx.com/" not in text:
+                  errors.append("llms.txt missing canonical homepage")
+              if "llms-full.txt" not in text:
+                  warnings.append("llms.txt does not reference llms-full.txt")
+
+          if Path("llms-full.txt").exists():
+              text=Path("llms-full.txt").read_text(encoding="utf-8",errors="ignore")
+              for product in ("Carbs Slayer","Jacked Pre-Workout","Spilan Test","Epic Burn Pro","Growth Factor"):
+                  if product not in text:
+                      errors.append(f"llms-full.txt missing {product}")
+
+          for w in warnings:
+              print("WARNING:",w)
+          if errors:
+              for e in errors:
+                  print("ERROR:",e)
+              sys.exit(1)
+          print("AI discovery static checks passed.")
+          PY
+
+      - name: Check live discovery endpoints when available
+        shell: bash
+        run: |
+          set +e
+          if ! getent hosts birlarootx.com >/dev/null 2>&1; then
+            echo "::warning::birlarootx.com does not resolve from this runner yet; live checks skipped."
+            exit 0
+          fi
+
+          curl -fsSL --max-time 20 https://birlarootx.com/ >/dev/null 2>&1
+          if [ $? -ne 0 ]; then
+            echo "::warning::HTTPS is still provisioning/propagating; static checks passed."
+            exit 0
+          fi
+          set -e
+
+          check_url() {
+            url="$1"
+            expected="$2"
+            body="$(curl -fsSL --max-time 20 "$url")"
+            [[ "$body" == *"$expected"* ]] || { echo "::error::Live check failed: $url"; exit 1; }
+            echo "PASS $url"
+          }
+
+          check_url "https://birlarootx.com/" "BIRLA"
+          check_url "https://birlarootx.com/robots.txt" "Sitemap: https://birlarootx.com/sitemap.xml"
+          check_url "https://birlarootx.com/sitemap.xml" "https://birlarootx.com/"
+          check_url "https://birlarootx.com/llms.txt" "Birla RootX"
+          check_url "https://birlarootx.com/llms-full.txt" "Growth Factor"
