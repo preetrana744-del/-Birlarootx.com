@@ -1,0 +1,17 @@
+{
+  "name": "Birla RootX",
+  "short_name": "RootX",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f4f2e9",
+  "theme_color": "#1b2819",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
