@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Birla RootX</title>
+  <desc id="desc">Birla RootX brand mark</desc>
+  <rect width="512" height="512" rx="112" fill="#1b2819"/>
+  <path d="M256 74c18 0 33 15 33 33v52c38-34 85-52 141-54-5 55-31 101-78 136-21 16-42 27-63 34v32l96 96-44 44-85-85-85 85-44-44 96-96v-32c-21-7-42-18-63-34-47-35-73-81-78-136 56 2 103 20 141 54v-52c0-18 15-33 33-33Z" fill="#cbd979"/>
+  <path d="M256 301c-31 40-47 75-47 105 0 31 19 51 47 51s47-20 47-51c0-30-16-65-47-105Z" fill="#f4f2e9"/>
+</svg>
