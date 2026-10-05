@@ -170,15 +170,29 @@ function closeBag() {
   if (window.birlaPreviousFocus instanceof HTMLElement) window.birlaPreviousFocus.focus();
 }
 
-$$('[data-product]').forEach((button) => button.addEventListener('click', () => {
+$('[data-product]').forEach((button) => button.addEventListener('click', () => {
   const key = button.dataset.product;
   const product = products[key];
   bag.set(key, (bag.get(key) || 0) + 1);
   renderBag();
+
+  const toast = $('.toast');
   $('[data-toast-copy]').textContent = `${product.name} · ${rupees(product.price)}`;
-  $('.toast').classList.add('visible');
+  toast.classList.remove('visible');
+  void toast.offsetWidth;
+  toast.classList.add('visible');
+
+  const labelNode = [...button.childNodes].find((node) => node.nodeType === Node.TEXT_NODE);
+  if (labelNode) {
+    labelNode.textContent = 'Added to cart ✓ ';
+    window.clearTimeout(button.birlaAddedTimer);
+    button.birlaAddedTimer = window.setTimeout(() => {
+      labelNode.textContent = 'Add to cart ';
+    }, 1600);
+  }
+
   window.clearTimeout(window.birlaToastTimer);
-  window.birlaToastTimer = window.setTimeout(() => $('.toast').classList.remove('visible'), 2800);
+  window.birlaToastTimer = window.setTimeout(() => toast.classList.remove('visible'), 2800);
 }));
 $('.bag-button').addEventListener('click', openBag);
 $('.cart-close').addEventListener('click', closeBag);
