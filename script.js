@@ -36,7 +36,27 @@ const products = {
   }
 };
 window.BIRLAROOTX_PRODUCTS = products;
+const CART_STORAGE_KEY = 'birlarootx-cart-v1';
 const bag = new Map();
+
+function loadBag() {
+  try {
+    const saved = JSON.parse(window.localStorage.getItem(CART_STORAGE_KEY) || '[]');
+    if (!Array.isArray(saved)) return;
+    saved.forEach(([key, quantity]) => {
+      const qty = Number(quantity);
+      if (products[key] && Number.isFinite(qty) && qty > 0) bag.set(key, Math.floor(qty));
+    });
+  } catch (_) {}
+}
+
+function saveBag() {
+  try {
+    window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify([...bag.entries()]));
+  } catch (_) {}
+}
+
+loadBag();
 const $ = (selector, root = document) => root.querySelector(selector);
 const rupees = (value) => `₹${value.toLocaleString('en-IN')}`;
 const productList = Object.values(products);
@@ -63,7 +83,11 @@ function renderBag() {
     const product = products[key];
     return `<div class="cart-line"><img src="${product.image}" alt="" /><div><h3>${product.name}</h3><p>Qty ${quantity} · ${rupees(product.price)} each</p></div><span class="cart-line-price">${rupees(product.price * quantity)}</span><button class="cart-line-remove" type="button" data-remove="${key}">Remove</button></div>`;
   }).join('');
-  document.querySelectorAll('.cart-line-remove').forEach((button) => button.addEventListener('click', () => { bag.delete(button.dataset.remove); renderBag(); }));
+  document.querySelectorAll('.cart-line-remove').forEach((button) => button.addEventListener('click', () => {
+    bag.delete(button.dataset.remove);
+    saveBag();
+    renderBag();
+  }));
 
   document.querySelectorAll('[data-product]').forEach((button) => {
     const isAdded = bag.has(button.dataset.product);
@@ -163,6 +187,7 @@ function renderProductPage() {
   $('[data-detail-next] span').textContent = next.name;
 }
 renderProductPage();
+renderBag();
 
 function openBag() {
   window.birlaPreviousFocus = document.activeElement;
@@ -184,6 +209,7 @@ document.querySelectorAll('[data-product]').forEach((button) => button.addEventL
   const key = button.dataset.product;
   const product = products[key];
   bag.set(key, (bag.get(key) || 0) + 1);
+  saveBag();
   renderBag();
 
   const toast = $('.toast');
