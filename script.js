@@ -63,7 +63,17 @@ function renderBag() {
     const product = products[key];
     return `<div class="cart-line"><img src="${product.image}" alt="" /><div><h3>${product.name}</h3><p>Qty ${quantity} · ${rupees(product.price)} each</p></div><span class="cart-line-price">${rupees(product.price * quantity)}</span><button class="cart-line-remove" type="button" data-remove="${key}">Remove</button></div>`;
   }).join('');
-  $$('.cart-line-remove').forEach((button) => button.addEventListener('click', () => { bag.delete(button.dataset.remove); renderBag(); }));
+  $('.cart-line-remove').forEach((button) => button.addEventListener('click', () => { bag.delete(button.dataset.remove); renderBag(); }));
+
+  document.querySelectorAll('[data-product]').forEach((button) => {
+    const isAdded = bag.has(button.dataset.product);
+    const labelNode = [...button.childNodes].find((node) => node.nodeType === Node.TEXT_NODE);
+    const icon = button.querySelector('span');
+
+    if (labelNode) labelNode.textContent = isAdded ? 'Added to cart ' : 'Add to cart ';
+    if (icon) icon.textContent = isAdded ? '✓' : '+';
+    button.setAttribute('aria-pressed', String(isAdded));
+  });
 }
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
@@ -181,15 +191,6 @@ document.querySelectorAll('[data-product]').forEach((button) => button.addEventL
   toast.classList.remove('visible');
   void toast.offsetWidth;
   toast.classList.add('visible');
-
-  const labelNode = [...button.childNodes].find((node) => node.nodeType === Node.TEXT_NODE);
-  if (labelNode) {
-    labelNode.textContent = 'Added to cart ✓ ';
-    window.clearTimeout(button.birlaAddedTimer);
-    button.birlaAddedTimer = window.setTimeout(() => {
-      labelNode.textContent = 'Add to cart ';
-    }, 1600);
-  }
 
   window.clearTimeout(window.birlaToastTimer);
   window.birlaToastTimer = window.setTimeout(() => toast.classList.remove('visible'), 2800);
