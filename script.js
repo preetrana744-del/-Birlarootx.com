@@ -170,7 +170,7 @@ function closeBag() {
   if (window.birlaPreviousFocus instanceof HTMLElement) window.birlaPreviousFocus.focus();
 }
 
-$('[data-product]').forEach((button) => button.addEventListener('click', () => {
+document.querySelectorAll('[data-product]').forEach((button) => button.addEventListener('click', () => {
   const key = button.dataset.product;
   const product = products[key];
   bag.set(key, (bag.get(key) || 0) + 1);
