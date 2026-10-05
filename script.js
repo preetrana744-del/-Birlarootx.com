@@ -71,33 +71,38 @@ function setSeoMetaContent(selector, attributes, content) {
   element.setAttribute('content', content);
 }
 
+function updateCartButtons() {
+  document.querySelectorAll('[data-product]').forEach((button) => {
+    const isAdded = bag.has(button.dataset.product);
+    button.innerHTML = isAdded ? 'Added to cart <span>✓</span>' : 'Add to cart <span>+</span>';
+    button.setAttribute('aria-pressed', String(isAdded));
+  });
+}
+
 function renderBag() {
   const entries = [...bag.entries()];
   const itemCount = entries.reduce((sum, [, quantity]) => sum + quantity, 0);
   const subtotal = entries.reduce((sum, [key, quantity]) => sum + products[key].price * quantity, 0);
-  $('.bag-count').textContent = itemCount;
-  $('.cart-drawer-count').textContent = `(${itemCount})`;
-  $('.cart-subtotal').textContent = rupees(subtotal);
-  $('.cart-empty').classList.toggle('visible', entries.length === 0);
-  $('.cart-items').innerHTML = entries.map(([key, quantity]) => {
-    const product = products[key];
-    return `<div class="cart-line"><img src="${product.image}" alt="" /><div><h3>${product.name}</h3><p>Qty ${quantity} · ${rupees(product.price)} each</p></div><span class="cart-line-price">${rupees(product.price * quantity)}</span><button class="cart-line-remove" type="button" data-remove="${key}">Remove</button></div>`;
-  }).join('');
-  document.querySelectorAll('.cart-line-remove').forEach((button) => button.addEventListener('click', () => {
-    bag.delete(button.dataset.remove);
-    saveBag();
-    renderBag();
-  }));
 
-  document.querySelectorAll('[data-product]').forEach((button) => {
-    const isAdded = bag.has(button.dataset.product);
-    const labelNode = [...button.childNodes].find((node) => node.nodeType === Node.TEXT_NODE);
-    const icon = button.querySelector('span');
+  const bagCount = $('.bag-count');
+  const drawerCount = $('.cart-drawer-count');
+  const subtotalNode = $('.cart-subtotal');
+  const emptyNode = $('.cart-empty');
+  const itemsNode = $('.cart-items');
 
-    if (labelNode) labelNode.textContent = isAdded ? 'Added to cart ' : 'Add to cart ';
-    if (icon) icon.textContent = isAdded ? '✓' : '+';
-    button.setAttribute('aria-pressed', String(isAdded));
-  });
+  if (bagCount) bagCount.textContent = itemCount;
+  if (drawerCount) drawerCount.textContent = `(${itemCount})`;
+  if (subtotalNode) subtotalNode.textContent = rupees(subtotal);
+  if (emptyNode) emptyNode.classList.toggle('visible', entries.length === 0);
+
+  if (itemsNode) {
+    itemsNode.innerHTML = entries.map(([key, quantity]) => {
+      const product = products[key];
+      return `<div class="cart-line"><img src="${product.image}" alt="" /><div><h3>${product.name}</h3><p>Qty ${quantity} · ${rupees(product.price)} each</p></div><span class="cart-line-price">${rupees(product.price * quantity)}</span><button class="cart-line-remove" type="button" data-remove="${key}">Remove</button></div>`;
+    }).join('');
+  }
+
+  updateCartButtons();
 }
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
@@ -205,22 +210,38 @@ function closeBag() {
   if (window.birlaPreviousFocus instanceof HTMLElement) window.birlaPreviousFocus.focus();
 }
 
-document.querySelectorAll('[data-product]').forEach((button) => button.addEventListener('click', () => {
-  const key = button.dataset.product;
-  const product = products[key];
-  bag.set(key, (bag.get(key) || 0) + 1);
-  saveBag();
-  renderBag();
+document.addEventListener('click', (event) => {
+  const addButton = event.target.closest('[data-product]');
+  if (addButton) {
+    const key = addButton.dataset.product;
+    const product = products[key];
+    if (!product) return;
 
-  const toast = $('.toast');
-  $('[data-toast-copy]').textContent = `${product.name} · ${rupees(product.price)}`;
-  toast.classList.remove('visible');
-  void toast.offsetWidth;
-  toast.classList.add('visible');
+    bag.set(key, (bag.get(key) || 0) + 1);
+    saveBag();
+    renderBag();
 
-  window.clearTimeout(window.birlaToastTimer);
-  window.birlaToastTimer = window.setTimeout(() => toast.classList.remove('visible'), 2800);
-}));
+    const toast = $('.toast');
+    const toastCopy = $('[data-toast-copy]');
+    if (toastCopy) toastCopy.textContent = `${product.name} · ${rupees(product.price)}`;
+    if (toast) {
+      toast.classList.remove('visible');
+      void toast.offsetWidth;
+      toast.classList.add('visible');
+      window.clearTimeout(window.birlaToastTimer);
+      window.birlaToastTimer = window.setTimeout(() => toast.classList.remove('visible'), 2800);
+    }
+    return;
+  }
+
+  const removeButton = event.target.closest('.cart-line-remove');
+  if (removeButton) {
+    bag.delete(removeButton.dataset.remove);
+    saveBag();
+    renderBag();
+  }
+});
+
 $('.bag-button').addEventListener('click', openBag);
 $('.cart-close').addEventListener('click', closeBag);
 $('.cart-backdrop').addEventListener('click', closeBag);
