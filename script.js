@@ -211,7 +211,46 @@ if (featureImage) {
   };
   $('[data-slide-prev]').addEventListener('click', () => showFeature(activeFeature - 1));
   $('[data-slide-next]').addEventListener('click', () => showFeature(activeFeature + 1));
-  $$('[data-slide-to]').forEach((button) => button.addEventListener('click', () => showFeature(Number(button.dataset.slideTo))));
+  $('[data-slide-to]').forEach((button) => button.addEventListener('click', () => showFeature(Number(button.dataset.slideTo))));
+
+  const featureLink = $('[data-hero-link]');
+  let touchStartX = 0;
+  let touchStartY = 0;
+  let suppressFeatureClick = false;
+
+  featureLink.addEventListener('touchstart', (event) => {
+    const touch = event.changedTouches[0];
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+  }, { passive: true });
+
+  featureLink.addEventListener('touchend', (event) => {
+    const touch = event.changedTouches[0];
+    const deltaX = touch.clientX - touchStartX;
+    const deltaY = touch.clientY - touchStartY;
+    const isHorizontalSwipe = Math.abs(deltaX) >= 45 && Math.abs(deltaX) > Math.abs(deltaY) * 1.15;
+
+    if (!isHorizontalSwipe) return;
+
+    event.preventDefault();
+    suppressFeatureClick = true;
+    showFeature(activeFeature + (deltaX < 0 ? 1 : -1));
+    window.setTimeout(() => { suppressFeatureClick = false; }, 350);
+  }, { passive: false });
+
+  featureLink.addEventListener('click', (event) => {
+    if (suppressFeatureClick) {
+      event.preventDefault();
+      return;
+    }
+
+    if (!window.matchMedia('(pointer: fine)').matches) return;
+
+    event.preventDefault();
+    const bounds = featureLink.getBoundingClientRect();
+    const clickedLeftHalf = event.clientX - bounds.left < bounds.width / 2;
+    showFeature(activeFeature + (clickedLeftHalf ? -1 : 1));
+  });
 }
 
 $('.menu-button').addEventListener('click', () => {
