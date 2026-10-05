@@ -63,7 +63,7 @@ function renderBag() {
     const product = products[key];
     return `<div class="cart-line"><img src="${product.image}" alt="" /><div><h3>${product.name}</h3><p>Qty ${quantity} · ${rupees(product.price)} each</p></div><span class="cart-line-price">${rupees(product.price * quantity)}</span><button class="cart-line-remove" type="button" data-remove="${key}">Remove</button></div>`;
   }).join('');
-  $('.cart-line-remove').forEach((button) => button.addEventListener('click', () => { bag.delete(button.dataset.remove); renderBag(); }));
+  document.querySelectorAll('.cart-line-remove').forEach((button) => button.addEventListener('click', () => { bag.delete(button.dataset.remove); renderBag(); }));
 
   document.querySelectorAll('[data-product]').forEach((button) => {
     const isAdded = bag.has(button.dataset.product);
