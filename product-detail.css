@@ -76,3 +76,14 @@
 /* Match the stronger product-name and price emphasis used on the catalog. */
 .detail-copy h1,.related-card-copy b{color:#172116;font-weight:700}
 .detail-price-row>span{color:#121a11;font-weight:600}
+
+/* Product-page visual refinement. */
+.detail-breadcrumb{padding-top:28px;padding-bottom:28px}
+.detail-media{border-radius:100px 8px 8px 8px;box-shadow:0 16px 45px rgba(23,40,31,.1)}
+.detail-copy h1{line-height:1.02;letter-spacing:-.065em}
+.detail-price-row{padding:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.detail-price-row>span{font-size:25px}.detail-mini-facts{padding:22px;background:#e9eddd;border:0;border-radius:6px}
+.detail-information{background:#e9eddd}.detail-section-heading h2,.related-heading h2{line-height:1.04;letter-spacing:-.065em}
+.pack-note-card,.transparency-note,.detail-callout{border-radius:6px}.pack-note-card{box-shadow:0 8px 25px #17281f05}.transparency-note{background:#f8f9ef}.detail-callout{padding:25px}
+.related-card{padding:10px;border:1px solid var(--line);border-radius:7px;background:var(--white);transition:box-shadow .25s}.related-card:hover{box-shadow:0 12px 30px #17281f12}.related-image{border-radius:4px}.related-card-copy{padding:18px 4px 8px}
+@media(max-width:620px){.detail-breadcrumb{padding-top:20px;padding-bottom:20px}.detail-media{border-top-left-radius:65px}.detail-copy h1{font-size:clamp(48px,13vw,68px)}.detail-mini-facts{padding:18px}.related-card{padding:7px}.related-card-copy{padding:14px 2px 5px}.detail-callout{padding:19px}}
