@@ -79,3 +79,12 @@ body{background:var(--paper)}
 .cart-line-remove{min-height:44px;min-width:100px;width:max-content;padding:8px 12px;border:1px solid var(--line);border-radius:4px;color:var(--ink);background:#edf1e3;display:inline-flex;align-items:center;justify-content:space-between;gap:20px;font-size:10px}
 .cart-line-remove:hover{background:#dde6ca}.cart-line-remove span{font-size:18px}
 @media(max-width:620px){.add-button{font-size:7px;padding:10px 7px}.cart-line-remove{font-size:10px}}
+
+
+/* Swipe/drag the existing featured product panel; retain vertical page scrolling. */
+.hero-visual{touch-action:pan-y pinch-zoom}
+.hero-image-wrap,.hero-caption,.hero-side-note{user-select:none;-webkit-user-select:none}
+.hero-image-wrap img{transform:translateX(var(--hero-drag-x,0px));transition:transform .22s ease-out,opacity .2s ease}
+.hero-visual.is-dragging .hero-image-wrap img{transform:translateX(var(--hero-drag-x,0px)) scale(1.06);transition:none}
+@media(pointer:fine){.hero-image-wrap{cursor:grab}.hero-visual.is-dragging,.hero-visual.is-dragging .hero-image-wrap{cursor:grabbing}}
+@media(prefers-reduced-motion:reduce){.hero-image-wrap img{transition:none!important}.hero-visual.is-dragging .hero-image-wrap img{transform:none}}
