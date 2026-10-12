@@ -88,3 +88,14 @@ body{background:var(--paper)}
 .hero-visual.is-dragging .hero-image-wrap img{transform:translateX(var(--hero-drag-x,0px)) scale(1.06);transition:none}
 @media(pointer:fine){.hero-image-wrap{cursor:grab}.hero-visual.is-dragging,.hero-visual.is-dragging .hero-image-wrap{cursor:grabbing}}
 @media(prefers-reduced-motion:reduce){.hero-image-wrap img{transition:none!important}.hero-visual.is-dragging .hero-image-wrap img{transform:none}}
+
+/* Quantity actions keep removal separate and remain easy to tap. */
+.cart-line{grid-template-columns:68px minmax(0,1fr) auto;column-gap:10px;row-gap:12px}
+.cart-line-copy{min-width:0}.cart-line h3{line-height:1.35}.cart-line-price{align-self:start;padding-top:3px}
+.cart-quantity{grid-column:2;display:inline-flex;align-items:center;justify-self:start;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#fffdf6}
+.cart-quantity button{width:36px;min-height:44px;border:0;background:transparent;color:var(--ink);font:20px var(--mono)}
+.cart-quantity button:hover:not(:disabled){background:#e8edd9}.cart-quantity button:disabled{color:#8a9282;cursor:default}
+.cart-quantity output{min-width:27px;max-width:70px;text-align:center;overflow-wrap:anywhere;font:11px var(--mono)}
+.cart-quantity button:focus-visible{outline:2px solid var(--ink);outline-offset:-3px}
+.cart-line-remove{grid-column:3;min-width:72px;padding:8px;gap:8px;font-size:8px}
+body.cart-open .toast{bottom:calc(170px + env(safe-area-inset-bottom))}

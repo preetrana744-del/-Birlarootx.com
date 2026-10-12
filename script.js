@@ -104,7 +104,7 @@ function renderBag() {
   if (itemsNode) {
     itemsNode.innerHTML = entries.map(([key, quantity]) => {
       const product = products[key];
-      return `<div class="cart-line"><img src="${product.image}" alt="" /><div><h3>${product.name}</h3><p>Qty ${quantity} · ${rupees(product.price)} each</p></div><span class="cart-line-price">${rupees(product.price * quantity)}</span><button class="cart-line-remove" type="button" data-remove="${key}" aria-label="Remove ${product.name} from bag">Remove <span aria-hidden="true">×</span></button></div>`;
+      return `<div class="cart-line"><img src="${product.image}" alt="" /><div class="cart-line-copy"><h3>${product.name}</h3><p>${rupees(product.price)} each</p></div><span class="cart-line-price">${rupees(product.price * quantity)}</span><div class="cart-quantity" role="group" aria-label="${product.name} quantity"><button type="button" data-quantity="${key}" data-quantity-change="-1" aria-label="Decrease ${product.name} quantity" ${quantity === 1 ? 'disabled' : ''}>−</button><output aria-label="${product.name} quantity">${quantity}</output><button type="button" data-quantity="${key}" data-quantity-change="1" aria-label="Increase ${product.name} quantity">+</button></div><button class="cart-line-remove" type="button" data-remove="${key}" aria-label="Remove ${product.name} from bag">Remove <span aria-hidden="true">×</span></button></div>`;
     }).join('');
   }
 
@@ -178,11 +178,24 @@ function renderProductPage() {
   $('[data-detail-summary]').textContent = product.summary;
   $('[data-detail-format]').textContent = product.format;
   $('[data-detail-category]').textContent = product.category;
-  $('[data-detail-price]').textContent = rupees(product.price);
+  $$('[data-detail-price]').forEach((element) => { element.textContent = rupees(product.price); });
+  const stickyName = $('[data-sticky-name]');
+  if (stickyName) stickyName.textContent = product.name;
   detailImage.src = product.image;
   detailImage.alt = `${product.name} by Birla RootX, ${product.format}`;
   $('[data-detail-add]').dataset.product = Object.keys(products).find((key) => products[key] === product);
+  const stickyAdd = $('[data-sticky-add]');
+  if (stickyAdd) stickyAdd.dataset.product = $('[data-detail-add]').dataset.product;
   $('[data-pack-notes]').innerHTML = product.packNotes.map((note) => `<li>${note}</li>`).join('');
+  const highlights = $('[data-detail-highlights]');
+  if (highlights) highlights.innerHTML = product.packNotes.map((note) => `<li>${note}</li>`).join('');
+  const viewerImage = $('[data-viewer-image]');
+  if (viewerImage) {
+    viewerImage.src = product.image;
+    viewerImage.alt = detailImage.alt;
+    $('[data-viewer-name]').textContent = product.name;
+    $('[data-image-open]').setAttribute('aria-label', `View ${product.name} image`);
+  }
   const related = productList.filter((item) => item !== product);
   $('[data-related-products]').innerHTML = related.map((item) => `
     <a class="related-card" href="product.html?product=${item.slug}">
@@ -199,6 +212,50 @@ function renderProductPage() {
 }
 renderProductPage();
 renderBag();
+
+const imageViewer = $('#product-image-viewer');
+if (imageViewer && typeof imageViewer.showModal === 'function') {
+  const imageOpener = $('[data-image-open]');
+  const imageStage = $('[data-image-stage]');
+  const imageZoom = $('[data-image-zoom]');
+  let previousOverflow = '';
+  const resetImageZoom = () => {
+    imageStage.classList.remove('is-zoomed');
+    imageZoom.setAttribute('aria-pressed', 'false');
+    imageZoom.innerHTML = 'Zoom in <span aria-hidden="true">+</span>';
+    imageStage.scrollTop = 0;
+    imageStage.scrollLeft = 0;
+  };
+  imageOpener.addEventListener('click', () => {
+    resetImageZoom();
+    previousOverflow = document.body.style.overflow;
+    imageViewer.showModal();
+    document.body.classList.add('image-viewer-open');
+    document.body.style.overflow = 'hidden';
+    $('[data-image-close]').focus();
+  });
+  $('[data-image-close]').addEventListener('click', () => imageViewer.close());
+  imageViewer.addEventListener('close', () => {
+    document.body.classList.remove('image-viewer-open');
+    document.body.style.overflow = previousOverflow;
+    resetImageZoom();
+    imageOpener.focus();
+  });
+  imageViewer.addEventListener('click', (event) => {
+    if (event.target !== imageViewer) return;
+    const bounds = imageViewer.getBoundingClientRect();
+    if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) imageViewer.close();
+  });
+  imageZoom.addEventListener('click', () => {
+    const zoomed = imageStage.classList.toggle('is-zoomed');
+    imageZoom.setAttribute('aria-pressed', String(zoomed));
+    imageZoom.innerHTML = zoomed ? 'Fit image <span aria-hidden="true">−</span>' : 'Zoom in <span aria-hidden="true">+</span>';
+    imageStage.scrollLeft = zoomed ? Math.max(0, (imageStage.scrollWidth - imageStage.clientWidth) / 2) : 0;
+    imageStage.scrollTop = zoomed ? Math.max(0, (imageStage.scrollHeight - imageStage.clientHeight) / 2) : 0;
+  });
+} else if ($('[data-image-open]')) {
+  $('[data-image-open]').hidden = true;
+}
 
 function openBag() {
   syncBag();
@@ -247,6 +304,36 @@ document.addEventListener('visibilitychange', () => {
 });
 
 document.addEventListener('click', (event) => {
+  const quantityButton = event.target.closest('[data-quantity-change]');
+  if (quantityButton) {
+    const key = quantityButton.dataset.quantity;
+    const change = Number(quantityButton.dataset.quantityChange);
+    if (!Object.hasOwn(products, key) || (change !== -1 && change !== 1)) return;
+    loadBag();
+    const quantity = bag.get(key);
+    if (quantity === undefined) {
+      renderBag();
+      $('.cart-close')?.focus();
+      return;
+    }
+    const next = quantity + change;
+    if (!Number.isSafeInteger(next) || next < 1 || !Number.isSafeInteger(next * products[key].price)) return;
+    bag.set(key, next);
+    saveBag();
+    renderBag();
+    const updatedButton = $(`[data-quantity="${key}"][data-quantity-change="${change}"]`);
+    (updatedButton?.disabled ? $(`[data-quantity="${key}"][data-quantity-change="1"]`) : updatedButton)?.focus();
+    const toast = $('.toast');
+    if (toast) {
+      $('.toast b').textContent = 'Quantity updated';
+      $('[data-toast-copy]').textContent = `${products[key].name} · Qty ${next} · ${rupees(products[key].price * next)}`;
+      toast.classList.add('visible');
+      window.clearTimeout(window.birlaToastTimer);
+      window.birlaToastTimer = window.setTimeout(() => toast.classList.remove('visible'), 2800);
+    }
+    return;
+  }
+
   const removeButton = event.target.closest('.cart-line-remove');
   if (removeButton) {
     const key = removeButton.dataset.remove;
@@ -281,7 +368,7 @@ $('.bag-button').addEventListener('click', openBag);
 $('.cart-close').addEventListener('click', closeBag);
 $('.cart-backdrop').addEventListener('click', closeBag);
 $('.toast button').addEventListener('click', () => $('.toast').classList.remove('visible'));
-document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeBag(); });
+document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && document.body.classList.contains('cart-open')) closeBag(); });
 $('#cart-drawer').addEventListener('keydown', (event) => {
   if (event.key !== 'Tab') return;
   const focusable = $$('button:not([disabled]), a[href], input:not([disabled]), [tabindex]:not([tabindex="-1"])', $('#cart-drawer'));

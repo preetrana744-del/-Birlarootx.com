@@ -21,8 +21,8 @@
     <meta name="twitter:description" content="Explore a Birla RootX performance formula and its on-pack details." />
     <meta name="twitter:image" content="https://birlarootx.com/carbs-slayer.jpg" />
     <script id="product-structured-data" type="application/ld+json">{}</script>
-    <link rel="stylesheet" href="styles.css?v=cart-carousel-20261012" />
-    <link rel="stylesheet" href="product-detail.css" />
+    <link rel="stylesheet" href="styles.css?v=shop-ui-20261012" />
+    <link rel="stylesheet" href="product-detail.css?v=shop-ui-20261012" />
   </head>
   <body class="detail-body">
     <a class="skip-link" href="#main">Skip to content</a>
@@ -42,12 +42,14 @@
           <img data-detail-image src="carbs-slayer.jpg" alt="Birla RootX product pack" />
           <span class="detail-media-number" data-detail-number>01</span>
           <span class="detail-media-note">BIRLA ROOTX · PERFORMANCE SERIES</span>
+          <button class="detail-image-open" type="button" data-image-open aria-haspopup="dialog" aria-controls="product-image-viewer">View image <span aria-hidden="true">⤢</span></button>
         </div>
         <div class="detail-copy">
           <p class="eyebrow"><span data-detail-number>01</span> / THE PERFORMANCE SERIES</p>
           <p class="detail-type" data-detail-type>60 capsules</p>
           <h1 id="detail-title" data-detail-name>Carbs Slayer</h1>
           <p class="detail-summary" data-detail-summary></p>
+          <div class="detail-key-facts"><p>ON THE FRONT LABEL</p><ul data-detail-highlights></ul></div>
           <div class="detail-price-row"><span data-detail-price>₹1,999</span><small>Inclusive of applicable taxes at checkout</small></div>
           <button class="button button-dark detail-add-button" type="button" data-detail-add data-product="carbs">Add to cart <span>+</span></button>
           <p class="detail-order-note">Checkout is not connected yet. This page is a product preview.</p>
@@ -81,12 +83,22 @@
       </section>
     </main>
 
+    <dialog class="product-image-viewer" id="product-image-viewer" aria-labelledby="image-viewer-title">
+      <div class="image-viewer-head"><div><p>PRODUCT IMAGE</p><h2 id="image-viewer-title" data-viewer-name>Carbs Slayer</h2></div><div class="image-viewer-actions"><button type="button" data-image-zoom aria-pressed="false">Zoom in <span aria-hidden="true">+</span></button><button type="button" data-image-close aria-label="Close product image">×</button></div></div>
+      <div class="image-viewer-stage" data-image-stage tabindex="0" role="region" aria-label="Product image. Scroll to explore when zoomed."><img data-viewer-image src="carbs-slayer.jpg" alt="Birla RootX product pack" /></div>
+      <p class="image-viewer-help">Zoom in to explore the photo. Use the scroll area to move around; press Escape to close.</p>
+    </dialog>
+
+    <div class="mobile-purchase-bar" aria-label="Product cart actions">
+      <div class="mobile-purchase-copy"><small data-sticky-name>Carbs Slayer</small><strong data-detail-price>₹1,999</strong><span>Cart preview</span></div>
+      <button class="button button-dark" type="button" data-sticky-add data-product="carbs">Add to cart <span>+</span></button>
+    </div>
+
     <footer class="site-footer"><div class="footer-main"><a class="wordmark wordmark-footer" href="index.html#top"><span>BIRLA</span><strong>ROOTX</strong><i>®</i></a><div class="footer-line">ROOTED IN NATURE.<br />ENGINEERED FOR STRENGTH.</div><a class="footer-top-link" href="#top">BACK TO TOP <span>↑</span></a></div><div class="footer-bottom"><span>© 2026 BIRLA ROOTX</span><span>FOOD SUPPLEMENT · READ PRODUCT LABELS BEFORE USE</span><a href="https://birlarootx.com">BIRLAROOTX.COM ↗</a></div></footer>
 
     <div class="cart-backdrop" data-cart-close></div>
     <aside class="cart-drawer" id="cart-drawer" role="dialog" aria-modal="true" aria-label="Shopping bag" aria-hidden="true"><div class="cart-head"><div><p class="eyebrow">YOUR SELECTION</p><h2>Your bag <span class="cart-drawer-count">(0)</span></h2></div><button class="cart-close" type="button" aria-label="Close shopping bag">×</button></div><div class="cart-items"></div><div class="cart-empty">Your bag is waiting for a formula.</div><div class="cart-foot"><div><span>Subtotal</span><b class="cart-subtotal">₹0</b></div><p>Checkout can be connected to your store when you’re ready.</p><button class="button button-dark cart-checkout" type="button">Checkout setup needed</button></div></aside>
     <div class="toast" role="status" aria-live="polite"><span>✳</span><p><b>Added to cart</b><small data-toast-copy></small></p><button type="button" aria-label="Dismiss">×</button></div>
-    <script src="script.js?v=cart-carousel-20261012"></script>
+    <script src="script.js?v=shop-ui-20261012"></script>
   </body>
 </html>
-
