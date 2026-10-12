@@ -43,10 +43,15 @@ function loadBag() {
   try {
     const saved = JSON.parse(window.localStorage.getItem(CART_STORAGE_KEY) || '[]');
     if (!Array.isArray(saved)) return;
-    saved.forEach(([key, quantity]) => {
-      const qty = Number(quantity);
-      if (products[key] && Number.isFinite(qty) && qty > 0) bag.set(key, Math.floor(qty));
+    const latest = new Map();
+    saved.forEach((entry) => {
+      if (!Array.isArray(entry) || entry.length !== 2) return;
+      const [key, quantity] = entry;
+      const qty = Math.floor(Number(quantity));
+      if (Object.hasOwn(products, key) && Number.isSafeInteger(qty) && qty > 0) latest.set(key, qty);
     });
+    bag.clear();
+    latest.forEach((quantity, key) => bag.set(key, quantity));
   } catch (_) {}
 }
 
@@ -196,6 +201,7 @@ renderProductPage();
 renderBag();
 
 function openBag() {
+  syncBag();
   window.birlaPreviousFocus = document.activeElement;
   document.body.classList.add('cart-open');
   document.body.style.overflow = 'hidden';
@@ -211,39 +217,63 @@ function closeBag() {
   if (window.birlaPreviousFocus instanceof HTMLElement) window.birlaPreviousFocus.focus();
 }
 
+function syncBag() {
+  loadBag();
+  renderBag();
+}
+
+function showCartFeedback(product, isRemoving) {
+  const toast = $('.toast');
+  const toastCopy = $('[data-toast-copy]');
+  const toastTitle = $('.toast b');
+  if (toastTitle) toastTitle.textContent = isRemoving ? 'Removed from cart' : 'Added to cart';
+  if (toastCopy) toastCopy.textContent = `${product.name} · ${rupees(product.price)}`;
+  if (toast) {
+    toast.classList.remove('visible');
+    void toast.offsetWidth;
+    toast.classList.add('visible');
+    window.clearTimeout(window.birlaToastTimer);
+    window.birlaToastTimer = window.setTimeout(() => toast.classList.remove('visible'), 2800);
+  }
+}
+
+// Reconcile shared cart state when another tab changes it or a page is restored.
+window.addEventListener('storage', (event) => {
+  if (event.storageArea === window.localStorage && (event.key === CART_STORAGE_KEY || event.key === null)) syncBag();
+});
+window.addEventListener('pageshow', syncBag);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') syncBag();
+});
+
 document.addEventListener('click', (event) => {
+  const removeButton = event.target.closest('.cart-line-remove');
+  if (removeButton) {
+    const key = removeButton.dataset.remove;
+    const product = products[key];
+    if (!product) return;
+    loadBag();
+    bag.delete(key);
+    saveBag();
+    renderBag();
+    showCartFeedback(product, true);
+    ($('.cart-line-remove') || $('.cart-close'))?.focus();
+    return;
+  }
+
   const addButton = event.target.closest('[data-product]');
   if (addButton) {
     const key = addButton.dataset.product;
     const product = products[key];
     if (!product) return;
 
-    const isRemoving = bag.has(key);
+    loadBag();
+    const isRemoving = addButton.getAttribute('aria-pressed') === 'true';
     if (isRemoving) bag.delete(key);
-    else bag.set(key, 1);
+    else if (!bag.has(key)) bag.set(key, 1);
     saveBag();
     renderBag();
-
-    const toast = $('.toast');
-    const toastCopy = $('[data-toast-copy]');
-    const toastTitle = $('.toast b');
-    if (toastTitle) toastTitle.textContent = isRemoving ? 'Removed from cart' : 'Added to cart';
-    if (toastCopy) toastCopy.textContent = `${product.name} · ${rupees(product.price)}`;
-    if (toast) {
-      toast.classList.remove('visible');
-      void toast.offsetWidth;
-      toast.classList.add('visible');
-      window.clearTimeout(window.birlaToastTimer);
-      window.birlaToastTimer = window.setTimeout(() => toast.classList.remove('visible'), 2800);
-    }
-    return;
-  }
-
-  const removeButton = event.target.closest('.cart-line-remove');
-  if (removeButton) {
-    bag.delete(removeButton.dataset.remove);
-    saveBag();
-    renderBag();
+    showCartFeedback(product, isRemoving);
   }
 });
 
