@@ -74,8 +74,9 @@ function setSeoMetaContent(selector, attributes, content) {
 function updateCartButtons() {
   document.querySelectorAll('[data-product]').forEach((button) => {
     const isAdded = bag.has(button.dataset.product);
-    button.innerHTML = isAdded ? 'Added to cart <span>✓</span>' : 'Add to cart <span>+</span>';
+    button.innerHTML = isAdded ? 'Remove from cart <span>−</span>' : 'Add to cart <span>+</span>';
     button.setAttribute('aria-pressed', String(isAdded));
+    button.setAttribute('aria-label', `${isAdded ? 'Remove' : 'Add'} ${products[button.dataset.product].name} ${isAdded ? 'from' : 'to'} cart`);
   });
 }
 
@@ -98,7 +99,7 @@ function renderBag() {
   if (itemsNode) {
     itemsNode.innerHTML = entries.map(([key, quantity]) => {
       const product = products[key];
-      return `<div class="cart-line"><img src="${product.image}" alt="" /><div><h3>${product.name}</h3><p>Qty ${quantity} · ${rupees(product.price)} each</p></div><span class="cart-line-price">${rupees(product.price * quantity)}</span><button class="cart-line-remove" type="button" data-remove="${key}">Remove</button></div>`;
+      return `<div class="cart-line"><img src="${product.image}" alt="" /><div><h3>${product.name}</h3><p>Qty ${quantity} · ${rupees(product.price)} each</p></div><span class="cart-line-price">${rupees(product.price * quantity)}</span><button class="cart-line-remove" type="button" data-remove="${key}" aria-label="Remove ${product.name} from bag">Remove <span aria-hidden="true">×</span></button></div>`;
     }).join('');
   }
 
@@ -217,12 +218,16 @@ document.addEventListener('click', (event) => {
     const product = products[key];
     if (!product) return;
 
-    bag.set(key, (bag.get(key) || 0) + 1);
+    const isRemoving = bag.has(key);
+    if (isRemoving) bag.delete(key);
+    else bag.set(key, 1);
     saveBag();
     renderBag();
 
     const toast = $('.toast');
     const toastCopy = $('[data-toast-copy]');
+    const toastTitle = $('.toast b');
+    if (toastTitle) toastTitle.textContent = isRemoving ? 'Removed from cart' : 'Added to cart';
     if (toastCopy) toastCopy.textContent = `${product.name} · ${rupees(product.price)}`;
     if (toast) {
       toast.classList.remove('visible');
