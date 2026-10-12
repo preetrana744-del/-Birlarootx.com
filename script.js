@@ -294,59 +294,117 @@ $('#cart-drawer').addEventListener('keydown', (event) => {
 
 const featureImage = $('[data-hero-image]');
 if (featureImage) {
+  const featureLink = $('[data-hero-link]');
+  const featurePanel = featureLink.closest('.hero-visual') || featureLink;
+  const featureName = $('[data-hero-name]');
   let activeFeature = 0;
+  let gesture = null;
+  let suppressFeatureClickUntil = 0;
+
+  featurePanel.setAttribute('role', 'region');
+  featurePanel.setAttribute('aria-roledescription', 'carousel');
+  featurePanel.setAttribute('aria-label', 'Featured products');
+  featureName.setAttribute('aria-live', 'polite');
+  featureImage.draggable = false;
+  featureLink.draggable = false;
+
   const showFeature = (index) => {
     activeFeature = (index + productList.length) % productList.length;
     const product = productList[activeFeature];
     featureImage.src = product.image;
     featureImage.alt = `Birla RootX ${product.name} supplement pack`;
-    $('[data-hero-name]').textContent = product.name.toUpperCase();
+    featureName.textContent = product.name.toUpperCase();
     $('[data-hero-index]').textContent = `${product.number} — 05`;
     $('[data-hero-price]').textContent = rupees(product.price);
-    $('[data-hero-link]').href = `product.html?product=${product.slug}`;
+    featureLink.href = `product.html?product=${product.slug}`;
+    featureLink.setAttribute('aria-label', `Explore ${product.name}`);
     $$('[data-slide-to]').forEach((button, buttonIndex) => button.setAttribute('aria-current', String(buttonIndex === activeFeature)));
   };
   $('[data-slide-prev]').addEventListener('click', () => showFeature(activeFeature - 1));
   $('[data-slide-next]').addEventListener('click', () => showFeature(activeFeature + 1));
-  $('[data-slide-to]').forEach((button) => button.addEventListener('click', () => showFeature(Number(button.dataset.slideTo))));
+  $$('[data-slide-to]').forEach((button) => button.addEventListener('click', () => showFeature(Number(button.dataset.slideTo))));
 
-  const featureLink = $('[data-hero-link]');
-  let touchStartX = 0;
-  let touchStartY = 0;
-  let suppressFeatureClick = false;
+  const resetDrag = () => {
+    featurePanel.classList.remove('is-dragging');
+    featurePanel.style.removeProperty('--hero-drag-x');
+  };
+  const detectAxis = (deltaX, deltaY) => {
+    if (Math.max(Math.abs(deltaX), Math.abs(deltaY)) < 10) return null;
+    return Math.abs(deltaX) > Math.abs(deltaY) * 1.15 ? 'horizontal' : 'vertical';
+  };
 
-  featureLink.addEventListener('touchstart', (event) => {
-    const touch = event.changedTouches[0];
-    touchStartX = touch.clientX;
-    touchStartY = touch.clientY;
-  }, { passive: true });
+  featurePanel.addEventListener('pointerdown', (event) => {
+    if (!event.isPrimary || event.button !== 0 || gesture) return;
+    suppressFeatureClickUntil = 0;
+    if (event.target.closest('.hero-controls, button')) return;
+    gesture = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      axis: null
+    };
+  });
 
-  featureLink.addEventListener('touchend', (event) => {
-    const touch = event.changedTouches[0];
-    const deltaX = touch.clientX - touchStartX;
-    const deltaY = touch.clientY - touchStartY;
-    const isHorizontalSwipe = Math.abs(deltaX) >= 45 && Math.abs(deltaX) > Math.abs(deltaY) * 1.15;
+  window.addEventListener('pointermove', (event) => {
+    if (!gesture || gesture.pointerId !== event.pointerId) return;
+    const deltaX = event.clientX - gesture.startX;
+    const deltaY = event.clientY - gesture.startY;
+    if (!gesture.axis) gesture.axis = detectAxis(deltaX, deltaY);
+    if (gesture.axis !== 'horizontal') return;
+    if (event.cancelable) event.preventDefault();
+    if (!featurePanel.hasPointerCapture(event.pointerId)) featurePanel.setPointerCapture(event.pointerId);
+    featurePanel.classList.add('is-dragging');
+    const maxOffset = featurePanel.getBoundingClientRect().width * 0.025;
+    const offset = Math.max(-maxOffset, Math.min(maxOffset, deltaX * 0.18));
+    featurePanel.style.setProperty('--hero-drag-x', `${offset}px`);
+  });
 
-    if (!isHorizontalSwipe) return;
+  const finishGesture = (event, cancelled = false) => {
+    if (!gesture || gesture.pointerId !== event.pointerId) return;
+    const currentGesture = gesture;
+    gesture = null;
+    const deltaX = event.clientX - currentGesture.startX;
+    const deltaY = event.clientY - currentGesture.startY;
+    const axis = currentGesture.axis || detectAxis(deltaX, deltaY);
+    if (axis || cancelled) suppressFeatureClickUntil = performance.now() + 450;
+    resetDrag();
+    if (featurePanel.hasPointerCapture(event.pointerId)) featurePanel.releasePointerCapture(event.pointerId);
+    if (!cancelled && axis === 'horizontal' && Math.abs(deltaX) >= 45) {
+      showFeature(activeFeature + (deltaX < 0 ? 1 : -1));
+    }
+  };
+  window.addEventListener('pointerup', (event) => finishGesture(event));
+  window.addEventListener('pointercancel', (event) => finishGesture(event, true));
+  featurePanel.addEventListener('lostpointercapture', (event) => finishGesture(event, true));
+  window.addEventListener('blur', () => {
+    if (gesture) suppressFeatureClickUntil = performance.now() + 450;
+    const pointerId = gesture?.pointerId;
+    gesture = null;
+    resetDrag();
+    if (pointerId !== undefined && featurePanel.hasPointerCapture(pointerId)) featurePanel.releasePointerCapture(pointerId);
+  });
 
+  // A drag must never also follow the product link or trigger a half-panel click.
+  featurePanel.addEventListener('click', (event) => {
+    if (performance.now() >= suppressFeatureClickUntil || event.detail === 0) return;
     event.preventDefault();
-    suppressFeatureClick = true;
-    showFeature(activeFeature + (deltaX < 0 ? 1 : -1));
-    window.setTimeout(() => { suppressFeatureClick = false; }, 350);
-  }, { passive: false });
+    event.stopPropagation();
+  }, true);
 
   featureLink.addEventListener('click', (event) => {
-    if (suppressFeatureClick) {
-      event.preventDefault();
-      return;
-    }
-
+    if (event.defaultPrevented || event.detail === 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
     if (!window.matchMedia('(pointer: fine)').matches) return;
-
     event.preventDefault();
     const bounds = featureLink.getBoundingClientRect();
     const clickedLeftHalf = event.clientX - bounds.left < bounds.width / 2;
     showFeature(activeFeature + (clickedLeftHalf ? -1 : 1));
+  });
+
+  featurePanel.addEventListener('keydown', (event) => {
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+    event.preventDefault();
+    showFeature(activeFeature + (event.key === 'ArrowRight' ? 1 : -1));
   });
 }
 
