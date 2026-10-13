@@ -107,7 +107,7 @@ body.cart-open .toast{bottom:calc(170px + env(safe-area-inset-bottom))}
 .detail-body .transparency-mark{visibility:hidden}
 /* Printed product cartons share the existing image frames. */
 [data-box-product]{position:relative;isolation:isolate;touch-action:pan-y}
-[data-box-product]>img{display:none}
+[data-box-product]>img{display:none!important}
 .package-stage{position:absolute;inset:0;display:block;perspective:1100px;overflow:hidden;pointer-events:none;background:radial-gradient(ellipse at 50% 35%,#fff8,transparent 72%)}
 .package-shadow{position:absolute;left:20%;right:20%;top:79%;height:9%;border-radius:50%;background:#17281f24;filter:blur(9px);transform:scaleY(.55)}
 .package-position{position:absolute;left:50%;top:48%;width:var(--box-w);height:var(--box-h);transform:translate(-50%,-50%);transform-style:preserve-3d}
