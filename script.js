@@ -360,32 +360,52 @@ function renderLabelDetails(product) {
   const label = product.label;
   const panel = $('[data-label-details]');
   if (!label || !panel) return;
+
   const escapeText = (value) => String(value).replace(/[&<>"']/g, (character) => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
   }[character]));
-  const list = (items) => '<ul>' + items.map((item) => '<li>' + escapeText(item) + '</li>').join('') + '</ul>';
-  const section = (heading, items) => '<p class="eyebrow">' + escapeText(heading) + '</p>' + list(items);
+  const list = (items) => '<ul class="label-list">' + items.map((item) => '<li>' + escapeText(item) + '</li>').join('') + '</ul>';
+  const fact = (heading, value) => '<div class="label-fact"><dt>' + escapeText(heading) + '</dt><dd>' + escapeText(value) + '</dd></div>';
+  const meta = (heading, value) => '<div><dt>' + escapeText(heading) + '</dt><dd>' + escapeText(value) + '</dd></div>';
+  const disclosure = (heading, content) => '<details class="label-disclosure"><summary>' + escapeText(heading) + '</summary><div class="label-disclosure-content">' + content + '</div></details>';
+
+  const ingredientRows = label.ingredients.map(([name, amount]) => '<tr><th scope="row">' + escapeText(name) + '</th><td>' + escapeText(amount) + '</td></tr>').join('');
+  const nutrition = Array.isArray(label.nutrition) && label.nutrition.length
+    ? '<section class="label-panel"><h3 class="label-panel-heading">Nutrition information</h3>' +
+      '<table class="label-table" aria-label="Nutrition information per serving"><thead><tr><th scope="col">Nutrient</th><th scope="col">Per serving</th><th scope="col">%RDA</th></tr></thead><tbody>' +
+      label.nutrition.map(([name, amount]) => '<tr><th scope="row">' + escapeText(name) + '</th><td>' + escapeText(amount) + '</td><td>#</td></tr>').join('') +
+      '</tbody></table><p class="label-footnote">' + escapeText(labelShared.nutritionFootnote) + '</p></section>'
+    : '';
+
   panel.innerHTML =
-    '<p class="eyebrow">FULL LABEL ARTWORK</p><img class="label-artwork" src="' + escapeText(product.labelImage) + '" alt="' + escapeText(product.name) + ' complete product label" loading="lazy" />' +
-    section('Serving information', ['Serving size: ' + label.servingSize, 'Servings per container: ' + label.servings, ...(label.flavour ? ['Flavour: ' + label.flavour] : [])]) +
-    section('Active ingredients - amount per serving', label.ingredients.map(([name, amount]) => name + ': ' + amount)) +
-    section('Other ingredients', [label.otherIngredients]) +
-    section('Nutrition information - per serving', label.nutrition.map(([name, amount]) => name + ': ' + amount + ' (%RDA: #)').concat(labelShared.nutritionFootnote)) +
-    section('Directions printed on the label', [label.directions]) +
-    section('Storage and cautions', [labelShared.storage, ...labelShared.cautions]) +
-    section('Not recommended for', labelShared.notRecommendedFor) +
-    section('Pack and manufacturer details', [
-      'MRP: ' + rupees(label.mrp) + ' (inclusive of all taxes)',
-      labelShared.shelfLife,
-      'Manufactured and marketed by: ' + labelShared.manufacturer,
-      labelShared.manufacturerAddress,
-      'FSSAI licence number: ' + labelShared.license,
-      'Manufactured exclusively for: ' + labelShared.exclusivelyFor,
-      'Website: ' + labelShared.website,
-      'Email: ' + labelShared.email,
-      'Customer care: ' + labelShared.customerCare,
-      'Barcode: ' + label.barcode
-    ]);
+    '<dl class="label-facts">' +
+      fact('Serving size', label.servingSize) +
+      fact('Servings per container', label.servings) +
+      (label.flavour ? fact('Flavour', label.flavour) : '') +
+    '</dl>' +
+    '<section class="label-panel"><h3 class="label-panel-heading">Active ingredients</h3>' +
+      '<table class="label-table" aria-label="Active ingredients and amount per serving"><thead><tr><th scope="col">Ingredient</th><th scope="col">Amount per serving</th></tr></thead><tbody>' + ingredientRows + '</tbody></table>' +
+      '<p class="label-footnote"><strong>Other ingredients</strong><br />' + escapeText(label.otherIngredients) + '</p>' +
+    '</section>' +
+    nutrition +
+    '<section class="label-panel label-directions"><h3 class="label-panel-heading">Directions printed on the label</h3><p>' + escapeText(label.directions) + '</p></section>' +
+    '<div class="label-disclosures">' +
+      disclosure('Storage and cautions', list([labelShared.storage, ...labelShared.cautions])) +
+      disclosure('Not recommended for', list(labelShared.notRecommendedFor)) +
+      disclosure('Pack and manufacturer details', '<dl class="label-meta">' +
+        meta('MRP', rupees(label.mrp) + ' (inclusive of all taxes)') +
+        meta('Shelf life', labelShared.shelfLife) +
+        meta('Manufactured and marketed by', labelShared.manufacturer) +
+        meta('Manufacturer address', labelShared.manufacturerAddress) +
+        meta('FSSAI licence number', labelShared.license) +
+        meta('Manufactured exclusively for', labelShared.exclusivelyFor) +
+        meta('Website', labelShared.website) +
+        meta('Email', labelShared.email) +
+        meta('Customer care', labelShared.customerCare) +
+        meta('Barcode', label.barcode) +
+      '</dl>') +
+      disclosure('Full label artwork', '<img class="label-artwork" src="' + escapeText(product.labelImage) + '" alt="' + escapeText(product.name) + ' complete product label" loading="lazy" />') +
+    '</div>';
 }
 
 function renderProductPage() {
@@ -448,7 +468,6 @@ function renderProductPage() {
   }
 
   page.dataset.tone = product.tone;
-  $$('[data-detail-number]').forEach((element) => { element.textContent = product.number; });
   $$('[data-detail-name]').forEach((element) => { element.textContent = product.name; });
   $('[data-detail-type]').textContent = product.type;
   $('[data-detail-summary]').textContent = product.summary;
@@ -476,7 +495,7 @@ function renderProductPage() {
   $('[data-related-products]').innerHTML = related.map((item) => `
     <a class="related-card" href="product.html?product=${item.slug}">
       <span class="related-image related-image-${item.tone}"><img src="${item.image}" alt="" loading="lazy" /></span>
-      <span class="related-card-copy"><span>${item.number} / BIRLA ROOTX</span><b>${item.name}</b><i>Explore</i></span>
+      <span class="related-card-copy"><span>BIRLA ROOTX</span><b>${item.name}</b><i>Explore</i></span>
     </a>`).join('');
 
   const previous = productList[(productIndex + productList.length - 1) % productList.length];
@@ -677,7 +696,6 @@ if (featureImage) {
     featureImage.src = product.image;
     featureImage.alt = `Birla RootX ${product.name} supplement pack`;
     featureName.textContent = product.name.toUpperCase();
-    $('[data-hero-index]').textContent = `${product.number} — 05`;
     $('[data-hero-price]').textContent = rupees(product.price);
     featureLink.href = `product.html?product=${product.slug}`;
     featureLink.setAttribute('aria-label', `Explore ${product.name}`);
