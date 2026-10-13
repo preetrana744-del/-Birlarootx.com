@@ -200,7 +200,7 @@ function renderProductPage() {
   $('[data-related-products]').innerHTML = related.map((item) => `
     <a class="related-card" href="product.html?product=${item.slug}">
       <span class="related-image related-image-${item.tone}"><img src="${item.image}" alt="" loading="lazy" /></span>
-      <span class="related-card-copy"><span>${item.number} / BIRLA ROOTX</span><b>${item.name}</b><i>Explore ↗</i></span>
+      <span class="related-card-copy"><span>${item.number} / BIRLA ROOTX</span><b>${item.name}</b><i>Explore</i></span>
     </a>`).join('');
 
   const previous = productList[(productIndex + productList.length - 1) % productList.length];
