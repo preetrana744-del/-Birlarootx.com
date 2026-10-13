@@ -105,3 +105,38 @@ body.cart-open .toast{bottom:calc(170px + env(safe-area-inset-bottom))}
 .hero-arrow{display:none}
 .detail-body .pack-note-card li::before,.detail-body .detail-key-facts li::before{content:none}
 .detail-body .transparency-mark{visibility:hidden}
+
+
+/* Original label artwork on the reverse of the existing product media. */
+.product-media{position:relative;aspect-ratio:1;overflow:hidden;border-radius:5px;perspective:900px}
+.product-media-front,.product-media-back{height:100%}
+.product-media .product-image{height:100%;aspect-ratio:auto}
+[data-label-front][hidden],[data-label-back][hidden]{display:none!important}
+.label-toggle,.label-read-button,.detail-label-toggle{min-height:40px;padding:8px 11px;border:1px solid var(--line);border-radius:4px;background:#fffdf6f2;color:var(--ink);font:8px var(--mono);letter-spacing:.03em;text-transform:uppercase}
+.product-media-front>.label-toggle{position:absolute;right:10px;top:10px}
+.product-media-back{display:flex;flex-direction:column;justify-content:space-between;gap:12px;padding:12px;background:var(--white)}
+.label-back-head{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--muted);font:7px var(--mono);letter-spacing:.04em}
+.label-back-head .label-toggle{flex-shrink:0;min-height:36px;font-size:7px;padding:7px 9px}
+.product-media-back>img{display:block;width:100%;height:auto;max-height:calc(100% - 100px);object-fit:contain}
+.label-read-button{align-self:stretch;background:#edf1e3}
+.label-toggle:hover,.label-read-button:hover,.detail-label-toggle:hover{background:#e8edd9}
+.is-showing-label>[data-label-back]{animation:label-reveal .24s ease-out}
+@keyframes label-reveal{from{opacity:.5;transform:rotateY(-12deg)}to{opacity:1;transform:rotateY(0)}}
+.label-toggle:focus-visible,.label-read-button:focus-visible,.detail-label-toggle:focus-visible,.label-artwork-open:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.label-artwork-open{display:block;width:100%;padding:6px;border:1px solid var(--line);border-radius:4px;background:var(--paper);cursor:zoom-in}
+.label-artwork-open img{display:block;width:100%;height:auto}
+.label-artwork-open+.label-read-button{margin-top:10px;width:100%}
+.label-viewer{width:min(1100px,calc(100% - 32px));max-width:none;max-height:calc(100dvh - 32px);padding:20px;border:1px solid var(--line);border-radius:8px;background:var(--white);color:var(--ink);box-shadow:0 24px 90px #17281f40}
+.label-viewer::backdrop{background:#17281fbd}
+.label-viewer-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}
+.label-viewer-head p{margin:0 0 6px;color:var(--muted);font:8px var(--mono);letter-spacing:.08em}
+.label-viewer-head h2{margin:0;font-size:21px;letter-spacing:-.04em}
+.label-viewer-actions{display:flex;gap:6px;flex-shrink:0}
+.label-viewer-actions button{min-height:44px;padding:0 12px;border:1px solid var(--line);border-radius:4px;background:#e8edd9;color:var(--ink);font:9px var(--mono)}
+.label-viewer-stage{max-height:min(65dvh,640px);overflow:auto;overscroll-behavior:contain;border:1px solid var(--line);border-radius:4px;background:var(--paper)}
+.label-viewer-stage img{display:block;width:100%;height:auto;max-width:none}
+.label-viewer-stage.is-zoomed img{width:max(100%,var(--label-zoom-width,2400px))}
+.label-viewer-help{margin:12px 0 0;color:var(--muted);font-size:11px;line-height:1.5}
+.label-viewer-actions button:focus-visible,.label-viewer-stage:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+@media(max-width:620px){.product-media{aspect-ratio:.88}.product-media-front>.label-toggle{right:7px;top:7px;padding:7px 8px;min-height:34px;font-size:6px}.product-media-back{padding:8px;gap:8px}.label-back-head{align-items:flex-start;flex-direction:column;gap:6px;font-size:6px}.label-back-head .label-toggle{align-self:flex-end;font-size:6px;min-height:32px}.product-media-back>.label-read-button{font-size:6px;min-height:38px}.product-media-back>img{max-height:calc(100% - 110px)}.label-viewer{padding:14px}.label-viewer-head{gap:8px;align-items:flex-start}.label-viewer-head h2{font-size:17px;max-width:165px}.label-viewer-actions button{padding:0 9px;font-size:8px}.label-viewer-help{font-size:10px}}
+@media(prefers-reduced-motion:reduce){.is-showing-label>[data-label-back]{animation:none}}
