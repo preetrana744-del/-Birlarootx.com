@@ -1,6 +1,6 @@
 # BirlaRootX website
 
-Static landing page for the five Birla RootX products. All are priced at ₹1,999. Prepared for GitHub Pages and `Birlarootx.com`.
+Static landing page for the five Birla RootX products. Label MRPs are ₹2,499 or ₹2,999, inclusive of all taxes. Prepared for GitHub Pages and `Birlarootx.com`.
 
 ## Publish with GitHub Pages
 
@@ -25,7 +25,7 @@ Optionally, add `www.Birlarootx.com` as a `CNAME` record pointing to `<your-gith
 - `index.html` — page structure and copy
 - `styles.css` — responsive visual design
 - `script.js` — shopping bag preview and menu interactions
-- Five product JPGs — Carbs Slayer, Jacked Pre-Workout, Spilan Test, Epic Burn Pro, and Growth Factor; each is ₹1,999
+- Five product JPGs — Carbs Slayer, Jacked Pre-Workout, Spilan Test, Epic Burn Pro, and Growth Factor; label MRPs range from ₹2,499 to ₹2,999
 - `CNAME` — GitHub Pages custom domain
 - `.github/workflows/deploy.yml` — deploys the site automatically on each push to `main`
 
