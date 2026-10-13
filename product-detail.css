@@ -124,6 +124,5 @@
 .pack-note-card,.transparency-note,.detail-callout{border-radius:6px}.pack-note-card{box-shadow:0 8px 25px #17281f05}.transparency-note{background:#f8f9ef}.detail-callout{padding:25px}
 .related-card{padding:10px;border:1px solid var(--line);border-radius:7px;background:var(--white);transition:box-shadow .25s}.related-card:hover{box-shadow:0 12px 30px #17281f12}.related-image{border-radius:4px}.related-card-copy{padding:18px 4px 8px}
 @media(max-width:620px){.detail-breadcrumb{padding-top:20px;padding-bottom:20px}.detail-media{border-top-left-radius:65px}.detail-copy h1{font-size:clamp(48px,13vw,68px)}.detail-mini-facts{padding:18px}.related-card{padding:7px}.related-card-copy{padding:14px 2px 5px}.detail-callout{padding:19px}}
-.detail-media .package-stage{perspective:1400px}
-.detail-media>.detail-media-number,.detail-media>.detail-media-note,.detail-media>.detail-image-open{z-index:2}
+
 .label-artwork{display:block;width:100%;height:auto;margin:0 0 26px}
