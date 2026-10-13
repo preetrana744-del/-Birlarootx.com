@@ -8,23 +8,23 @@ const products = {
   },
   jacked: {
     name: 'Jacked Pre-Workout', slug: 'jacked-pre-workout', price: 2999, image: 'jacked-pre-workout.jpg', number: '02',
-    type: '40 concentrated scoops', format: '40 ultra-concentrated scoops', category: 'Dietary supplement',
+    type: '40 ultra-concentrated scoops', format: '40 ultra-concentrated scoops', category: 'Dietary supplement',
     summary: "Blue Raspberry pre-workout with 40 servings per container. Each 5 g scoop lists 100 mg natural caffeine, 2 g L Arginine Hydrochloride, 2 g L Citrulline Malate, Theobroma Cacao Extract and Bacopa Monnieri Extract.",
-    packNotes: ['Pre-workout formula', 'Training matrix · advance formula', '40 ultra-concentrated scoops'],
+    packNotes: ['The ultimate pre-workout', 'Training matrix · advance formula', '40 ultra-concentrated scoops'],
     tone: 'purple'
   },
   spilan: {
     name: 'Spilan Test', slug: 'spilan-test', price: 2999, image: 'spilan-test.jpg', number: '03',
     type: '60 capsules · Featuring SA3X™', format: '60 capsules', category: 'Health supplement',
     summary: "A 60-capsule health supplement featuring SA3X on the front label. Each label serving contains 500 mg Akarkara Extract in a vegetable cellulose capsule.",
-    packNotes: ['Featuring SA3X™', 'Specialised extract', '60 capsules'],
+    packNotes: ['Featuring SA3X™', 'Specialised ultra potent extract', '60 capsules'],
     tone: 'sage'
   },
   epic: {
     name: 'Epic Burn Pro', slug: 'epic-burn-pro', price: 2499, image: 'epic-burn-pro.jpg', number: '04',
     type: '60 capsules · Thermogenic formula', format: '60 capsules', category: 'Nutraceutical',
     summary: "A 60-capsule nutraceutical labeled as a thermogenic formula. Its ingredient panel lists natural caffeine, Theobroma Cacao Extract, Dandelion root extract and Coleus Forskohlii Extract.",
-    packNotes: ['Thermogenic formula', '60 capsules', 'Dietary supplement'],
+    packNotes: ['Super thermogenic', '60 capsules', 'Nutraceutical'],
     tone: 'rose'
   },
   growth: {
