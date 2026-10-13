@@ -104,3 +104,4 @@ body.cart-open .toast{bottom:calc(170px + env(safe-area-inset-bottom))}
 /* Remove arrow controls and decorative starburst bullets. */
 .hero-arrow{display:none}
 .detail-body .pack-note-card li::before,.detail-body .detail-key-facts li::before{content:none}
+.detail-body .transparency-mark{visibility:hidden}
