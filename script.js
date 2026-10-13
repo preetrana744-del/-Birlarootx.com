@@ -365,10 +365,9 @@ function renderLabelDetails(product) {
   }[character]));
   const list = (items) => '<ul>' + items.map((item) => '<li>' + escapeText(item) + '</li>').join('') + '</ul>';
   const section = (heading, items) => '<p class="eyebrow">' + escapeText(heading) + '</p>' + list(items);
-  const key = Object.keys(products).find((item) => products[item] === product);
   panel.innerHTML =
-    '<p class="eyebrow">FULL LABEL ARTWORK</p><button class="label-artwork-open" type="button" data-label-open="' + key + '" aria-haspopup="dialog" aria-controls="label-viewer" aria-label="Read ' + escapeText(product.name) + ' full label"><img src="' + escapeText(product.labelImage) + '" alt="' + escapeText(product.name) + ' complete product label" loading="lazy" /></button><button class="label-read-button" type="button" data-label-open="' + key + '" aria-haspopup="dialog" aria-controls="label-viewer">Read full label</button>' +
-    section('Serving information' , ['Serving size: ' + label.servingSize, 'Servings per container: ' + label.servings, ...(label.flavour ? ['Flavour: ' + label.flavour] : [])]) +
+    '<p class="eyebrow">FULL LABEL ARTWORK</p><img class="label-artwork" src="' + escapeText(product.labelImage) + '" alt="' + escapeText(product.name) + ' complete product label" loading="lazy" />' +
+    section('Serving information', ['Serving size: ' + label.servingSize, 'Servings per container: ' + label.servings, ...(label.flavour ? ['Flavour: ' + label.flavour] : [])]) +
     section('Active ingredients - amount per serving', label.ingredients.map(([name, amount]) => name + ': ' + amount)) +
     section('Other ingredients', [label.otherIngredients]) +
     section('Nutrition information - per serving', label.nutrition.map(([name, amount]) => name + ': ' + amount + ' (%RDA: #)').concat(labelShared.nutritionFootnote)) +
@@ -449,6 +448,8 @@ function renderProductPage() {
   }
 
   page.dataset.tone = product.tone;
+  $('[data-detail-media]').dataset.boxProduct = Object.keys(products).find((key) => products[key] === product);
+  $('[data-detail-media]').setAttribute('aria-label', `${product.name} 3D product box. Use left and right arrow keys to rotate.`);
   $$('[data-detail-number]').forEach((element) => { element.textContent = product.number; });
   $$('[data-detail-name]').forEach((element) => { element.textContent = product.name; });
   $('[data-detail-type]').textContent = product.type;
@@ -460,15 +461,6 @@ function renderProductPage() {
   if (stickyName) stickyName.textContent = product.name;
   detailImage.src = product.image;
   detailImage.alt = `${product.name} by Birla RootX, ${product.format}`;
-  const media = $('[data-detail-media]');
-  media.dataset.productLabel = Object.keys(products).find((key) => products[key] === product);
-  const detailLabel = $('[data-detail-label]');
-  if (detailLabel) {
-    detailLabel.src = product.labelImage;
-    detailLabel.alt = `${product.name} complete product label`;
-  }
-  $('[data-label-front] [data-label-toggle]')?.setAttribute('aria-label', `View ${product.name} label`);
-  $('[data-label-back] [data-label-toggle]')?.setAttribute('aria-label', `Show ${product.name} product image`);
   $('[data-detail-add]').dataset.product = Object.keys(products).find((key) => products[key] === product);
   const stickyAdd = $('[data-sticky-add]');
   if (stickyAdd) stickyAdd.dataset.product = $('[data-detail-add]').dataset.product;
@@ -485,7 +477,7 @@ function renderProductPage() {
   const related = productList.filter((item) => item !== product);
   $('[data-related-products]').innerHTML = related.map((item) => `
     <a class="related-card" href="product.html?product=${item.slug}">
-      <span class="related-image related-image-${item.tone}"><img src="${item.image}" alt="" loading="lazy" /></span>
+      <span class="related-image related-image-${item.tone}" data-box-product="${Object.keys(products).find((key) => products[key] === item)}"><img src="${item.image}" alt="" loading="lazy" /></span>
       <span class="related-card-copy"><span>${item.number} / BIRLA ROOTX</span><b>${item.name}</b><i>Explore</i></span>
     </a>`).join('');
 
@@ -789,77 +781,110 @@ $$('.mobile-menu a').forEach((link) => link.addEventListener('click', () => {
   $('.site-header').classList.remove('menu-open');
   $('.menu-button').setAttribute('aria-expanded', 'false');
 }));
-
-
-// Product card backs show the original supplied label without changing product links.
-const labelViewer = $('#label-viewer');
-const labelStage = $('[data-label-stage]');
-const labelZoom = $('[data-label-zoom]');
-const labelViewerImage = $('[data-label-viewer-image]');
-labelViewerImage?.addEventListener('load', () => {
-  labelStage.style.setProperty('--label-zoom-width', `${labelViewerImage.naturalWidth || 2400}px`);
-});
-let labelPreviousFocus = null;
-let labelPreviousOverflow = '';
-function resetLabelZoom() {
-  if (!labelStage || !labelZoom) return;
-  labelStage.classList.remove('is-zoomed');
-  labelZoom.setAttribute('aria-pressed', 'false');
-  labelZoom.textContent = 'Zoom in';
-  labelStage.scrollTop = 0;
-  labelStage.scrollLeft = 0;
-}
-document.addEventListener('click', (event) => {
-  const toggle = event.target.closest('[data-label-toggle]');
-  if (toggle) {
-    const media = toggle.closest('[data-label-media]');
-    const front = $('[data-label-front]', media);
-    const back = $('[data-label-back]', media);
-    const showLabel = back.hidden;
-    front.hidden = showLabel;
-    back.hidden = !showLabel;
-    media.classList.toggle('is-showing-label', showLabel);
-    $$('[data-label-toggle]', media).forEach((button) => button.setAttribute('aria-expanded', String(showLabel)));
-    $('[data-label-toggle]', showLabel ? back : front).focus();
-    return;
-  }
-  const opener = event.target.closest('[data-label-open]');
-  if (!opener) return;
-  const key = opener.dataset.labelOpen || opener.closest('[data-label-media]')?.dataset.productLabel;
+// Apply the supplied wrap artwork directly to the front, rear and side of each carton.
+const boxArtwork = {
+  carbs: { front: [.33, .70], back: [.035, .317], side: [.728, .958], color: '#72781c' },
+  jacked: { front: [.30, .72], back: [.077, .291], side: [.763, .926], color: '#756594' },
+  spilan: { front: [.387, .673], back: [.043, .345], side: [.718, .959], color: '#587b42' },
+  epic: { front: [.33, .69], back: [.037, .305], side: [.72, .968], color: '#a64037' },
+  growth: { front: [.35, .695], back: [.038, .328], side: [.72, .97], color: '#567d92' }
+};
+const boxMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+const boxStates = [];
+const boxVisibility = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => {
+  entries.forEach((entry) => { const state = boxStates.find((item) => item.frame === entry.target); if (state) state.visible = entry.isIntersecting; });
+}, { threshold: .1 }) : null;
+$$('[data-box-product]').forEach((frame) => {
+  const key = frame.dataset.boxProduct;
   const product = products[key];
-  if (!product) return;
-  if (!labelViewer || typeof labelViewer.showModal !== 'function') {
-    window.open(product.labelImage, '_blank', 'noopener');
-    return;
-  }
-  labelPreviousFocus = opener;
-  labelPreviousOverflow = document.body.style.overflow;
-  resetLabelZoom();
-  labelStage.style.setProperty('--label-zoom-width', '2400px');
-  $('[data-label-viewer-image]').src = product.labelImage;
-  $('[data-label-viewer-image]').alt = `${product.name} complete product label`;
-  $('[data-label-viewer-name]').textContent = `${product.name} label`;
-  labelViewer.showModal();
-  document.body.style.overflow = 'hidden';
-  $('[data-label-close]').focus();
+  const artwork = boxArtwork[key];
+  if (!product || !artwork) return;
+  const ratio = key === 'jacked' ? 4784 / 1063 : 2747 / 886;
+  const print = (crop) => {
+    const width = crop[1] - crop[0];
+    return `<span class="package-print" style="--print-ratio:${ratio * width};--print-left:${-crop[0] / width * 100}%;--print-width:${100 / width}%"><img src="${product.labelImage}" alt="" loading="lazy" draggable="false" /></span>`;
+  };
+  const stage = document.createElement('span');
+  stage.className = 'package-stage';
+  stage.setAttribute('aria-hidden', 'true');
+  stage.style.setProperty('--box-color', artwork.color);
+  stage.innerHTML = `<span class="package-shadow"></span><span class="package-position"><span class="package-box"><span class="package-face package-front">${print(artwork.front)}</span><span class="package-face package-back">${print(artwork.back)}</span><span class="package-face package-left">${print(artwork.side)}</span><span class="package-face package-right"></span><span class="package-face package-top"></span><span class="package-face package-bottom"></span></span></span>`;
+  frame.append(stage);
+  const box = stage.querySelector('.package-box');
+  const state = { frame, box, angle: -22, hover: false, focus: false, visible: !boxVisibility, drag: null, holdUntil: 0, suppressClick: false };
+  boxStates.push(state);
+  boxVisibility?.observe(frame);
+  const size = () => {
+    const bounds = frame.getBoundingClientRect();
+    const width = Math.min(bounds.width * .52, bounds.height * .57);
+    stage.style.setProperty('--box-w', `${width}px`);
+    stage.style.setProperty('--box-h', `${width * 1.2}px`);
+    stage.style.setProperty('--box-d', `${width * .34}px`);
+  };
+  size();
+  if ('ResizeObserver' in window) new ResizeObserver(size).observe(frame);
+  else window.addEventListener('resize', size);
+  const paint = () => { box.style.transform = `rotateX(-7deg) rotateY(${state.angle}deg)`; };
+  frame.addEventListener('pointerenter', (event) => { if (event.pointerType === 'mouse') state.hover = true; });
+  frame.addEventListener('pointerleave', () => { state.hover = false; });
+  const focusTarget = frame.closest('a') || frame;
+  focusTarget.addEventListener('focusin', () => { state.focus = true; });
+  focusTarget.addEventListener('focusout', () => { state.focus = false; });
+  frame.addEventListener('dragstart', (event) => { event.preventDefault(); });
+  frame.addEventListener('pointerdown', (event) => {
+    if (event.button !== 0 || event.target.closest('button')) return;
+    state.drag = { id: event.pointerId, x: event.clientX, y: event.clientY, angle: state.angle, active: false };
+    state.suppressClick = false;
+  });
+  frame.addEventListener('pointermove', (event) => {
+    const drag = state.drag;
+    if (!drag || drag.id !== event.pointerId) return;
+    const dx = event.clientX - drag.x;
+    const dy = event.clientY - drag.y;
+    if (!drag.active) {
+      if (Math.abs(dy) > 8 && Math.abs(dy) > Math.abs(dx)) { state.drag = null; return; }
+      if (Math.abs(dx) < 8 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
+      drag.active = true;
+      frame.setPointerCapture(event.pointerId);
+      frame.classList.add('is-box-dragging');
+    }
+    event.preventDefault();
+    state.angle = drag.angle + dx * .8;
+    state.suppressClick = true;
+    paint();
+  });
+  const finish = (event) => {
+    if (!state.drag || state.drag.id !== event.pointerId) return;
+    const wasDragged = state.drag.active;
+    if (frame.hasPointerCapture(event.pointerId)) frame.releasePointerCapture(event.pointerId);
+    state.drag = null;
+    frame.classList.remove('is-box-dragging');
+    if (wasDragged) state.holdUntil = performance.now() + 8000;
+  };
+  frame.addEventListener('pointerup', finish);
+  frame.addEventListener('pointercancel', (event) => { finish(event); state.suppressClick = false; });
+  frame.addEventListener('click', (event) => {
+    if (state.suppressClick && event.detail !== 0) { event.preventDefault(); event.stopPropagation(); }
+    state.suppressClick = false;
+  }, true);
+  focusTarget.addEventListener('keydown', (event) => {
+    if (event.target.closest('button') || !['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+    event.preventDefault();
+    state.angle += event.key === 'ArrowRight' ? 30 : -30;
+    paint();
+  });
 });
-if (labelViewer) {
-  $('[data-label-close]').addEventListener('click', () => labelViewer.close());
-  labelViewer.addEventListener('close', () => {
-    document.body.style.overflow = labelPreviousOverflow;
-    resetLabelZoom();
-    if (labelPreviousFocus?.isConnected) labelPreviousFocus.focus();
-  });
-  labelViewer.addEventListener('click', (event) => {
-    if (event.target !== labelViewer) return;
-    const bounds = labelViewer.getBoundingClientRect();
-    if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) labelViewer.close();
-  });
-  labelZoom.addEventListener('click', () => {
-    const zoomed = labelStage.classList.toggle('is-zoomed');
-    labelZoom.setAttribute('aria-pressed', String(zoomed));
-    labelZoom.textContent = zoomed ? 'Fit label' : 'Zoom in';
-    labelStage.scrollTop = 0;
-    labelStage.scrollLeft = 0;
-  });
+let boxPreviousTime;
+function animateBoxes(time) {
+  const elapsed = boxPreviousTime === undefined ? 0 : Math.min((time - boxPreviousTime) / 1000, .05);
+  boxPreviousTime = time;
+  if (!boxMotion.matches && !document.hidden) {
+    boxStates.forEach((state) => {
+      if (!state.visible || state.hover || state.focus || state.drag || time < state.holdUntil) return;
+      state.angle = (state.angle + elapsed * 14) % 360;
+      state.box.style.transform = `rotateX(-7deg) rotateY(${state.angle}deg)`;
+    });
+  }
+  requestAnimationFrame(animateBoxes);
 }
+requestAnimationFrame(animateBoxes);
