@@ -2,35 +2,35 @@ const products = {
   carbs: {
     name: 'Carbs Slayer', slug: 'carbs-slayer', price: 2499, image: 'carbs-slayer.jpg', number: '01',
     type: '60 capsules · Partitioning complex', format: '60 capsules', category: 'Health supplement',
-    summary: 'The supplied front label describes Carbs Slayer as a nutrient partitioning complex. The pack shown contains 60 capsules.',
+    summary: "A 60-capsule health supplement labeled as a nutrient partitioning complex. Each label serving contains 290 mg Berberis Aristata Extract (Berberine Hcl 98%) and 10 mg Banaba.",
     packNotes: ['Cutting edge nutrient partitioning complex', '60 capsules', 'Health supplement'],
     tone: 'olive'
   },
   jacked: {
     name: 'Jacked Pre-Workout', slug: 'jacked-pre-workout', price: 2999, image: 'jacked-pre-workout.jpg', number: '02',
     type: '40 concentrated scoops', format: '40 ultra-concentrated scoops', category: 'Dietary supplement',
-    summary: 'A pre-workout product presented in a concentrated scoop format. Its front label names a training matrix and an advance formula.',
+    summary: "Blue Raspberry pre-workout with 40 servings per container. Each 5 g scoop lists 100 mg natural caffeine, 2 g L Arginine Hydrochloride, 2 g L Citrulline Malate, Theobroma Cacao Extract and Bacopa Monnieri Extract.",
     packNotes: ['Pre-workout formula', 'Training matrix · advance formula', '40 ultra-concentrated scoops'],
     tone: 'purple'
   },
   spilan: {
     name: 'Spilan Test', slug: 'spilan-test', price: 2999, image: 'spilan-test.jpg', number: '03',
     type: '60 capsules · Featuring SA3X™', format: '60 capsules', category: 'Health supplement',
-    summary: 'The supplied front label names SA3X™ and describes a specialised extract. The pack shown contains 60 capsules.',
+    summary: "A 60-capsule health supplement featuring SA3X on the front label. Each label serving contains 500 mg Akarkara Extract in a vegetable cellulose capsule.",
     packNotes: ['Featuring SA3X™', 'Specialised extract', '60 capsules'],
     tone: 'sage'
   },
   epic: {
     name: 'Epic Burn Pro', slug: 'epic-burn-pro', price: 2499, image: 'epic-burn-pro.jpg', number: '04',
     type: '60 capsules · Thermogenic formula', format: '60 capsules', category: 'Nutraceutical',
-    summary: 'Epic Burn Pro is presented on its front label as a thermogenic formula. The pack shown contains 60 capsules.',
+    summary: "A 60-capsule nutraceutical labeled as a thermogenic formula. Its ingredient panel lists natural caffeine, Theobroma Cacao Extract, Dandelion root extract and Coleus Forskohlii Extract.",
     packNotes: ['Thermogenic formula', '60 capsules', 'Dietary supplement'],
     tone: 'rose'
   },
   growth: {
     name: 'Growth Factor', slug: 'growth-factor', price: 2499, image: 'growth-factor.jpg', number: '05',
     type: '60 capsules · Sleep support formula', format: '60 capsules', category: 'Health supplement',
-    summary: 'The supplied front label identifies Growth Factor as a sleep support formula. The pack shown contains 60 capsules.',
+    summary: "A 60-capsule health supplement labeled as a sleep support formula. Each label serving contains 375 mg Mucuna Pruriens Seed Extract (Velvet Bean) and 375 mg Chlorophytum Borivilianum Extract.",
     packNotes: ['Sleep support formula', '60 capsules', 'Health supplement'],
     tone: 'blue'
   }
@@ -277,7 +277,7 @@ const productLabels = {
     "barcode": "8937636690720"
   }
 };
-Object.entries(productLabels).forEach(([key, label]) => { products[key].label = label; });
+Object.entries(productLabels).forEach(([key, label]) => { products[key].label = label; products[key].labelImage = products[key].slug + '-label.svg'; });
 window.BIRLAROOTX_PRODUCTS = products;
 const CART_STORAGE_KEY = 'birlarootx-cart-v1';
 const bag = new Map();
@@ -365,8 +365,10 @@ function renderLabelDetails(product) {
   }[character]));
   const list = (items) => '<ul>' + items.map((item) => '<li>' + escapeText(item) + '</li>').join('') + '</ul>';
   const section = (heading, items) => '<p class="eyebrow">' + escapeText(heading) + '</p>' + list(items);
+  const key = Object.keys(products).find((item) => products[item] === product);
   panel.innerHTML =
-    section('Serving information', ['Serving size: ' + label.servingSize, 'Servings per container: ' + label.servings, ...(label.flavour ? ['Flavour: ' + label.flavour] : [])]) +
+    '<p class="eyebrow">FULL LABEL ARTWORK</p><button class="label-artwork-open" type="button" data-label-open="' + key + '" aria-haspopup="dialog" aria-controls="label-viewer" aria-label="Read ' + escapeText(product.name) + ' full label"><img src="' + escapeText(product.labelImage) + '" alt="' + escapeText(product.name) + ' complete product label" loading="lazy" /></button><button class="label-read-button" type="button" data-label-open="' + key + '" aria-haspopup="dialog" aria-controls="label-viewer">Read full label</button>' +
+    section('Serving information' , ['Serving size: ' + label.servingSize, 'Servings per container: ' + label.servings, ...(label.flavour ? ['Flavour: ' + label.flavour] : [])]) +
     section('Active ingredients - amount per serving', label.ingredients.map(([name, amount]) => name + ': ' + amount)) +
     section('Other ingredients', [label.otherIngredients]) +
     section('Nutrition information - per serving', label.nutrition.map(([name, amount]) => name + ': ' + amount + ' (%RDA: #)').concat(labelShared.nutritionFootnote)) +
@@ -458,6 +460,15 @@ function renderProductPage() {
   if (stickyName) stickyName.textContent = product.name;
   detailImage.src = product.image;
   detailImage.alt = `${product.name} by Birla RootX, ${product.format}`;
+  const media = $('[data-detail-media]');
+  media.dataset.productLabel = Object.keys(products).find((key) => products[key] === product);
+  const detailLabel = $('[data-detail-label]');
+  if (detailLabel) {
+    detailLabel.src = product.labelImage;
+    detailLabel.alt = `${product.name} complete product label`;
+  }
+  $('[data-label-front] [data-label-toggle]')?.setAttribute('aria-label', `View ${product.name} label`);
+  $('[data-label-back] [data-label-toggle]')?.setAttribute('aria-label', `Show ${product.name} product image`);
   $('[data-detail-add]').dataset.product = Object.keys(products).find((key) => products[key] === product);
   const stickyAdd = $('[data-sticky-add]');
   if (stickyAdd) stickyAdd.dataset.product = $('[data-detail-add]').dataset.product;
@@ -778,3 +789,77 @@ $$('.mobile-menu a').forEach((link) => link.addEventListener('click', () => {
   $('.site-header').classList.remove('menu-open');
   $('.menu-button').setAttribute('aria-expanded', 'false');
 }));
+
+
+// Product card backs show the original supplied label without changing product links.
+const labelViewer = $('#label-viewer');
+const labelStage = $('[data-label-stage]');
+const labelZoom = $('[data-label-zoom]');
+const labelViewerImage = $('[data-label-viewer-image]');
+labelViewerImage?.addEventListener('load', () => {
+  labelStage.style.setProperty('--label-zoom-width', `${labelViewerImage.naturalWidth || 2400}px`);
+});
+let labelPreviousFocus = null;
+let labelPreviousOverflow = '';
+function resetLabelZoom() {
+  if (!labelStage || !labelZoom) return;
+  labelStage.classList.remove('is-zoomed');
+  labelZoom.setAttribute('aria-pressed', 'false');
+  labelZoom.textContent = 'Zoom in';
+  labelStage.scrollTop = 0;
+  labelStage.scrollLeft = 0;
+}
+document.addEventListener('click', (event) => {
+  const toggle = event.target.closest('[data-label-toggle]');
+  if (toggle) {
+    const media = toggle.closest('[data-label-media]');
+    const front = $('[data-label-front]', media);
+    const back = $('[data-label-back]', media);
+    const showLabel = back.hidden;
+    front.hidden = showLabel;
+    back.hidden = !showLabel;
+    media.classList.toggle('is-showing-label', showLabel);
+    $$('[data-label-toggle]', media).forEach((button) => button.setAttribute('aria-expanded', String(showLabel)));
+    $('[data-label-toggle]', showLabel ? back : front).focus();
+    return;
+  }
+  const opener = event.target.closest('[data-label-open]');
+  if (!opener) return;
+  const key = opener.dataset.labelOpen || opener.closest('[data-label-media]')?.dataset.productLabel;
+  const product = products[key];
+  if (!product) return;
+  if (!labelViewer || typeof labelViewer.showModal !== 'function') {
+    window.open(product.labelImage, '_blank', 'noopener');
+    return;
+  }
+  labelPreviousFocus = opener;
+  labelPreviousOverflow = document.body.style.overflow;
+  resetLabelZoom();
+  labelStage.style.setProperty('--label-zoom-width', '2400px');
+  $('[data-label-viewer-image]').src = product.labelImage;
+  $('[data-label-viewer-image]').alt = `${product.name} complete product label`;
+  $('[data-label-viewer-name]').textContent = `${product.name} label`;
+  labelViewer.showModal();
+  document.body.style.overflow = 'hidden';
+  $('[data-label-close]').focus();
+});
+if (labelViewer) {
+  $('[data-label-close]').addEventListener('click', () => labelViewer.close());
+  labelViewer.addEventListener('close', () => {
+    document.body.style.overflow = labelPreviousOverflow;
+    resetLabelZoom();
+    if (labelPreviousFocus?.isConnected) labelPreviousFocus.focus();
+  });
+  labelViewer.addEventListener('click', (event) => {
+    if (event.target !== labelViewer) return;
+    const bounds = labelViewer.getBoundingClientRect();
+    if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) labelViewer.close();
+  });
+  labelZoom.addEventListener('click', () => {
+    const zoomed = labelStage.classList.toggle('is-zoomed');
+    labelZoom.setAttribute('aria-pressed', String(zoomed));
+    labelZoom.textContent = zoomed ? 'Fit label' : 'Zoom in';
+    labelStage.scrollTop = 0;
+    labelStage.scrollLeft = 0;
+  });
+}
