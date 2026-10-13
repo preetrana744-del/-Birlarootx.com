@@ -100,3 +100,7 @@ body{background:var(--paper)}
 .cart-line-remove{grid-column:3;min-width:72px;padding:8px;gap:8px;font-size:8px}
 body.cart-open .toast{bottom:calc(170px + env(safe-area-inset-bottom))}
 .toast.visible{pointer-events:auto}.toast button{min-width:44px;min-height:44px;display:grid;place-items:center}
+
+/* Remove arrow controls and decorative starburst bullets. */
+.hero-arrow{display:none}
+.detail-body .pack-note-card li::before,.detail-body .detail-key-facts li::before{content:none}
