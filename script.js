@@ -1,40 +1,283 @@
 const products = {
   carbs: {
-    name: 'Carbs Slayer', slug: 'carbs-slayer', price: 1999, image: 'carbs-slayer.jpg', number: '01',
+    name: 'Carbs Slayer', slug: 'carbs-slayer', price: 2499, image: 'carbs-slayer.jpg', number: '01',
     type: '60 capsules · Partitioning complex', format: '60 capsules', category: 'Health supplement',
     summary: 'The supplied front label describes Carbs Slayer as a nutrient partitioning complex. The pack shown contains 60 capsules.',
     packNotes: ['Cutting edge nutrient partitioning complex', '60 capsules', 'Health supplement'],
     tone: 'olive'
   },
   jacked: {
-    name: 'Jacked Pre-Workout', slug: 'jacked-pre-workout', price: 1999, image: 'jacked-pre-workout.jpg', number: '02',
+    name: 'Jacked Pre-Workout', slug: 'jacked-pre-workout', price: 2999, image: 'jacked-pre-workout.jpg', number: '02',
     type: '40 concentrated scoops', format: '40 ultra-concentrated scoops', category: 'Dietary supplement',
     summary: 'A pre-workout product presented in a concentrated scoop format. Its front label names a training matrix and an advance formula.',
     packNotes: ['Pre-workout formula', 'Training matrix · advance formula', '40 ultra-concentrated scoops'],
     tone: 'purple'
   },
   spilan: {
-    name: 'Spilan Test', slug: 'spilan-test', price: 1999, image: 'spilan-test.jpg', number: '03',
+    name: 'Spilan Test', slug: 'spilan-test', price: 2999, image: 'spilan-test.jpg', number: '03',
     type: '60 capsules · Featuring SA3X™', format: '60 capsules', category: 'Health supplement',
     summary: 'The supplied front label names SA3X™ and describes a specialised extract. The pack shown contains 60 capsules.',
     packNotes: ['Featuring SA3X™', 'Specialised extract', '60 capsules'],
     tone: 'sage'
   },
   epic: {
-    name: 'Epic Burn Pro', slug: 'epic-burn-pro', price: 1999, image: 'epic-burn-pro.jpg', number: '04',
-    type: '60 capsules · Thermogenic formula', format: '60 capsules', category: 'Dietary supplement',
+    name: 'Epic Burn Pro', slug: 'epic-burn-pro', price: 2499, image: 'epic-burn-pro.jpg', number: '04',
+    type: '60 capsules · Thermogenic formula', format: '60 capsules', category: 'Nutraceutical',
     summary: 'Epic Burn Pro is presented on its front label as a thermogenic formula. The pack shown contains 60 capsules.',
     packNotes: ['Thermogenic formula', '60 capsules', 'Dietary supplement'],
     tone: 'rose'
   },
   growth: {
-    name: 'Growth Factor', slug: 'growth-factor', price: 1999, image: 'growth-factor.jpg', number: '05',
+    name: 'Growth Factor', slug: 'growth-factor', price: 2499, image: 'growth-factor.jpg', number: '05',
     type: '60 capsules · Sleep support formula', format: '60 capsules', category: 'Health supplement',
     summary: 'The supplied front label identifies Growth Factor as a sleep support formula. The pack shown contains 60 capsules.',
     packNotes: ['Sleep support formula', '60 capsules', 'Health supplement'],
     tone: 'blue'
   }
 };
+const labelShared = {
+  "storage": "Store at a temperature below 25C in a dry place. Keep out of reach of children.",
+  "cautions": [
+    "Health supplement is not to be used as substitute for a varied diet.",
+    "This product is not intended to diagnose, treat, cure or prevent any disease.",
+    "NOT FOR MEDICINAL USE.",
+    "Warning: Not to exceed recommended usage."
+  ],
+  "notRecommendedFor": [
+    "Children",
+    "Pregnant lactating women",
+    "People with liver & kidney disease."
+  ],
+  "nutritionFootnote": "%RDA is based on Men/Women sedentary work as per ICMR. # RDA value not established.",
+  "manufacturer": "Stiriti Ayur Therapies Pvt Ltd.",
+  "manufacturerAddress": "H.No. 3-20, Sy No 170 & 180, Cheekatmamidi Village, Bommalaramaram Mandal, Yadadri-Bhangir District-508116, Telangana State, India.",
+  "license": "10018047001030",
+  "exclusivelyFor": "RootX Wellness LLP, 55, Westend Marg, Saket New Delhi: 110030",
+  "shelfLife": "Best before 36 months from manufacturing date.",
+  "website": "birlarootx.com",
+  "email": "rootx1212@gmail.com",
+  "customerCare": "+91 8448875888"
+};
+const productLabels = {
+  "carbs": {
+    "mrp": 2499,
+    "servingSize": "1 Veg Capsule",
+    "servings": 60,
+    "ingredients": [
+      [
+        "Berberis Aristata Extract (Berberine Hcl 98%)",
+        "290 mg"
+      ],
+      [
+        "Banaba",
+        "10 mg"
+      ]
+    ],
+    "otherIngredients": "Vegetable cellulose (capsule)",
+    "nutrition": [
+      [
+        "Energy",
+        "1 Kcal"
+      ],
+      [
+        "Carbohydrate",
+        "0.3 g"
+      ],
+      [
+        "Sugar",
+        "0 g"
+      ],
+      [
+        "Protein",
+        "0 g"
+      ],
+      [
+        "Fat",
+        "0 g"
+      ]
+    ],
+    "directions": "Take 2 capsules right before carbohydrates containing meal.",
+    "barcode": "8937636532341"
+  },
+  "jacked": {
+    "mrp": 2999,
+    "servingSize": "1 scoop (5 grams)",
+    "servings": 40,
+    "ingredients": [
+      [
+        "Natural Caffeine (from coffee bean extract)",
+        "100 mg"
+      ],
+      [
+        "L Arginine Hydrochloride",
+        "2 grams"
+      ],
+      [
+        "L Citrulline Malate",
+        "2 grams"
+      ],
+      [
+        "Theobroma Cacao Extract",
+        "200 mg"
+      ],
+      [
+        "Bacopa Monnieri Extract (50% Bacosides)",
+        "300 mg"
+      ]
+    ],
+    "otherIngredients": "Citric Acid, Erythritol, Blue Raspberry Natural Flavouring, Sucralose, Silicon Dioxide",
+    "nutrition": [
+      [
+        "Energy",
+        "15 Kcal"
+      ],
+      [
+        "Carbohydrate",
+        "3.5 g"
+      ],
+      [
+        "Sugar",
+        "0 g"
+      ],
+      [
+        "Protein",
+        "0 g"
+      ],
+      [
+        "Fat",
+        "0 g"
+      ]
+    ],
+    "directions": "Mix 1 Ultra-Concentrated Scoop (5g) with 300ml of cold water and consume 30-45 minutes prior to resistance training. Do this the first 3 times using the product. Beginning with the 4th use, if needed, you may gradually increase to 2 scoops. (10g)",
+    "flavour": "Blue Raspberry",
+    "barcode": "8937636453158"
+  },
+  "spilan": {
+    "mrp": 2999,
+    "servingSize": "1 Veg Capsule",
+    "servings": 60,
+    "ingredients": [
+      [
+        "Akarkara Extract",
+        "500 mg"
+      ]
+    ],
+    "otherIngredients": "Vegetable Cellulose (capsule)",
+    "nutrition": [
+      [
+        "Energy",
+        "2 Kcal"
+      ],
+      [
+        "Carbohydrate",
+        "0.5 g"
+      ],
+      [
+        "Sugar",
+        "0 g"
+      ],
+      [
+        "Protein",
+        "0 g"
+      ],
+      [
+        "Fat",
+        "0 g"
+      ]
+    ],
+    "directions": "Take 2 capsules once a day.",
+    "barcode": "8937636611534"
+  },
+  "epic": {
+    "mrp": 2499,
+    "servingSize": "1 Veg Capsule",
+    "servings": 60,
+    "ingredients": [
+      [
+        "Natural caffeine (from coffee bean extract)",
+        "100 mg"
+      ],
+      [
+        "Theobroma Cacao Extract",
+        "200 mg"
+      ],
+      [
+        "Dandelion root extract",
+        "150 mg"
+      ],
+      [
+        "Coleus Forskohlii Extract (10% forskolin)",
+        "300 mg"
+      ]
+    ],
+    "otherIngredients": "Vegetable cellulose (capsule)",
+    "nutrition": [
+      [
+        "Energy",
+        "3 Kcal"
+      ],
+      [
+        "Carbohydrate",
+        "0.6 g"
+      ],
+      [
+        "Sugar",
+        "0 g"
+      ],
+      [
+        "Protein",
+        "0 g"
+      ],
+      [
+        "Fat",
+        "0 g"
+      ]
+    ],
+    "directions": "Begin by taking one capsule on an empty stomach 15-30 minutes before breakfast. Consume an additional one capsule 5-6 hours later. Do not consume more than 3 capsules in 24 hours period.",
+    "barcode": "8937636373968"
+  },
+  "growth": {
+    "mrp": 2499,
+    "servingSize": "1 Veg Capsule",
+    "servings": 60,
+    "ingredients": [
+      [
+        "Mucuna Pruriens Seed Extract (Velvet Bean)",
+        "375 mg"
+      ],
+      [
+        "Chlorophytum Borivilianum Extract",
+        "375 mg"
+      ]
+    ],
+    "otherIngredients": "Vegetable cellulose (capsule)",
+    "nutrition": [
+      [
+        "Energy",
+        "3 Kcal"
+      ],
+      [
+        "Carbohydrate",
+        "0.6 g"
+      ],
+      [
+        "Sugar",
+        "0 g"
+      ],
+      [
+        "Protein",
+        "0 g"
+      ],
+      [
+        "Fat",
+        "0 g"
+      ]
+    ],
+    "directions": "Take 2-3 Capsules Before Bed. For Best Results, Consume No More Than 5 Grams Of Carbohydrates Within 60 Minutes Of Taking Growth Factor.",
+    "barcode": "8937636690720"
+  }
+};
+Object.entries(productLabels).forEach(([key, label]) => { products[key].label = label; });
 window.BIRLAROOTX_PRODUCTS = products;
 const CART_STORAGE_KEY = 'birlarootx-cart-v1';
 const bag = new Map();
@@ -112,6 +355,38 @@ function renderBag() {
 }
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
+
+function renderLabelDetails(product) {
+  const label = product.label;
+  const panel = $('[data-label-details]');
+  if (!label || !panel) return;
+  const escapeText = (value) => String(value).replace(/[&<>"']/g, (character) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[character]));
+  const list = (items) => '<ul>' + items.map((item) => '<li>' + escapeText(item) + '</li>').join('') + '</ul>';
+  const section = (heading, items) => '<p class="eyebrow">' + escapeText(heading) + '</p>' + list(items);
+  panel.innerHTML =
+    section('Serving information', ['Serving size: ' + label.servingSize, 'Servings per container: ' + label.servings, ...(label.flavour ? ['Flavour: ' + label.flavour] : [])]) +
+    section('Active ingredients - amount per serving', label.ingredients.map(([name, amount]) => name + ': ' + amount)) +
+    section('Other ingredients', [label.otherIngredients]) +
+    section('Nutrition information - per serving', label.nutrition.map(([name, amount]) => name + ': ' + amount + ' (%RDA: #)').concat(labelShared.nutritionFootnote)) +
+    section('Directions printed on the label', [label.directions]) +
+    section('Storage and cautions', [labelShared.storage, ...labelShared.cautions]) +
+    section('Not recommended for', labelShared.notRecommendedFor) +
+    section('Pack and manufacturer details', [
+      'MRP: ' + rupees(label.mrp) + ' (inclusive of all taxes)',
+      labelShared.shelfLife,
+      'Manufactured and marketed by: ' + labelShared.manufacturer,
+      labelShared.manufacturerAddress,
+      'FSSAI licence number: ' + labelShared.license,
+      'Manufactured exclusively for: ' + labelShared.exclusivelyFor,
+      'Website: ' + labelShared.website,
+      'Email: ' + labelShared.email,
+      'Customer care: ' + labelShared.customerCare,
+      'Barcode: ' + label.barcode
+    ]);
+}
+
 function renderProductPage() {
   const page = $('[data-product-page]');
   if (!page) return;
@@ -121,7 +396,7 @@ function renderProductPage() {
   const productIndex = productList.indexOf(product);
   const detailImage = $('[data-detail-image]');
 
-  const seoDescription = `${product.name} by Birla RootX. ${product.summary} Price ₹1,999.`;
+  const seoDescription = `${product.name} by Birla RootX. ${product.summary} MRP ${rupees(product.price)} (inclusive of all taxes).`;
   const canonicalUrl = `https://birlarootx.com/product.html?product=${encodeURIComponent(product.slug)}`;
   const imageUrl = `https://birlarootx.com/${product.image}`;
 
@@ -186,7 +461,7 @@ function renderProductPage() {
   $('[data-detail-add]').dataset.product = Object.keys(products).find((key) => products[key] === product);
   const stickyAdd = $('[data-sticky-add]');
   if (stickyAdd) stickyAdd.dataset.product = $('[data-detail-add]').dataset.product;
-  $('[data-pack-notes]').innerHTML = product.packNotes.map((note) => `<li>${note}</li>`).join('');
+  renderLabelDetails(product);
   const highlights = $('[data-detail-highlights]');
   if (highlights) highlights.innerHTML = product.packNotes.map((note) => `<li>${note}</li>`).join('');
   const viewerImage = $('[data-viewer-image]');
