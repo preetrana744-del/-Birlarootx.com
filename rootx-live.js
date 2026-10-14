@@ -6,6 +6,7 @@
   const key='sb_publishable_rS7URzLNbhXhdPp50Te_Qg_9LtpKOI_';
   const account='account.html';
   document.querySelectorAll('.header-actions').forEach(node=>{
+    if(node.querySelector('.rootx-account-link'))return;
     const link=document.createElement('a');
     link.href=account;link.textContent='Login / Orders';link.className='rootx-account-link';
     link.setAttribute('aria-label','Customer and admin login, order tracking');
