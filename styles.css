@@ -105,3 +105,6 @@ body.cart-open .toast{bottom:calc(170px + env(safe-area-inset-bottom))}
 .hero-arrow{display:none}
 .detail-body .pack-note-card li::before,.detail-body .detail-key-facts li::before{content:none}
 .detail-body .transparency-mark{visibility:hidden}
+
+/* Keep product prices compact around the thousands separator. */
+.product-price{font-family:var(--sans);letter-spacing:normal}
