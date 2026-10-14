@@ -136,3 +136,10 @@ body.detail-body .detail-price-row>[data-detail-price],body.detail-body .detail-
 
 /* Keep swipe and drag active while hiding carousel navigation controls. */
 .hero-visual .hero-controls{display:none}
+
+/* Customer support contacts at the top of every storefront page. */
+.support-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 22px;padding:9px 20px;background:var(--paper);color:var(--ink);border-bottom:1px solid var(--line);font:12px/1.5 var(--sans)}
+.support-bar>span{font-weight:600}
+.support-bar a{white-space:nowrap;text-decoration:underline;text-underline-offset:3px}
+.support-bar a:hover{color:var(--olive)}
+@media(max-width:620px){.support-bar{gap:2px 16px;padding:8px 12px;font-size:11px}.support-bar>span{flex-basis:100%;text-align:center}}
