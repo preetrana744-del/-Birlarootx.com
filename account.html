@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#f4f2e9">
+<title>My Account · Birla RootX</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="stylesheet" href="account.css?v=1">
+</head><body>
+<header class="top"><a href="index.html" class="brand">BIRLA <b>ROOTX</b><small>®</small></a><nav><a href="index.html#products">Shop formulas</a><a href="account.html">My account</a><button id="logout" type="button" hidden>Sign out</button></nav></header>
+<main class="shell">
+<div class="eyebrow">SECURE ROOTX ACCOUNTS</div>
+<h1>Everything in <em>one place.</em></h1><p class="sub">Sign in as a customer to track orders, or use your authorized admin account to manage your store.</p>
+<p id="notice" role="status" aria-live="polite" class="notice" hidden></p>
+<section id="auth-panel" class="panel auth-layout">
+ <div><div class="eyebrow">WELCOME BACK</div><h2 id="auth-title">Sign in to RootX</h2><p class="muted">One login for customers and authorized administrators. Admin rights are checked securely on the server.</p><p class="info">Your account data and orders are private. We use them to process and support your order.</p></div>
+ <form id="auth-form" autocomplete="on"><label>Full name <input id="full-name" name="name" autocomplete="name" maxlength="120" placeholder="Your name" hidden></label>
+ <label>Email address<input id="email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required></label>
+ <label id="password-label">Password<input id="password" name="password" type="password" autocomplete="current-password" minlength="8" placeholder="Your password" required></label>
+ <button id="auth-submit" type="submit" class="btn">Sign in <span>→</span></button>
+ <div class="auth-choices"><button type="button" data-mode="signin">Sign in</button><button type="button" data-mode="signup">Create account</button><button type="button" data-mode="reset">Forgot password?</button></div>
+ </form>
+</section>
+<section id="dashboard" hidden>
+ <div class="dash-heading"><div><div class="eyebrow" id="role-label">YOUR ACCOUNT</div><h2 id="welcome">My orders</h2><p class="muted" id="account-email"></p></div><button id="refresh" class="btn secondary" type="button">Refresh</button></div>
+ <div id="customer-view">
+ <div id="checkout-section" class="panel" hidden><div class="eyebrow">ORDER REQUEST</div><h3>Review your cart</h3><p class="muted">This submits an order request only. No online payment is collected or charged.</p><div id="checkout-items"></div>
+ <form id="checkout-form"><div class="two"><label>Full name<input name="shipping_name" maxlength="120" required autocomplete="name"></label><label>Phone number<input name="shipping_phone" type="tel" maxlength="25" required autocomplete="tel"></label></div><label>Complete delivery address<textarea name="shipping_address" minlength="10" maxlength="1000" required autocomplete="street-address"></textarea></label><button id="place-order" type="submit" class="btn">Submit order request →</button></form></div>
+ <div class="panel"><div class="eyebrow">DELIVERY TRACKING</div><h3>My orders</h3><div id="customer-orders" class="stack"><p class="muted">Loading orders…</p></div></div>
+ </div>
+ <div id="admin-view" hidden>
+ <div class="metrics"><div class="metric"><span>Total orders</span><b id="metric-orders">—</b></div><div class="metric"><span>Customers</span><b id="metric-customers">—</b></div><div class="metric"><span>Open orders</span><b id="metric-open">—</b></div></div>
+ <div class="panel"><div class="eyebrow">FULFILMENT</div><h3>Orders & delivery updates</h3><p class="muted">Status and delivery dates are manually maintained until a courier integration is connected. Never promise an unconfirmed delivery date.</p><div id="admin-orders" class="stack"></div></div>
+ <div class="panel"><div class="eyebrow">YOUR CATALOGUE</div><h3>Manage photos & prices</h3><p class="muted">Upload a JPG, PNG or WebP product image up to 5 MB, or update price. Changes update the database, not original label artwork.</p><div id="admin-products" class="product-edit-grid"></div></div>
+ <div class="panel"><div class="eyebrow">CUSTOMERS</div><h3>Registered customers</h3><div id="admin-customers" class="stack"></div></div>
+ </div>
+</section>
+</main><footer>© 2026 BIRLA ROOTX · <a href="index.html">Back to storefront</a></footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
+<script src="account.js?v=1" defer></script>
+</body></html>
