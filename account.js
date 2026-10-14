@@ -7,6 +7,7 @@
   const stamp = value => value ? new Date(value).toLocaleString('en-IN', {dateStyle:'medium',timeStyle:'short'}) : 'Not available';
   const statuses = ['received','confirmed','packed','shipped','out_for_delivery','delivered','cancelled'];
   let authMode='signin',currentUser=null,isAdmin=false,orderToken=null;
+  let recoveryPending=location.hash.includes('type=recovery')||new URLSearchParams(location.search).get('type')==='recovery';
   const setNotice=(message,error=false)=>{ const box=$('notice');box.hidden=!message;box.textContent=message||'';box.classList.toggle('error',error);if(message)box.scrollIntoView({block:'nearest',behavior:'smooth'}); };
   const showAuth=()=>{ $('auth-panel').hidden=false; $('dashboard').hidden=true; $('logout').hidden=true; };
   const setMode=mode=>{
@@ -42,7 +43,7 @@
       if(authMode==='newpassword'){
         if(password.length<8)throw Error('Password must have at least 8 characters.');
         result=await db.auth.updateUser({password});
-        if(!result.error){setNotice('Password updated.');setMode('signin');await showDashboard();return;}
+        if(!result.error){recoveryPending=false;setNotice('Password updated.');setMode('signin');await showDashboard();return;}
       }
       if(result?.error)throw result.error;
       await showDashboard();
@@ -176,6 +177,7 @@
     }catch(err){setNotice(err.message||'Could not save product.',true);}finally{button.disabled=false;}
   });
   async function showDashboard(){
+    if(recoveryPending){showAuth();setMode('newpassword');return;}
     const {data:{user},error}=await db.auth.getUser();
     if(error||!user){currentUser=null;showAuth();return;}
     currentUser=user;
@@ -190,7 +192,7 @@
     if(isAdmin)await loadAdmin();else await loadCustomer();
   }
   db.auth.onAuthStateChange((event)=>{
-    if(event==='PASSWORD_RECOVERY'){showAuth();setMode('newpassword');setNotice('Please choose a new password.');}
+    if(event==='PASSWORD_RECOVERY'){recoveryPending=true;showAuth();setMode('newpassword');setNotice('Please choose a new password.');}
     else if(event==='SIGNED_OUT'){currentUser=null;showAuth();}
   });
   setMode('signin');
