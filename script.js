@@ -680,112 +680,136 @@ if (featureImage) {
   const featurePanel = featureLink.closest('.hero-visual') || featureLink;
   const featureName = $('[data-hero-name]');
   let activeFeature = 0;
-  let gesture = null;
-  let suppressFeatureClickUntil = 0;
+  let drag = null;
+  let suppressClickUntil = 0;
+  let scrollFrame = 0;
 
   featurePanel.setAttribute('role', 'region');
   featurePanel.setAttribute('aria-roledescription', 'carousel');
   featurePanel.setAttribute('aria-label', 'Featured products');
   featureName.setAttribute('aria-live', 'polite');
-  featureImage.draggable = false;
   featureLink.draggable = false;
+  featureLink.setAttribute('aria-label', 'Explore Carbs Slayer');
+  featureLink.classList.add('hero-swipe-track');
 
-  const showFeature = (index) => {
-    activeFeature = (index + productList.length) % productList.length;
-    const product = productList[activeFeature];
-    featureImage.src = product.image;
-    featureImage.alt = `Birla RootX ${product.name} supplement pack`;
+  productList.forEach((product, index) => {
+    const image = index === 0 ? featureImage : document.createElement('img');
+    image.src = product.image;
+    image.alt = `Birla RootX ${product.name} supplement pack`;
+    image.draggable = false;
+    if (index !== 0) featureLink.appendChild(image);
+  });
+
+  const updateFeature = (index) => {
+    if (index === activeFeature) return;
+    activeFeature = index;
+    const product = productList[index];
     featureName.textContent = product.name.toUpperCase();
     $('[data-hero-price]').textContent = rupees(product.price);
     featureLink.href = `product.html?product=${product.slug}`;
     featureLink.setAttribute('aria-label', `Explore ${product.name}`);
-    $$('[data-slide-to]').forEach((button, buttonIndex) => button.setAttribute('aria-current', String(buttonIndex === activeFeature)));
+    $$('[data-slide-to]').forEach((button, buttonIndex) => {
+      button.setAttribute('aria-current', String(buttonIndex === index));
+    });
   };
-  $('[data-slide-prev]').addEventListener('click', () => showFeature(activeFeature - 1));
-  $('[data-slide-next]').addEventListener('click', () => showFeature(activeFeature + 1));
-  $$('[data-slide-to]').forEach((button) => button.addEventListener('click', () => showFeature(Number(button.dataset.slideTo))));
+  const nearestSlide = () => Math.max(0, Math.min(productList.length - 1,
+    Math.round(featureLink.scrollLeft / (featureLink.clientWidth || 1))));
+  const showFeature = (index) => {
+    const target = (index + productList.length) % productList.length;
+    featureLink.scrollTo({
+      left: target * featureLink.clientWidth,
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'
+    });
+  };
+  featureLink.addEventListener('scroll', () => {
+    if (scrollFrame) return;
+    scrollFrame = requestAnimationFrame(() => {
+      scrollFrame = 0;
+      updateFeature(nearestSlide());
+    });
+  }, { passive: true });
 
-  const resetDrag = () => {
-    featurePanel.classList.remove('is-dragging');
-    featurePanel.style.removeProperty('--hero-drag-x');
-  };
-  const detectAxis = (deltaX, deltaY) => {
-    if (Math.max(Math.abs(deltaX), Math.abs(deltaY)) < 10) return null;
-    return Math.abs(deltaX) > Math.abs(deltaY) * 1.15 ? 'horizontal' : 'vertical';
-  };
-
-  featurePanel.addEventListener('pointerdown', (event) => {
-    if (!event.isPrimary || event.button !== 0 || gesture) return;
-    suppressFeatureClickUntil = 0;
-    if (event.target.closest('.hero-controls, button')) return;
-    gesture = {
-      pointerId: event.pointerId,
-      startX: event.clientX,
-      startY: event.clientY,
-      axis: null
-    };
+  const previous = $('[data-slide-prev]');
+  const next = $('[data-slide-next]');
+  previous.textContent = '←';
+  next.textContent = '→';
+  previous.addEventListener('click', () => showFeature(nearestSlide() - 1));
+  next.addEventListener('click', () => showFeature(nearestSlide() + 1));
+  $$('[data-slide-to]').forEach((button) => {
+    button.addEventListener('click', () => showFeature(Number(button.dataset.slideTo)));
   });
 
+  // Touch and trackpad scrolling use the browser's native momentum and snapping.
+  // Mouse dragging follows the pointer and snaps to the nearest product on release.
+  featureLink.addEventListener('pointerdown', (event) => {
+    if (event.pointerType !== 'mouse' || event.button !== 0 || !event.isPrimary) return;
+    drag = { id: event.pointerId, x: event.clientX, left: featureLink.scrollLeft, moved: false };
+  });
   window.addEventListener('pointermove', (event) => {
-    if (!gesture || gesture.pointerId !== event.pointerId) return;
-    const deltaX = event.clientX - gesture.startX;
-    const deltaY = event.clientY - gesture.startY;
-    if (!gesture.axis) gesture.axis = detectAxis(deltaX, deltaY);
-    if (gesture.axis !== 'horizontal') return;
-    if (event.cancelable) event.preventDefault();
-    if (!featurePanel.hasPointerCapture(event.pointerId)) featurePanel.setPointerCapture(event.pointerId);
+    if (!drag || event.pointerId !== drag.id) return;
+    const distance = event.clientX - drag.x;
+    if (!drag.moved && Math.abs(distance) < 5) return;
+    drag.moved = true;
+    suppressClickUntil = performance.now() + 500;
     featurePanel.classList.add('is-dragging');
-    const maxOffset = featurePanel.getBoundingClientRect().width * 0.025;
-    const offset = Math.max(-maxOffset, Math.min(maxOffset, deltaX * 0.18));
-    featurePanel.style.setProperty('--hero-drag-x', `${offset}px`);
-  });
-
-  const finishGesture = (event, cancelled = false) => {
-    if (!gesture || gesture.pointerId !== event.pointerId) return;
-    const currentGesture = gesture;
-    gesture = null;
-    const deltaX = event.clientX - currentGesture.startX;
-    const deltaY = event.clientY - currentGesture.startY;
-    const axis = currentGesture.axis || detectAxis(deltaX, deltaY);
-    if (axis || cancelled) suppressFeatureClickUntil = performance.now() + 450;
-    resetDrag();
-    if (featurePanel.hasPointerCapture(event.pointerId)) featurePanel.releasePointerCapture(event.pointerId);
-    if (!cancelled && axis === 'horizontal' && Math.abs(deltaX) >= 45) {
-      showFeature(activeFeature + (deltaX < 0 ? 1 : -1));
+    if (!featureLink.hasPointerCapture(event.pointerId)) featureLink.setPointerCapture(event.pointerId);
+    event.preventDefault();
+    featureLink.scrollLeft = drag.left - distance;
+  }, { passive: false });
+  const finishDrag = (event) => {
+    if (!drag || (event && event.pointerId !== drag.id)) return;
+    const completed = drag;
+    drag = null;
+    featurePanel.classList.remove('is-dragging');
+    if (featureLink.hasPointerCapture(completed.id)) featureLink.releasePointerCapture(completed.id);
+    if (completed.moved) {
+      suppressClickUntil = performance.now() + 500;
+      const distance = event ? event.clientX - completed.x : 0;
+      const initial = Math.round(completed.left / (featureLink.clientWidth || 1));
+      const target = Math.abs(distance) >= Math.min(60, featureLink.clientWidth * .15)
+        ? initial + (distance < 0 ? 1 : -1) : nearestSlide();
+      showFeature(Math.max(0, Math.min(productList.length - 1, target)));
     }
   };
-  window.addEventListener('pointerup', (event) => finishGesture(event));
-  window.addEventListener('pointercancel', (event) => finishGesture(event, true));
-  featurePanel.addEventListener('lostpointercapture', (event) => finishGesture(event, true));
-  window.addEventListener('blur', () => {
-    if (gesture) suppressFeatureClickUntil = performance.now() + 450;
-    const pointerId = gesture?.pointerId;
-    gesture = null;
-    resetDrag();
-    if (pointerId !== undefined && featurePanel.hasPointerCapture(pointerId)) featurePanel.releasePointerCapture(pointerId);
-  });
+  window.addEventListener('pointerup', finishDrag);
+  window.addEventListener('pointercancel', finishDrag);
+  featureLink.addEventListener('lostpointercapture', finishDrag);
+  window.addEventListener('blur', () => finishDrag());
 
-  // A drag must never also follow the product link or trigger a half-panel click.
-  featurePanel.addEventListener('click', (event) => {
-    if (performance.now() >= suppressFeatureClickUntil || event.detail === 0) return;
-    event.preventDefault();
-    event.stopPropagation();
-  }, true);
-
+  let touchStart = null;
+  featureLink.addEventListener('touchstart', (event) => {
+    const touch = event.touches[0];
+    touchStart = touch ? { x: touch.clientX, y: touch.clientY } : null;
+  }, { passive: true });
+  featureLink.addEventListener('touchmove', (event) => {
+    const touch = event.touches[0];
+    if (touchStart && touch && Math.hypot(touch.clientX - touchStart.x, touch.clientY - touchStart.y) > 8) {
+      suppressClickUntil = performance.now() + 700;
+    }
+  }, { passive: true });
+  featureLink.addEventListener('touchend', () => {
+    if (performance.now() < suppressClickUntil) suppressClickUntil = performance.now() + 700;
+    touchStart = null;
+  }, { passive: true });
+  featureLink.addEventListener('dragstart', (event) => event.preventDefault());
   featureLink.addEventListener('click', (event) => {
-    if (event.defaultPrevented || event.detail === 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
-    if (!window.matchMedia('(pointer: fine)').matches) return;
-    event.preventDefault();
-    const bounds = featureLink.getBoundingClientRect();
-    const clickedLeftHalf = event.clientX - bounds.left < bounds.width / 2;
-    showFeature(activeFeature + (clickedLeftHalf ? -1 : 1));
-  });
-
+    if (performance.now() < suppressClickUntil && event.detail !== 0) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+  }, true);
   featurePanel.addEventListener('keydown', (event) => {
-    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    if (event.target.closest('button') || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
     if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
     event.preventDefault();
-    showFeature(activeFeature + (event.key === 'ArrowRight' ? 1 : -1));
+    showFeature(nearestSlide() + (event.key === 'ArrowRight' ? 1 : -1));
+  });
+  let resizeFrame = 0;
+  window.addEventListener('resize', () => {
+    cancelAnimationFrame(resizeFrame);
+    resizeFrame = requestAnimationFrame(() => {
+      featureLink.scrollTo({ left: activeFeature * featureLink.clientWidth, behavior: 'instant' });
+    });
   });
 }
 
