@@ -140,6 +140,8 @@ body.detail-body .detail-price-row>[data-detail-price],body.detail-body .detail-
 /* Customer support contacts at the top of every storefront page. */
 .support-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 22px;padding:9px 20px;background:var(--paper);color:var(--ink);border-bottom:1px solid var(--line);font:12px/1.5 var(--sans)}
 .support-bar>span{font-weight:600}
-.support-bar a{white-space:nowrap;text-decoration:underline;text-underline-offset:3px}
-.support-bar a:hover{color:var(--olive)}
+.support-bar .support-button{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 14px;border:1px solid var(--line);border-radius:6px;background:var(--white);color:var(--ink);font-weight:500;line-height:1.4;white-space:nowrap;text-decoration:none;touch-action:manipulation;transition:background .15s,color .15s,box-shadow .15s,transform .15s}
+.support-bar .support-button:hover{background:#e9eddd;box-shadow:0 2px 6px rgba(23,40,31,.08)}
+.support-bar .support-button:active{background:var(--ink);color:var(--white);box-shadow:none;transform:translateY(1px)}
+.support-bar .support-button:focus-visible{outline:2px solid var(--olive);outline-offset:3px}
 @media(max-width:620px){.support-bar{gap:2px 16px;padding:8px 12px;font-size:11px}.support-bar>span{flex-basis:100%;text-align:center}}
