@@ -108,3 +108,6 @@ body.cart-open .toast{bottom:calc(170px + env(safe-area-inset-bottom))}
 
 /* Keep all price displays compact around the thousands separator. */
 .product-price,.hero-price-note b,[data-hero-price],.section-intro strong,.cart-line p,.cart-line-price,.cart-foot>div .cart-subtotal,[data-toast-copy]{font-family:var(--sans);letter-spacing:normal}
+
+/* Match product detail, label MRP and mobile purchase prices. */
+body.detail-body .detail-price-row>[data-detail-price],body.detail-body .detail-callout [data-detail-price],body.detail-body .mobile-purchase-copy [data-detail-price]{font-family:var(--sans);letter-spacing:normal}
