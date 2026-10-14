@@ -419,7 +419,7 @@ function renderProductPage() {
 
   const seoDescription = `${product.name} by Birla RootX. ${product.summary} MRP ${rupees(product.price)} (inclusive of all taxes).`;
   const canonicalUrl = `https://birlarootx.com/product.html?product=${encodeURIComponent(product.slug)}`;
-  const imageUrl = `https://birlarootx.com/${product.image}`;
+  const imageUrl = new URL(product.image, 'https://birlarootx.com/').href;
 
   document.title = `${product.name} | Birla RootX`;
   $('meta[name="description"]')?.setAttribute('content', seoDescription);
