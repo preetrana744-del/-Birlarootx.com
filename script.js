@@ -778,19 +778,35 @@ if (featureImage) {
 
   let touchStart = null;
   featureLink.addEventListener('touchstart', (event) => {
+    if (event.touches.length !== 1) { touchStart = null; return; }
     const touch = event.touches[0];
-    touchStart = touch ? { x: touch.clientX, y: touch.clientY } : null;
+    touchStart = { x: touch.clientX, y: touch.clientY, slide: nearestSlide(), moved: false };
   }, { passive: true });
   featureLink.addEventListener('touchmove', (event) => {
     const touch = event.touches[0];
+    if (event.touches.length !== 1) { touchStart = null; return; }
     if (touchStart && touch && Math.hypot(touch.clientX - touchStart.x, touch.clientY - touchStart.y) > 8) {
+      touchStart.moved = true;
       suppressClickUntil = performance.now() + 700;
     }
   }, { passive: true });
-  featureLink.addEventListener('touchend', () => {
-    if (performance.now() < suppressClickUntil) suppressClickUntil = performance.now() + 700;
+  featureLink.addEventListener('touchend', (event) => {
+    const started = touchStart;
     touchStart = null;
+    if (!started) return;
+    if (started.moved) suppressClickUntil = performance.now() + 700;
+    const touch = event.changedTouches[0];
+    if (!touch) return;
+    const dx = touch.clientX - started.x;
+    const dy = touch.clientY - started.y;
+    // A short horizontal swipe advances one slide; vertical swipes keep scrolling the page.
+    if (Math.abs(dx) >= 30 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+      suppressClickUntil = performance.now() + 700;
+      const target = Math.max(0, Math.min(productList.length - 1, started.slide + (dx < 0 ? 1 : -1)));
+      requestAnimationFrame(() => showFeature(target));
+    }
   }, { passive: true });
+  featureLink.addEventListener('touchcancel', () => { touchStart = null; }, { passive: true });
   featureLink.addEventListener('dragstart', (event) => event.preventDefault());
   featureLink.addEventListener('click', (event) => {
     if (performance.now() < suppressClickUntil && event.detail !== 0) {
