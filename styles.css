@@ -129,3 +129,7 @@ body.detail-body .detail-price-row>[data-detail-price],body.detail-body .detail-
 .hero-dots button[aria-current="true"]{width:24px;background:transparent}
 .hero-dots button[aria-current="true"]::before{width:20px;border-radius:6px;background:var(--ink)}
 @media(max-width:620px){.hero-controls{left:50%;top:auto;bottom:75px;padding:4px;gap:2px}.hero-dots{gap:2px;padding:0 2px}}
+
+/* Keep mobile swipe within the carousel and stop cleanly on each product. */
+.hero-image-wrap.hero-swipe-track{overscroll-behavior-x:contain}
+.hero-image-wrap.hero-swipe-track img{scroll-snap-stop:always}
