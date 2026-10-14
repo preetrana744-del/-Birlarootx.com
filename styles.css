@@ -133,3 +133,6 @@ body.detail-body .detail-price-row>[data-detail-price],body.detail-body .detail-
 /* Keep mobile swipe within the carousel and stop cleanly on each product. */
 .hero-image-wrap.hero-swipe-track{overscroll-behavior-x:contain}
 .hero-image-wrap.hero-swipe-track img{scroll-snap-stop:always}
+
+/* Keep swipe and drag active while hiding carousel navigation controls. */
+.hero-visual .hero-controls{display:none}
