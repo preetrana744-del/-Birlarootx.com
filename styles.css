@@ -111,3 +111,21 @@ body.cart-open .toast{bottom:calc(170px + env(safe-area-inset-bottom))}
 
 /* Match product detail, label MRP and mobile purchase prices. */
 body.detail-body .detail-price-row>[data-detail-price],body.detail-body .detail-callout [data-detail-price],body.detail-body .mobile-purchase-copy [data-detail-price]{font-family:var(--sans);letter-spacing:normal}
+
+/* Native swipe, mouse drag and smooth snapping for the featured products only. */
+.hero-visual{touch-action:pan-x pan-y pinch-zoom}
+.hero-image-wrap.hero-swipe-track{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;touch-action:pan-x pan-y pinch-zoom;-webkit-overflow-scrolling:touch}
+.hero-swipe-track::-webkit-scrollbar{display:none}
+.hero-image-wrap.hero-swipe-track img{flex:0 0 100%;min-width:100%;width:100%;height:100%;scroll-snap-align:start;transform:none;transition:none;-webkit-user-drag:none}
+.hero-visual.is-dragging .hero-swipe-track{scroll-snap-type:none}
+.hero-visual.is-dragging .hero-image-wrap.hero-swipe-track img{transform:none}
+.hero-image-wrap.hero-swipe-track::after{display:none}
+.hero-visual::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(0deg,rgba(15,32,21,.7),transparent 33%)}
+.hero-caption,.hero-side-note{z-index:1;pointer-events:none}
+.hero-controls{top:auto;bottom:88px;left:50%;transform:translateX(-50%);padding:5px;gap:6px}
+.hero-controls .hero-arrow{display:grid;width:44px;height:44px;font-size:20px}
+.hero-dots button{position:relative;width:24px;height:44px;border-radius:0;background:transparent}
+.hero-dots button::before{content:"";position:absolute;left:50%;top:50%;width:7px;height:7px;border-radius:50%;background:#9ba58a;transform:translate(-50%,-50%)}
+.hero-dots button[aria-current="true"]{width:24px;background:transparent}
+.hero-dots button[aria-current="true"]::before{width:20px;border-radius:6px;background:var(--ink)}
+@media(max-width:620px){.hero-controls{left:50%;top:auto;bottom:75px;padding:4px;gap:2px}.hero-dots{gap:2px;padding:0 2px}}
