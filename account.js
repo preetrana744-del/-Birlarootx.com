@@ -12,6 +12,7 @@
   const showAuth=()=>{ $('auth-panel').hidden=false; $('dashboard').hidden=true; $('logout').hidden=true; };
   const setMode=mode=>{
     authMode=mode;
+    $('google-auth-options').hidden=mode!=='signin'&&mode!=='signup';
     $('full-name').hidden=mode!=='signup';
     $('full-name').required=mode==='signup';
     $('full-name').parentElement.hidden=mode!=='signup';
@@ -25,6 +26,43 @@
     $('auth-submit').firstChild.textContent=({signin:'Sign in ',signup:'Create account ',reset:'Send reset link ',newpassword:'Save new password '})[mode];
   };
   document.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>{setNotice('');setMode(b.dataset.mode);}));
+  // OAuth uses the backend Supabase provider, not Google API credentials in client code.
+  // An exact return URL avoids dependency on wildcard redirect allowlisting.
+  $('google-signin').addEventListener('click',async()=>{
+    const button=$('google-signin');
+    if(button.disabled)return;
+    button.disabled=true;
+    setNotice('');
+    try{
+      // Check the public Auth settings first so customers don't land on a broken
+      // Google redirect while the owner is still configuring Google Cloud.
+      const settingsResponse=await fetch('https://lbqgdfbpuxjkwldhwpvi.supabase.co/auth/v1/settings',{
+        headers:{apikey:'sb_publishable_rS7URzLNbhXhdPp50Te_Qg_9LtpKOI_'}
+      });
+      if(settingsResponse.ok){
+        const settings=await settingsResponse.json();
+        if(settings?.external?.google===false){
+          throw Error('Google sign-in is not enabled yet. The store owner needs to finish Google Cloud OAuth setup and enable Google in Supabase Authentication.');
+        }
+      }
+      // Keep an order-in-progress accessible after returning from Google.
+      if(new URLSearchParams(location.search).has('checkout')){
+        sessionStorage.setItem('rootx-google-return-checkout','1');
+      }
+      const {error}=await db.auth.signInWithOAuth({
+        provider:'google',
+        options:{
+          redirectTo:new URL('account.html',location.href).href,
+          queryParams:{prompt:'select_account'}
+        }
+      });
+      if(error)throw error;
+    }catch(err){
+      setNotice(err.message||'Google sign-in could not start. Please try again.',true);
+    }finally{
+      button.disabled=false;
+    }
+  });
   $('auth-form').addEventListener('submit',async e=>{
     e.preventDefault();const button=$('auth-submit');button.disabled=true;setNotice('');
     const email=$('email').value.trim().toLowerCase(),password=$('password').value,name=$('full-name').value.trim();
@@ -181,6 +219,12 @@
     const {data:{user},error}=await db.auth.getUser();
     if(error||!user){currentUser=null;showAuth();return;}
     currentUser=user;
+    if(sessionStorage.getItem('rootx-google-return-checkout')==='1'){
+      sessionStorage.removeItem('rootx-google-return-checkout');
+      if(!new URLSearchParams(location.search).has('checkout')){
+        history.replaceState(null,'',new URL('account.html?checkout=1',location.href).pathname+'?checkout=1');
+      }
+    }
     const admin=await db.from('rootx_admin_users').select('user_id').eq('user_id',user.id).maybeSingle();
     if(admin.error)throw admin.error;
     isAdmin=Boolean(admin.data);
