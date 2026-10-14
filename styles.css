@@ -106,5 +106,5 @@ body.cart-open .toast{bottom:calc(170px + env(safe-area-inset-bottom))}
 .detail-body .pack-note-card li::before,.detail-body .detail-key-facts li::before{content:none}
 .detail-body .transparency-mark{visibility:hidden}
 
-/* Keep product prices compact around the thousands separator. */
-.product-price{font-family:var(--sans);letter-spacing:normal}
+/* Keep all price displays compact around the thousands separator. */
+.product-price,.hero-price-note b,[data-hero-price],.section-intro strong,.cart-line p,.cart-line-price,.cart-foot>div .cart-subtotal,[data-toast-copy]{font-family:var(--sans);letter-spacing:normal}
