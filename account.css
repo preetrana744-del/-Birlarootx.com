@@ -10,3 +10,6 @@
 .google-icon{width:21px;height:21px;flex:none}
 .signin-divider{display:flex;align-items:center;gap:15px;margin:20px 0 0;font:11px 'DM Mono',monospace;letter-spacing:.04em;color:#75806c}
 .signin-divider:before,.signin-divider:after{content:'';height:1px;background:var(--line);flex:1}
+
+
+[data-account-name]{display:inline-block;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}@media(max-width:600px){[data-account-name]{max-width:140px}}

@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const db = window.supabase.createClient('https://lbqgdfbpuxjkwldhwpvi.supabase.co', 'sb_publishable_rS7URzLNbhXhdPp50Te_Qg_9LtpKOI_', {auth:{storageKey:'birlarootx-auth-v1',autoRefreshToken:true,persistSession:true,detectSessionInUrl:true}});
+  const db = window.rootxAuth;
   const $ = id => document.getElementById(id);
   const safe = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const money = value => '₹' + Number(value || 0).toLocaleString('en-IN');
@@ -87,7 +87,7 @@
       await showDashboard();
     }catch(err){setNotice(err.message||'Could not complete request.',true);}finally{button.disabled=false;}
   });
-  $('logout').addEventListener('click',async()=>{await db.auth.signOut();currentUser=null;isAdmin=false;setNotice('You have signed out.');setMode('signin');showAuth();});
+  $('logout').addEventListener('click',async()=>{const {error}=await db.auth.signOut();if(error){setNotice('Could not sign out. Please try again.',true);return;}currentUser=null;isAdmin=false;setNotice('You have signed out.');setMode('signin');showAuth();});
   $('refresh').addEventListener('click',()=>showDashboard());
   function itemDetails(items){
     if(!items||!items.length)return '';

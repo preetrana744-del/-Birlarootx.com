@@ -70,7 +70,7 @@
     </script>
     <link rel="preload" as="image" href="carbs-slayer.jpg" />
     <link rel="stylesheet" href="styles.css?v=support-buttons-20261015" />
-    <link rel="stylesheet" href="rootx-live.css?v=1" />
+    <link rel="stylesheet" href="rootx-live.css?v=session-20261015" />
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -79,7 +79,7 @@
     <header class="site-header" id="top">
       <a class="wordmark" href="#top" aria-label="Birla RootX home"><span>BIRLA</span><strong>ROOTX</strong><i>®</i></a>
       <nav class="desktop-nav" aria-label="Main navigation"><a href="#products">The formulas</a><a href="#story">Our approach</a><a href="#faq">FAQs</a></nav>
-      <div class="header-actions"><a class="header-domain" href="https://birlarootx.com">BIRLAROOTX.COM</a><a class="rootx-account-link" href="account.html">Login / Orders</a><button class="bag-button" type="button" aria-controls="cart-drawer" aria-expanded="false">Bag <span class="bag-count">0</span></button><button class="menu-button" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Open menu"><span></span><span></span></button></div>
+      <div class="header-actions"><a class="header-domain" href="https://birlarootx.com">BIRLAROOTX.COM</a><a class="rootx-account-link" href="account.html">Login / Orders</a><button class="rootx-session-logout" data-session-logout type="button" hidden>Sign out</button><button class="bag-button" type="button" aria-controls="cart-drawer" aria-expanded="false">Bag <span class="bag-count">0</span></button><button class="menu-button" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Open menu"><span></span><span></span></button></div>
       <nav class="mobile-menu" id="mobile-menu" aria-label="Mobile navigation"><a href="#products">The formulas</a><a href="#story">Our approach</a><a href="#faq">FAQs</a></nav>
     </header>
 
@@ -177,5 +177,8 @@
     <div class="toast" role="status" aria-live="polite"><p><b>Added to cart</b><small data-toast-copy></small></p><button type="button" aria-label="Dismiss">×</button></div>
     <script src="script.js?v=mobile-swipe-20261014"></script>
       <script src="rootx-live.js?v=1"></script>
-  </body>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
+<script src="rootx-session.js?v=20261015" defer></script>
+</body>
 </html>
+
