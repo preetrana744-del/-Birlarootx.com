@@ -29,8 +29,8 @@
 <section id="dashboard" hidden>
  <div class="dash-heading"><div><div class="eyebrow" id="role-label">YOUR ACCOUNT</div><h2 id="welcome">My orders</h2><p class="muted" id="account-email"></p></div><button id="refresh" class="btn secondary" type="button">Refresh</button></div>
  <div id="customer-view">
- <div id="checkout-section" class="panel" hidden><div class="eyebrow">ORDER REQUEST</div><h3>Review your cart</h3><p class="muted">This submits an order request only. No online payment is collected or charged.</p><div id="checkout-items"></div>
- <form id="checkout-form"><div class="two"><label>Full name<input name="shipping_name" maxlength="120" required autocomplete="name"></label><label>Phone number<input name="shipping_phone" type="tel" maxlength="25" required autocomplete="tel"></label></div><label>Complete delivery address<textarea name="shipping_address" minlength="10" maxlength="1000" required autocomplete="street-address"></textarea></label><button id="place-order" type="submit" class="btn">Submit order request →</button></form></div>
+ <div id="checkout-section" class="panel" hidden><div class="eyebrow" id="checkout-label">ORDER REQUEST</div><h3>Review your cart</h3><p id="checkout-description" class="muted">This submits an order request only. No online payment is collected or charged.</p><div id="checkout-items"></div>
+ <form id="checkout-form"><div id="checkout-delivery"><div class="two"><label>Full name<input name="shipping_name" maxlength="120" required autocomplete="name"></label><label>Phone number<input name="shipping_phone" type="tel" maxlength="25" required autocomplete="tel"></label></div><label>Complete delivery address<textarea name="shipping_address" minlength="10" maxlength="1000" required autocomplete="street-address"></textarea></label></div><button id="place-order" type="submit" class="btn">Submit order request →</button></form></div>
  <div class="panel"><div class="eyebrow">DELIVERY TRACKING</div><h3>My orders</h3><div id="customer-orders" class="stack"><p class="muted">Loading orders…</p></div></div>
  </div>
  <div id="admin-view" hidden>
@@ -43,5 +43,6 @@
 </main><footer>© 2026 BIRLA ROOTX · <a href="index.html">Back to storefront</a></footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
 <script src="rootx-session.js?v=20261015" defer></script>
-<script src="account.js?v=session-20261015" defer></script>
+<script src="account.js?v=checkout-20261015" defer></script>
 </body></html>
+

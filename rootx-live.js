@@ -29,6 +29,12 @@
     });
     const info=checkout.parentElement?.querySelector('p');
     if(info)info.textContent='Submit an order request. Online payment is not yet connected.';
+    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),5000);
+    fetch('https://lbqgdfbpuxjkwldhwpvi.supabase.co/functions/v1/rootx-shopify-checkout',{
+      headers:{apikey:key},cache:'no-store',signal:controller.signal
+    }).then(response=>response.ok?response.json():null).then(status=>{
+      if(status?.enabled===true){checkout.textContent='Checkout →';if(info)info.textContent='Shipping and the final total are confirmed at secure checkout.';}
+    }).catch(()=>{}).finally(()=>clearTimeout(timer));
   }
   function resolveImage(url){
     try{const parsed=new URL(url,location.href);return ['https:','http:'].includes(parsed.protocol)?parsed.href:null;}catch{return null;}

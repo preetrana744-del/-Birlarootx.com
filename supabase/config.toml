@@ -1,0 +1,9 @@
+project_id = "birlarootx"
+
+[functions.rootx-shopify-checkout]
+# Public readiness GET; POST validates a real Supabase user token.
+verify_jwt = false
+
+[functions.rootx-shopify-webhook]
+# Shopify raw-body HMAC and fixed source domain are verified in the handler.
+verify_jwt = false

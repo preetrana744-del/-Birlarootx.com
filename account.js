@@ -7,6 +7,8 @@
   const stamp = value => value ? new Date(value).toLocaleString('en-IN', {dateStyle:'medium',timeStyle:'short'}) : 'Not available';
   const statuses = ['received','confirmed','packed','shipped','out_for_delivery','delivered','cancelled'];
   let authMode='signin',currentUser=null,isAdmin=false,orderToken=null;
+  let shopifyCheckoutEnabled=false,checkoutBusy=false;
+  const checkoutEndpoint='https://lbqgdfbpuxjkwldhwpvi.supabase.co/functions/v1/rootx-shopify-checkout';
   let recoveryPending=location.hash.includes('type=recovery')||new URLSearchParams(location.search).get('type')==='recovery';
   const setNotice=(message,error=false)=>{ const box=$('notice');box.hidden=!message;box.textContent=message||'';box.classList.toggle('error',error);if(message)box.scrollIntoView({block:'nearest',behavior:'smooth'}); };
   const showAuth=()=>{ $('auth-panel').hidden=false; $('dashboard').hidden=true; $('logout').hidden=true; };
@@ -93,10 +95,21 @@
     if(!items||!items.length)return '';
     return '<div class="order-items">'+items.map(i=>'<div><img src="'+safe(i.image_url||'favicon.svg')+'" alt=""><span>'+safe(i.product_name||i.name)+' × '+Number(i.quantity||1)+'</span><b>'+money(Number(i.unit_price||i.price||0)*Number(i.quantity||1))+'</b></div>').join('')+'</div>';
   }
+  function orderTotal(order){
+    if(order.source!=='shopify')return money(order.subtotal);
+    const amount=order.total==null?order.subtotal:order.total;
+    if(order.currency&&order.currency!=='INR'&&/^[A-Z]{3}$/.test(order.currency)){
+      try{return new Intl.NumberFormat('en-IN',{style:'currency',currency:order.currency}).format(Number(amount||0));}catch{}
+    }
+    return money(amount);
+  }
+  function paymentDetails(order){
+    return order.source==='shopify'?'<div class="line">Shopify order · Payment: '+safe(String(order.payment_status||'pending').replaceAll('_',' '))+'</div>':'';
+  }
   function orderView(order,items,events){
     const date=order.expected_delivery_date ? safe(order.expected_delivery_date) : 'Not assigned yet';
     let result='<article class="order"><div class="order-top"><span class="order-title">'+safe(order.order_number)+'</span><span class="chip">'+safe(order.status.replaceAll('_',' '))+'</span></div>'+
-      '<div class="line">Placed '+stamp(order.created_at)+' · Total '+money(order.subtotal)+' · Expected delivery: '+date+'</div>'+
+      '<div class="line">Placed '+stamp(order.created_at)+' · Total '+orderTotal(order)+' · Expected delivery: '+date+'</div>'+paymentDetails(order)+
       (order.courier?'<div class="line">Courier: '+safe(order.courier)+'</div>':'')+
       (order.tracking_number?'<div class="line">Tracking reference: '+safe(order.tracking_number)+'</div>':'')+
       (order.admin_note?'<div class="line">'+safe(order.admin_note)+'</div>':'')+
@@ -106,7 +119,7 @@
   }
   async function getOrders(){
     const q=await Promise.all([
-      db.from('rootx_orders').select('id,order_number,customer_id,status,expected_delivery_date,tracking_number,courier,admin_note,shipping_name,shipping_phone,shipping_address,subtotal,created_at').order('created_at',{ascending:false}),
+      db.from('rootx_orders').select('id,order_number,customer_id,status,expected_delivery_date,tracking_number,courier,admin_note,shipping_name,shipping_phone,shipping_address,subtotal,created_at,source,payment_status,total,currency,shopify_order_id').order('created_at',{ascending:false}),
       db.from('rootx_order_items').select('order_id,product_name,quantity,unit_price,image_url'),
       db.from('rootx_order_events').select('order_id,status,note,created_at').order('created_at',{ascending:true})
     ]);
@@ -121,6 +134,9 @@
     const checkout=params.has('checkout')&&cart.length;
     $('checkout-section').hidden=!checkout;
     if(checkout){
+      $('checkout-form').hidden=false;
+      $('place-order').disabled=true;
+      const checkoutStatus=checkoutAvailable();
       const productResult=await db.from('rootx_products').select('slug,name,price,active').eq('active',true);
       if(productResult.error)throw productResult.error;
       const details=cart.map(i=>({...i,product:productResult.data.find(p=>p.slug===i.slug)}));
@@ -128,15 +144,72 @@
       $('checkout-items').innerHTML='<div class="order">'+details.map(i=>'<div class="order-top"><span>'+safe(i.product.name)+' × '+i.quantity+'</span><b>'+money(i.product.price*i.quantity)+'</b></div>').join('')+'<hr><div class="order-top"><strong>Estimated total</strong><strong>'+money(details.reduce((n,i)=>n+i.product.price*i.quantity,0))+'</strong></div></div>';
       const profile=await db.from('rootx_profiles').select('full_name,phone').eq('id',currentUser.id).maybeSingle();
       if(profile.data){$('checkout-form').elements.shipping_name.value=profile.data.full_name||'';$('checkout-form').elements.shipping_phone.value=profile.data.phone||'';}
+      setCheckoutMode(await checkoutStatus);
+      $('place-order').disabled=checkoutBusy;
     } else if(params.has('checkout')){$('checkout-section').hidden=false;$('checkout-items').textContent='Your cart is empty. Add a product first.';$('checkout-form').hidden=true;}
   }
   function readCart(){
     try{let array=JSON.parse(localStorage.getItem('birlarootx-cart-v1')||'[]');const lookup={carbs:'carbs-slayer',jacked:'jacked-pre-workout',spilan:'spilan-test',epic:'epic-burn-pro',growth:'growth-factor'};return Array.isArray(array)?array.filter(i=>Array.isArray(i)&&lookup[i[0]]&&Number.isInteger(i[1])&&i[1]>0&&i[1]<=99).map(i=>({slug:lookup[i[0]],quantity:i[1]})):[];}catch{return [];}
   }
+  async function checkoutAvailable(){
+    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),5000);
+    try{
+      const response=await fetch(checkoutEndpoint,{headers:{apikey:'sb_publishable_rS7URzLNbhXhdPp50Te_Qg_9LtpKOI_'},cache:'no-store',signal:controller.signal});
+      return response.ok&&(await response.json()).enabled===true;
+    }catch{return false;}finally{clearTimeout(timer);}
+  }
+  function setCheckoutMode(enabled){
+    shopifyCheckoutEnabled=enabled;
+    $('checkout-label').textContent=enabled?'SECURE CHECKOUT':'ORDER REQUEST';
+    $('checkout-description').textContent=enabled?'Enter your delivery details and choose a payment method at secure checkout. Shipping and the final total are confirmed there.':'This submits an order request only. No online payment is collected or charged.';
+    $('checkout-delivery').hidden=enabled;
+    $('checkout-delivery').querySelectorAll('input,textarea').forEach(input=>{input.disabled=enabled;});
+    $('place-order').textContent=enabled?'Continue to secure payment →':'Submit order request →';
+  }
+  function checkoutRequestId(items){
+    const signature=JSON.stringify(items),key='rootx-shopify-checkout-v1';
+    let saved;
+    try{saved=JSON.parse(sessionStorage.getItem(key)||'null');}catch{}
+    if(saved?.user===currentUser.id&&saved.cart===signature&&/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(saved.id))return saved.id;
+    const id=crypto.randomUUID();
+    try{sessionStorage.setItem(key,JSON.stringify({user:currentUser.id,cart:signature,id}));}catch{}
+    return id;
+  }
+  async function startSecureCheckout(items){
+    let {data:{session},error}=await db.auth.getSession();
+    if(!error&&session?.expires_at&&session.expires_at*1000<Date.now()+30000){
+      const refreshed=await db.auth.refreshSession();session=refreshed.data.session;error=refreshed.error;
+    }
+    if(error||!session?.access_token||session.user?.id!==currentUser?.id){const expired=Error();expired.code='session_expired';throw expired;}
+    const result=await db.functions.invoke('rootx-shopify-checkout',{
+      body:{items,client_request_id:checkoutRequestId(items)},
+      headers:{Authorization:'Bearer '+session.access_token}
+    });
+    if(result.error){
+      if(result.error.context?.status===401){const expired=Error();expired.code='session_expired';throw expired;}
+      let failure;
+      try{const response=result.error.context;failure=await (typeof response?.clone==='function'?response.clone():response)?.json?.();}catch{}
+      if(failure?.code==='CHECKOUT_EXPIRED'){
+        try{sessionStorage.removeItem('rootx-shopify-checkout-v1');}catch{}
+        throw Error('This checkout has expired. Your cart is saved. Please try again to open a new checkout.');
+      }
+      throw Error('Secure checkout could not open. Your cart is saved. Please try again.');
+    }
+    if(session.user.id!==currentUser?.id){const expired=Error();expired.code='session_expired';throw expired;}
+    let destination;
+    try{destination=new URL(result.data?.checkout_url);}catch{throw Error('Secure checkout could not open. Your cart is saved. Please try again.');}
+    if(destination.protocol!=='https:'||!['vbvfdy-ed.myshopify.com','checkout.shopify.com'].includes(destination.hostname)||destination.username||destination.password){
+      throw Error('Secure checkout could not open. Your cart is saved. Please try again.');
+    }
+    // Keep the cart until a verified payment creates the order; opening checkout is not payment.
+    location.assign(destination.href);
+  }
   $('checkout-form').addEventListener('submit',async e=>{
-    e.preventDefault();const items=readCart();if(!items.length)return setNotice('Your cart is empty.',true);
+    e.preventDefault();if(checkoutBusy)return;const items=readCart();if(!items.length)return setNotice('Your cart is empty.',true);
+    checkoutBusy=true;
     const button=$('place-order');button.disabled=true;setNotice('');
     try{
+      if(shopifyCheckoutEnabled){await startSecureCheckout(items);return;}
       if(!orderToken)orderToken=crypto.randomUUID();
       const form=new FormData(e.currentTarget);
       const payload={client_request_id:orderToken,shipping_name:String(form.get('shipping_name')||'').trim(),shipping_phone:String(form.get('shipping_phone')||'').trim(),shipping_address:String(form.get('shipping_address')||'').trim(),items};
@@ -146,14 +219,17 @@
       $('checkout-section').hidden=true;
       setNotice('Order request '+data.order_number+' received. No online payment has been charged. Your request is visible to the RootX team.');
       await loadCustomer();
-    }catch(err){setNotice(err.message||'Order request failed.',true);}finally{button.disabled=false;}
+    }catch(err){
+      if(err.code==='session_expired'){currentUser=null;showAuth();setMode('signin');setNotice('Please sign in again to continue with your cart.',true);}
+      else setNotice(err.message||'Order request failed.',true);
+    }finally{checkoutBusy=false;button.disabled=false;}
   });
   function adminOrder(order,items,events,profile){
     const statusOptions=statuses.map(s=>'<option value="'+s+'" '+(order.status===s?'selected':'')+'>'+safe(s.replaceAll('_',' '))+'</option>').join('');
     return '<article class="order"><div class="order-top"><b>'+safe(order.order_number)+'</b><span class="chip">'+safe(order.status.replaceAll('_',' '))+'</span></div>'+
       '<div class="line">Customer: '+safe(order.shipping_name)+' · '+safe(profile?.email||'')+' · '+safe(order.shipping_phone)+'</div>'+
       '<div class="line">Address: '+safe(order.shipping_address)+'</div>'+
-      '<div class="line">Placed '+stamp(order.created_at)+' · Total '+money(order.subtotal)+'</div>'+itemDetails(items)+
+      '<div class="line">Placed '+stamp(order.created_at)+' · Total '+orderTotal(order)+'</div>'+paymentDetails(order)+itemDetails(items)+
       '<form class="admin-order-form" data-order-id="'+safe(order.id)+'">'+
       '<label>Status<select name="status">'+statusOptions+'</select></label>'+
       '<label>Expected delivery date<input name="expected_delivery_date" type="date" value="'+safe(order.expected_delivery_date||'')+'"></label>'+
@@ -242,3 +318,4 @@
   setMode('signin');
   showDashboard().catch(err=>{showAuth();setNotice(err.message||'Could not load your account.',true);});
 })();
+
