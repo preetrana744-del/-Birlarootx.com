@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - "*.html"
+      - "blog/**"
+      - "scripts/check-blog-seo.py"
       - "script.js"
       - "robots.txt"
       - "sitemap.xml"
@@ -57,8 +59,9 @@ jobs:
                   root=ET.parse("sitemap.xml").getroot()
                   ns={"s":"http://www.sitemaps.org/schemas/sitemap/0.9"}
                   urls=[n.text.strip() for n in root.findall("s:url/s:loc",ns) if n.text]
-                  if len(urls) != 6:
-                      errors.append(f"sitemap.xml: expected 6 URLs, found {len(urls)}")
+                  expected = {"https://birlarootx.com/"} | {"https://birlarootx.com/product.html?product="+slug for slug in ("carbs-slayer","jacked-pre-workout","spilan-test","epic-burn-pro","growth-factor")} | {"https://birlarootx.com/" + (p.as_posix().removesuffix("index.html") if p.name == "index.html" else p.as_posix()) for p in Path("blog").glob("*.html")}
+                  if set(urls) != expected:
+                      errors.append(f"sitemap.xml: sitemap does not match catalog and blog pages ({len(urls)} URLs)")
                   if "https://birlarootx.com/" not in urls:
                       errors.append("sitemap.xml: homepage missing")
               except Exception as e:
@@ -74,6 +77,9 @@ jobs:
               sys.exit(1)
           print("Birla RootX static SEO checks passed.")
           PY
+
+      - name: Validate journal SEO and links
+        run: python3 scripts/check-blog-seo.py
 
       - name: Check live endpoints when DNS is available
         shell: bash

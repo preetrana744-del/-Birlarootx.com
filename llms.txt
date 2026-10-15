@@ -15,6 +15,13 @@ Product pages include ingredients, serving and nutrition information, directions
 
 ## Machine-readable resources
 
-- [XML sitemap](https://birlarootx.com/sitemap.xml): Canonical crawl list for the homepage and five product URLs.
+- [XML sitemap](https://birlarootx.com/sitemap.xml): Canonical crawl list for the homepage, five product URLs and journal guides.
 - [Robots rules](https://birlarootx.com/robots.txt): Public crawler access rules.
 - [Expanded LLM context](https://birlarootx.com/llms-full.txt): Concise product-by-product context for agents.
+
+## Supplement education
+
+- [Journal](https://birlarootx.com/blog/): Label literacy and product comparison guides; general education, not personalised medical advice.
+- [How to Read a Supplement Label Before You Buy](https://birlarootx.com/blog/how-to-read-supplement-labels.html)
+- [Pre-Workout Checklist: What to Check Before Choosing One](https://birlarootx.com/blog/pre-workout-label-checklist.html)
+- [How to Compare Supplement Products Beyond the Price Tag](https://birlarootx.com/blog/how-to-compare-supplement-products.html)

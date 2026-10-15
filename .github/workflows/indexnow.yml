@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "*.html"
+      - "blog/**"
       - "script.js"
       - "sitemap.xml"
       - "robots.txt"

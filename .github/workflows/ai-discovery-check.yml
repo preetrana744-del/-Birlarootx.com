@@ -55,8 +55,8 @@ jobs:
                   root=ET.parse("sitemap.xml").getroot()
                   ns={"s":"http://www.sitemaps.org/schemas/sitemap/0.9"}
                   urls=[n.text.strip() for n in root.findall("s:url/s:loc",ns) if n.text]
-                  if len(urls) != 6:
-                      warnings.append(f"expected 6 catalog URLs in sitemap, found {len(urls)}")
+                  if len(urls) < 6:
+                      warnings.append(f"expected at least 6 catalog URLs in sitemap, found {len(urls)}")
                   if "https://birlarootx.com/" not in urls:
                       errors.append("homepage missing from sitemap")
               except Exception as e:
