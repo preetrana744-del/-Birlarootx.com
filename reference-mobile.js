@@ -35,7 +35,7 @@
  const distance=(a,b)=>{const row=Array.from({length:b.length+1},(_,i)=>i);for(let i=1;i<=a.length;i++){let prev=row[0];row[0]=i;for(let j=1;j<=b.length;j++){const old=row[j];row[j]=Math.min(row[j]+1,row[j-1]+1,prev+(a[i-1]===b[j-1]?0:1));prev=old;}}return row[b.length];};
  const render=()=>{
  const q=normalize(input.value),terms=q.split(' ').filter(Boolean),cards=[...document.querySelectorAll('.product-card')];
- const matches=cards.filter(card=>{const hay=normalize(card.textContent),words=hay.split(' ');return terms.every(term=>hay.includes(term)||(term.length>=4&&words.some(word=>distance(term,word)<=1)));});
+ const matches=cards.filter(card=>{const hay=normalize([...card.querySelectorAll('h3,.product-type,.deck-product-dialogue')].map(el=>el.textContent).join(' ')),words=hay.split(' ');return terms.every(term=>hay.includes(term)||(term.length>=4&&words.some(word=>distance(term,word)<=1)));});
  clear.hidden=!input.value;
  status.textContent=q?(matches.length?matches.length+' product'+(matches.length===1?'':'s')+' found':'No products found. Try another name or explore our range below.'):'Explore the range';
  results.replaceChildren();
