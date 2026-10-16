@@ -137,7 +137,7 @@ body.detail-body .detail-price-row>[data-detail-price],body.detail-body .detail-
 /* Keep swipe and drag active while hiding carousel navigation controls. */
 .hero-visual .hero-controls{display:none}
 
-/* Customer support contacts at the top of every storefront page. */
+/* Customer support contact controls. */
 .support-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 22px;padding:9px 20px;background:var(--paper);color:var(--ink);border-bottom:1px solid var(--line);font:12px/1.5 var(--sans)}
 .support-bar>span{font-weight:600}
 .support-bar .support-button{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 14px;border:1px solid var(--line);border-radius:6px;background:var(--white);color:var(--ink);font-weight:500;line-height:1.4;white-space:nowrap;text-decoration:none;touch-action:manipulation;transition:background .15s,color .15s,box-shadow .15s,transform .15s}
@@ -158,3 +158,11 @@ body.detail-body .detail-price-row>[data-detail-price],body.detail-body .detail-
 @media(max-width:620px){.wordmark .original-brand-logo{width:145px;padding:6px}.wordmark-footer .original-brand-logo{width:190px}.original-brand-panel{min-height:230px;padding:25px}.original-brand-panel .original-brand-logo{padding:14px}.hero h1{font-size:clamp(44px,12vw,66px)}.hero-actions{flex-wrap:wrap}.hero h1 em{overflow-wrap:normal}.manifesto h2{font-size:clamp(36px,10vw,52px)}}
 
 @media(max-width:620px){.site-header .header-actions{gap:8px;min-width:0}.site-header .wordmark .original-brand-logo{width:130px;padding:6px}.site-header .rootx-account-link{max-width:78px!important;font-size:7px!important}.site-header .rootx-session-logout{display:none!important}.site-header .menu-button{flex-shrink:0}.site-header .bag-button{flex-shrink:0}}
+
+/* Contact details belong with the footer, after the shopping content. */
+.support-footer{width:100%;flex-basis:100%;justify-content:flex-start;gap:12px 18px;margin:0 0 35px;padding:0 0 28px;background:transparent;color:inherit;border-bottom:1px solid rgba(130,150,120,.35);font-size:13px}
+.support-footer>span{flex-basis:100%;text-align:left;font-size:14px;font-weight:600}
+.support-footer .support-button{background:transparent;color:inherit;border-color:rgba(130,150,120,.5);padding:10px 16px}
+.support-footer .support-button:hover{background:#e9eddd;color:#17281f}
+.journal-footer{flex-wrap:wrap}.journal-footer .support-footer{margin-bottom:10px}
+@media(max-width:620px){.support-footer{align-items:flex-start;justify-content:flex-start;gap:10px;margin-bottom:28px;padding:0 0 24px;font-size:12px}.support-footer>span{text-align:left}.support-footer .support-button{justify-content:flex-start;min-height:44px;max-width:100%;white-space:normal}}
