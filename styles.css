@@ -203,3 +203,44 @@ body.detail-body .detail-price-row>[data-detail-price],body.detail-body .detail-
 .deck-gallery figure{margin:0;overflow:hidden;border-radius:8px}.deck-gallery img{width:100%;height:auto;display:block}
 @media(max-width:1000px){.deck-colour-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:620px){.deck-consumer{grid-template-columns:1fr}.deck-consumer>img{max-height:320px;object-position:center 60%}.deck-approach-photo img{min-height:0;max-height:450px;object-position:center}.deck-colour-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}.deck-gallery-grid{grid-template-columns:1fr;gap:18px}.deck-range-banner{margin-bottom:25px;border-radius:7px}.deck-product-dialogue{font-size:16px}}
+
+/* Mobile-only placement, larger product photography and clear swipe affordance. */
+.mobile-hero-range,.mobile-swipe-hint{display:none}
+@media(max-width:620px){
+  .hero .hero-copy{min-height:0;padding:30px 20px 28px;gap:0}
+  .hero .hero-copy>.eyebrow{margin:0 0 16px;font-size:8px}
+  .hero .hero-copy h1{font-size:clamp(37px,10.7vw,62px);line-height:1.04;margin:0 0 20px;letter-spacing:-.045em}
+  .mobile-hero-range{display:block;margin:0 -4px 20px;overflow:hidden;border-radius:12px}
+  .mobile-hero-range img{display:block;width:100%;height:auto}
+  .hero .hero-lede{max-width:none;font-size:13px;line-height:1.75;margin:0 0 12px}
+  .hero .deck-intro{font-size:12px!important;line-height:1.75!important;margin:0 0 22px}
+  .hero .hero-actions{margin:0;gap:12px}
+  .hero .hero-price-note{padding-left:12px}
+  .hero .hero-price-note b{font-size:9px;line-height:1.65}
+  .hero .hero-foot{display:none}
+  .products>.deck-range-banner{display:none}
+  .products .product-grid{grid-template-columns:minmax(0,1fr);gap:24px}
+  .products .product-card,.products .product-card:nth-child(5){grid-column:auto;width:100%;justify-self:stretch;padding:10px;box-sizing:border-box}
+  .products .product-image{aspect-ratio:1/1.05;border-radius:6px}
+  .products .product-card-info{display:flex;align-items:center;gap:12px;justify-content:space-between;min-height:0;padding:14px 3px 5px}
+  .products .product-type{font-size:8px;line-height:1.5;min-height:0;margin:0 0 7px}
+  .products .product-card h3{font-size:24px;line-height:1.15;min-height:0;margin:0;letter-spacing:-.04em}
+  .products .product-price{font-size:16px;line-height:1.3;margin:16px 0 0;white-space:nowrap}
+  .products .deck-product-dialogue{font-size:16px;line-height:1.45;margin:10px 3px 15px}
+  .products .product-details-link{font-size:9px;padding:12px 3px}
+  .products .add-button{min-height:48px;font-size:10px;padding:10px 12px;margin:0 0 2px}
+  .hero .hero-visual{margin:0 16px 24px;min-height:470px;height:122vw;max-height:580px;border-radius:24px 8px 8px 8px;isolation:isolate}
+  .hero-visual .mobile-swipe-hint{position:absolute;display:flex;justify-content:space-between;align-items:center;gap:16px;top:16px;left:16px;right:16px;z-index:3;background:rgba(255,253,246,.94);color:var(--ink);border:1px solid rgba(23,40,31,.1);border-radius:30px;padding:12px 15px;font:500 10px/1.2 var(--sans);box-shadow:0 4px 18px #17281f12;pointer-events:none}
+  .hero-visual .hero-controls{display:flex;bottom:65px;top:auto;left:50%;transform:translateX(-50%);z-index:3;padding:2px 5px;background:rgba(255,253,246,.95)}
+  .hero-visual .hero-controls .hero-arrow{display:grid;width:44px;height:44px}
+  .hero-visual .hero-side-note{display:none}
+  .hero-visual .hero-caption{left:18px;right:18px;bottom:20px;font-size:12px}
+  .hero-visual .hero-caption b{font-size:12px}
+  .hero-visual.mobile-feature-arrived{animation:mobile-feature-pop 850ms cubic-bezier(.2,.7,.25,1) both}
+}
+@keyframes mobile-feature-pop{
+  0%{transform:perspective(1000px) translateY(20px) scale(.965);box-shadow:0 5px 12px #17281f08}
+  62%{transform:perspective(1000px) translateY(-3px) scale(1.012);box-shadow:0 18px 35px #17281f20}
+  100%{transform:perspective(1000px) translateY(0) scale(1);box-shadow:0 10px 25px #17281f12}
+}
+@media(prefers-reduced-motion:reduce){.hero-visual.mobile-feature-arrived{animation:none!important}}

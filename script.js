@@ -703,6 +703,8 @@ if (featureImage) {
   const updateFeature = (index) => {
     if (index === activeFeature) return;
     activeFeature = index;
+    const mobileCounter = document.querySelector('[data-mobile-slide-count]');
+    if (mobileCounter) mobileCounter.textContent = `${index + 1} / ${productList.length}`;
     const product = productList[index];
     featureName.textContent = product.name.toUpperCase();
     $('[data-hero-price]').textContent = rupees(product.price);
@@ -838,3 +840,17 @@ $$('.mobile-menu a').forEach((link) => link.addEventListener('click', () => {
   $('.menu-button').setAttribute('aria-expanded', 'false');
 }));
 
+
+/* A single restrained reveal on mobile; native swipe remains unchanged. */
+if (window.matchMedia('(max-width: 620px)').matches && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  const mobileFeature = document.querySelector('.hero-visual');
+  if (mobileFeature && 'IntersectionObserver' in window) {
+    const revealObserver = new IntersectionObserver(entries => {
+      if (entries.some(entry => entry.isIntersecting)) {
+        mobileFeature.classList.add('mobile-feature-arrived');
+        revealObserver.disconnect();
+      }
+    }, { threshold: .2 });
+    revealObserver.observe(mobileFeature);
+  }
+}
