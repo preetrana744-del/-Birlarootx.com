@@ -10,7 +10,7 @@
  const shop=document.createElement('div');shop.className='reference-shop-label';shop.innerHTML='<span>HOME</span>SHOP BIRLA ROOTX';document.querySelector('.hero').before(shop);
  const faqList=document.querySelector('.faq .faq-list');
  const allFaqs=document.createElement('button');allFaqs.type='button';allFaqs.className='reference-all-faqs';allFaqs.textContent='EXPLORE ALL FAQS';
- if(faqList){faqList.after(allFaqs);if(matchMedia('(max-width:620px)').matches)faqList.querySelectorAll('details').forEach(d=>d.open=false);allFaqs.addEventListener('click',()=>{faqList.querySelectorAll('details').forEach(d=>d.open=true);faqList.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth',block:'center'});});}
+ if(faqList){faqList.after(allFaqs);if(matchMedia('all').matches)faqList.querySelectorAll('details').forEach(d=>d.open=false);allFaqs.addEventListener('click',()=>{faqList.querySelectorAll('details').forEach(d=>d.open=true);faqList.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth',block:'center'});});}
  const footer=document.querySelector('.site-footer');
  const mobileFooter=document.createElement('div');mobileFooter.className='reference-mobile-footer';
  const group=(title,html)=>'<details class="reference-footer-group"><summary>'+title+'</summary>'+html+'</details>';
@@ -22,7 +22,7 @@
  const support=footer.querySelector(':scope > .support-footer');
  const journalSection=document.querySelector('.journal-preview');
  const anchor=document.createComment('Original support position');if(support)support.before(anchor);
- const media=matchMedia('(max-width:620px)');
+ const media=matchMedia('all');
  const sync=()=>{if(media.matches){if(support)mobileFooter.querySelector('.reference-contact-slot').append(support);journalSection?.classList.add('reference-journal-moved');}else{if(support)anchor.after(support);journalSection?.classList.remove('reference-journal-moved');}};
  sync();media.addEventListener('change',sync);
  const dialog=document.createElement('dialog');dialog.className='reference-search-dialog';

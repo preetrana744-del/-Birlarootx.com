@@ -2,7 +2,7 @@
 @font-face{font-family:"RootX Reference";src:url("https://superyou.in/cdn/shop/t/51/assets/HelveticaNowVar.ttf?v=85829420661730474241766521971") format("truetype");font-weight:100 900;font-style:normal;font-display:swap}
 .reference-search-button,.reference-mobile-footer,.reference-shop-label,.reference-account-icon,.reference-bag-icon{display:none}
 .reference-search-dialog{border:1px solid #223d1e;padding:24px;max-width:calc(100% - 32px);width:440px;box-sizing:border-box}.reference-search-dialog::backdrop{background:#0008}.reference-search-dialog form{display:flex;flex-direction:column;gap:15px}.reference-search-dialog input{min-height:46px;font:16px Arial;border:1px solid #999;padding:10px}.reference-search-dialog button{min-height:44px;background:#223d1e;color:white;border:0;font-weight:700}.reference-search-dialog .reference-close-search{background:white;color:#111}
-@media(max-width:620px){
+@media all{
   body{--reference-font:"RootX Reference",Helvetica,Arial,sans-serif}
   .announcement{height:42px;min-height:42px;background:#fff;color:#111;border-bottom:1px solid #f5e4df;font:700 11px/1.3 var(--reference-font);letter-spacing:.07em;gap:8px}
   .site-header{height:64px;min-height:64px;padding:0;display:grid;grid-template-columns:44px minmax(0,1fr) 136px;align-items:center;position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid #eee;gap:0}
@@ -76,12 +76,57 @@
   .journal-preview.reference-journal-moved{display:none}
 }
 
-@media(max-width:620px){.reference-all-faqs{display:block;width:100%;min-height:44px;background:#223d1e;color:white;border:0;border-radius:0;box-shadow:3px 4px #000;margin:20px 0 0;font:700 18px/1.2 var(--reference-font);text-transform:uppercase}}
+@media all{.reference-all-faqs{display:block;width:100%;min-height:44px;background:#223d1e;color:white;border:0;border-radius:0;box-shadow:3px 4px #000;margin:20px 0 0;font:700 18px/1.2 var(--reference-font);text-transform:uppercase}}
 .reference-all-faqs{display:none}
-@media(max-width:620px){.reference-all-faqs{display:block}}
+@media all{.reference-all-faqs{display:block}}
 
-@media(max-width:620px){
+@media all{
  .faq .faq-list details{border-radius:0}
  #products,#faq{scroll-margin-top:64px}
  .site-header .menu-button:before{content:"";display:block;width:22px;height:4px;border-radius:3px;background:#171713}
+}
+
+@media(min-width:621px){
+ .announcement{height:42px;font-size:13px}
+ .site-header{height:84px;min-height:84px;grid-template-columns:84px minmax(0,1fr) 252px}
+ .site-header .wordmark .original-brand-logo{width:230px}
+ .site-header .menu-button{height:84px;width:84px;padding:0 29px}
+ .site-header .reference-search-button{right:168px;width:84px;height:84px}
+ .site-header .rootx-account-link{right:84px;width:84px;max-width:84px!important;height:84px}
+ .site-header .bag-button{width:84px;height:84px}
+ .reference-bag-icon{left:28px;top:29px}
+ .site-header .bag-count{right:16px;top:15px}
+ .reference-search-button svg,.reference-account-icon svg,.reference-bag-icon svg{width:30px;height:30px}
+ .site-header .mobile-menu{position:absolute;top:84px;left:0;right:0;display:flex;flex-direction:column;gap:18px;max-height:0;overflow:hidden;padding:0 40px;transition:max-height .3s,padding .3s}
+ .site-header.menu-open .mobile-menu{max-height:280px;padding:24px 40px;border-bottom:1px solid #ddd}
+ .mobile-menu a{font:700 14px/1.4 var(--reference-font);text-transform:uppercase}
+ .reference-shop-label{padding:24px 40px 28px;font-size:24px}
+ .reference-shop-label span{font-size:12px;margin-bottom:25px}
+ .hero .mobile-hero-range{width:100%;max-width:1440px;margin:0 auto}
+ .hero .mobile-hero-range img{width:100%;max-height:630px;object-fit:cover}
+ .products.section-pad{padding:64px 40px}
+ .products .section-head{margin-bottom:42px}
+ .products .section-head h2{font-size:52px}
+ .products .section-intro{font-size:22px;max-width:none}
+ .products .product-grid{max-width:1440px;margin:auto;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px}
+ .products .product-card,.products .product-card:nth-child(5){padding:20px}
+ .products .product-card-info{margin-top:26px;gap:18px}
+ .products .product-type{font-size:11px;min-height:28px}
+ .products .product-card h3{font-size:28px;min-height:60px}
+ .products .product-price{font-size:26px}
+ .products .deck-product-dialogue{font-size:15px;min-height:44px}
+ .products .product-details-link{font-size:12px}
+ .products .add-button{font-size:20px;min-height:56px;box-shadow:4px 5px #000}
+ .faq.section-pad{display:block;padding:56px max(40px,calc((100vw - 1120px)/2))}
+ .faq h2,.faq h2 em{font-size:48px}
+ .faq-intro>p:not(.eyebrow){font-size:18px}
+ .faq .faq-list summary{font-size:18px;min-height:100px;padding:26px}
+ .faq .faq-list summary>span{width:42px;height:42px;min-width:42px;font-size:34px}
+ .faq .faq-list details>p{font-size:16px;padding:0 26px 24px}
+ .reference-all-faqs{min-height:60px;font-size:24px}
+ .site-footer{padding:0 max(40px,calc((100vw - 1120px)/2)) 40px}
+ .reference-footer-group summary{font-size:32px;padding:30px 0}
+ .reference-footer-group a,.reference-footer-group p{font-size:16px}
+ .reference-mobile-footer .reference-footer-copyright{font-size:14px}
+ #products,#faq{scroll-margin-top:84px}
 }
