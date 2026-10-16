@@ -1,34 +1,34 @@
 const products = {
   carbs: {
-    name: 'Carbs Slayer', slug: 'carbs-slayer', price: 2499, image: 'carbs-slayer.jpg', number: '01',
+    name: 'Carbs Slayer', slug: 'carbs-slayer', price: 2499, image: '/assets/brand-deck/carbs-slayer.jpg', number: '01',
     type: '60 capsules · Partitioning complex', format: '60 capsules', category: 'Health supplement',
     summary: "Better carb support begins with every daily capsule",
     packNotes: ['Cutting edge nutrient partitioning complex', '60 capsules', 'Health supplement'],
     tone: 'olive'
   },
   jacked: {
-    name: 'Jacked Pre-Workout', slug: 'jacked-pre-workout', price: 2999, image: 'jacked-pre-workout.jpg', number: '02',
+    name: 'Jacked Pre-Workout', slug: 'jacked-pre-workout', price: 2999, image: '/assets/brand-deck/jacked-pre-workout.jpg', number: '02',
     type: '40 ultra-concentrated scoops', format: '40 ultra-concentrated scoops', category: 'Dietary supplement',
     summary: "Better performance begins with every daily scoop",
     packNotes: ['The ultimate pre-workout', 'Training matrix · advance formula', '40 ultra-concentrated scoops'],
     tone: 'purple'
   },
   spilan: {
-    name: 'Spilan Test', slug: 'spilan-test', price: 2999, image: 'spilan-test.jpg', number: '03',
+    name: 'Spilan Test', slug: 'spilan-test', price: 2999, image: '/assets/brand-deck/spilan-test.jpg', number: '03',
     type: '60 capsules · Featuring SA3X™', format: '60 capsules', category: 'Health supplement',
     summary: "Better vitality support begins with every daily capsule",
     packNotes: ['Featuring SA3X™', 'Specialised ultra potent extract', '60 capsules'],
     tone: 'sage'
   },
   epic: {
-    name: 'Epic Burn Pro', slug: 'epic-burn-pro', price: 2499, image: 'epic-burn-pro.jpg', number: '04',
+    name: 'Epic Burn Pro', slug: 'epic-burn-pro', price: 2499, image: '/assets/brand-deck/epic-burn-pro.jpg', number: '04',
     type: '60 capsules · Thermogenic formula', format: '60 capsules', category: 'Nutraceutical',
     summary: "Better fat-burn support begins with every daily capsule",
     packNotes: ['Super thermogenic', '60 capsules', 'Nutraceutical'],
     tone: 'rose'
   },
   growth: {
-    name: 'Growth Factor', slug: 'growth-factor', price: 2499, image: 'growth-factor.jpg', number: '05',
+    name: 'Growth Factor', slug: 'growth-factor', price: 2499, image: '/assets/brand-deck/growth-factor.jpg', number: '05',
     type: '60 capsules · Sleep support formula', format: '60 capsules', category: 'Health supplement',
     summary: "Better recovery support begins with every daily capsule",
     packNotes: ['Sleep support formula', '60 capsules', 'Health supplement'],
@@ -477,6 +477,8 @@ function renderProductPage() {
   const stickyName = $('[data-sticky-name]');
   if (stickyName) stickyName.textContent = product.name;
   detailImage.src = product.image;
+  const brandGallery = document.querySelector('[data-deck-product-gallery]');
+  if (brandGallery) brandGallery.innerHTML = [12,15,17,19,21,23,24].map((page,index) => `<figure><img src="/assets/brand-deck/range-${page}.jpg" alt="${product.name} in the original Birla RootX product range, view ${index+1}" width="1600" height="900" loading="lazy" /></figure>`).join('');
   detailImage.alt = `${product.name} by Birla RootX, ${product.format}`;
   $('[data-detail-add]').dataset.product = Object.keys(products).find((key) => products[key] === product);
   const stickyAdd = $('[data-sticky-add]');
