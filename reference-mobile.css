@@ -133,3 +133,43 @@
 
 /* The shared opening already shows the original five-product photograph. */
 .deck-range-banner{display:none}
+
+/* Reference proportions, with the original Birla RootX brand and content. */
+.site-header .wordmark{position:absolute;left:50%;transform:translateX(-50%);grid-column:auto}
+.site-header .menu-button{background:#fff}
+.reference-search-dialog,.reference-search-dialog input,.reference-search-dialog button{font-family:"RootX Reference",Helvetica,Arial,sans-serif}
+.products .product-card,.products .product-card:nth-child(5){padding-bottom:15px}
+.products .product-card h3{font-size:16px;line-height:1;min-height:32px}
+.products .add-button{font-size:14px;line-height:1.19;padding:12px 4px 9px;min-height:40px}
+@media(min-width:621px){
+ .site-header{height:64px;min-height:64px}
+ .site-header .wordmark .original-brand-logo{width:200px}
+ .site-header .menu-button{width:48px;height:64px;padding:0 13px}
+ .site-header .reference-search-button{right:96px;width:48px;height:64px}
+ .site-header .rootx-account-link{right:48px;width:48px;max-width:48px!important;height:64px}
+ .site-header .bag-button{width:48px;height:64px}
+ .reference-bag-icon{left:11px;top:19px}
+ .site-header .bag-count{right:3px;top:8px}
+ .reference-search-button svg,.reference-account-icon svg,.reference-bag-icon svg{width:26px;height:26px}
+ .site-header .mobile-menu{top:64px}
+ .reference-shop-label{padding:20px max(24px,3.6vw) 18px;font-size:20px}
+ .reference-shop-label span{font-size:11px;margin-bottom:32px}
+ .hero .mobile-hero-range{max-width:none}
+ .hero .mobile-hero-range img{max-height:none;height:auto;object-fit:contain}
+ .products.section-pad{padding:56px max(24px,3.6vw)}
+ .products .product-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+ .products .product-card,.products .product-card:nth-child(5){padding:16px}
+ .products .product-card h3{font-size:24px;line-height:1;min-height:48px}
+ .products .product-type{font-size:10px}
+ .products .product-price{font-size:24px;line-height:1.25}
+ .products .deck-product-dialogue{font-size:14px}
+ .products .add-button{font-size:18px;line-height:1.19;padding:12px;min-height:48px}
+ .products .section-head h2{font-size:48px}
+ .products .section-intro{font-weight:600}
+ .site-header .reference-desktop-shop{display:flex;position:absolute;left:48px;top:0;height:64px;align-items:center;padding:0 40px;border-left:1px solid #eee;border-right:1px solid #eee;font:800 20px/1 "RootX Reference",Helvetica,Arial,sans-serif;text-decoration:none}
+ #products,#faq{scroll-margin-top:64px}
+}
+.reference-desktop-shop{display:none}
+@media(min-width:621px){.site-header .reference-desktop-shop{display:flex}}
+@media(min-width:1100px){.products .product-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(min-width:621px) and (max-width:900px){.products .product-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.site-header .reference-desktop-shop{padding:0 20px;font-size:16px}}
