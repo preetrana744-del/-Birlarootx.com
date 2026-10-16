@@ -79,3 +79,9 @@
 @media(max-width:620px){.reference-all-faqs{display:block;width:100%;min-height:44px;background:#ef1400;color:white;border:0;border-radius:0;box-shadow:3px 4px #000;margin:20px 0 0;font:700 18px/1.2 var(--reference-font);text-transform:uppercase}}
 .reference-all-faqs{display:none}
 @media(max-width:620px){.reference-all-faqs{display:block}}
+
+@media(max-width:620px){
+ .faq .faq-list details{border-radius:0}
+ #products,#faq{scroll-margin-top:64px}
+ .site-header .menu-button:before{content:"";display:block;width:22px;height:4px;border-radius:3px;background:#171713}
+}
