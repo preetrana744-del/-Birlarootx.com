@@ -8,6 +8,9 @@
  const bag=header.querySelector('.bag-button');
  if(bag){const icon=document.createElement('span');icon.className='reference-bag-icon';icon.innerHTML=icons.bag;bag.append(icon);}
  const shop=document.createElement('div');shop.className='reference-shop-label';shop.innerHTML='<span>HOME</span>SHOP BIRLA ROOTX';document.querySelector('.hero').before(shop);
+ const faqList=document.querySelector('.faq .faq-list');
+ const allFaqs=document.createElement('button');allFaqs.type='button';allFaqs.className='reference-all-faqs';allFaqs.textContent='EXPLORE ALL FAQS';
+ if(faqList){faqList.after(allFaqs);if(matchMedia('(max-width:620px)').matches)faqList.querySelectorAll('details').forEach(d=>d.open=false);allFaqs.addEventListener('click',()=>{faqList.querySelectorAll('details').forEach(d=>d.open=true);faqList.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth',block:'center'});});}
  const footer=document.querySelector('.site-footer');
  const mobileFooter=document.createElement('div');mobileFooter.className='reference-mobile-footer';
  const group=(title,html)=>'<details class="reference-footer-group"><summary>'+title+'</summary>'+html+'</details>';

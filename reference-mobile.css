@@ -22,7 +22,7 @@
   .site-header .mobile-menu{top:64px;background:#fff;font:700 15px/1.3 var(--reference-font)}
   .reference-shop-label{display:block;background:#fff;padding:16px 15px 18px;font:800 17px/1 var(--reference-font);font-stretch:75%;text-transform:uppercase;color:#ef1400}
   .reference-shop-label span{display:block;color:#777;font:500 10px/1 var(--reference-font);letter-spacing:.08em;margin-bottom:27px}
-  .hero{display:block;background:#fff;padding:0;overflow:hidden}
+  .hero{display:block;background:#fff;padding:0;overflow:hidden;min-height:0;height:auto}
   .hero .hero-copy{display:contents}
   .hero .hero-copy>:not(.mobile-hero-range){display:none}
   .hero .mobile-hero-range{display:block;margin:0;border:0;border-radius:0}
@@ -48,7 +48,7 @@
   .products .product-details-link{font:600 9px/1.3 var(--reference-font);letter-spacing:0;text-transform:uppercase;padding:8px 0;margin:0 0 12px;border:0}
   .products .add-button{width:100%;min-height:40px;margin:auto 0 5px;padding:9px 3px;border:0;border-radius:0;background:#ef1400;color:#fff;box-shadow:2px 4px 0 #000;justify-content:center;font:800 13px/1.1 var(--reference-font);letter-spacing:0;text-transform:uppercase}
   .products .add-button span{display:none}
-  .products .add-button.is-added{background:#111;color:#fff}
+  .products .add-button[aria-pressed="true"]{background:#111;color:#fff}
   .products .add-button:active{transform:translate(2px,3px);box-shadow:none}
   .faq.section-pad{padding:32px 15px 30px;background:#ffe7ca}
   .faq-intro{margin-bottom:22px}.faq-intro .eyebrow{display:none}
@@ -75,3 +75,7 @@
   .reference-mobile-footer .reference-footer-copyright{font:700 11px/1.4 var(--reference-font);margin:25px 0 0;text-transform:uppercase}
   .journal-preview.reference-journal-moved{display:none}
 }
+
+@media(max-width:620px){.reference-all-faqs{display:block;width:100%;min-height:44px;background:#ef1400;color:white;border:0;border-radius:0;box-shadow:3px 4px #000;margin:20px 0 0;font:700 18px/1.2 var(--reference-font);text-transform:uppercase}}
+.reference-all-faqs{display:none}
+@media(max-width:620px){.reference-all-faqs{display:block}}
