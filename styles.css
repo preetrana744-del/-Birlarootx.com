@@ -166,3 +166,15 @@ body.detail-body .detail-price-row>[data-detail-price],body.detail-body .detail-
 .support-footer .support-button:hover{background:#e9eddd;color:#17281f}
 .journal-footer{flex-wrap:wrap}.journal-footer .support-footer{margin-bottom:10px}
 @media(max-width:620px){.support-footer{align-items:flex-start;justify-content:flex-start;gap:10px;margin-bottom:28px;padding:0 0 24px;font-size:12px}.support-footer>span{text-align:left}.support-footer .support-button{justify-content:flex-start;min-height:44px;max-width:100%;white-space:normal}}
+
+/* Original artwork blends into the surrounding brand palette. */
+.original-brand-logo,.wordmark-footer .original-brand-logo,.original-brand-panel .original-brand-logo,.site-header .wordmark .original-brand-logo{background:transparent;padding:0;border-radius:0;mix-blend-mode:multiply}
+.site-footer .original-brand-logo{filter:grayscale(1) invert(1);mix-blend-mode:screen;opacity:.96}
+.support-footer{gap:18px;margin-bottom:40px;padding-bottom:34px}
+.support-footer>span.support-heading{font:400 27px/1.25 var(--serif);letter-spacing:-.02em}
+.support-footer .support-button{justify-content:flex-start;gap:16px;min-width:252px;padding:16px 20px;border-radius:8px;text-align:left}
+.support-button>svg{width:25px;height:25px;flex-shrink:0}
+.support-copy{display:flex;flex-direction:column;gap:5px}
+.support-copy small{font:500 10px/1.4 var(--sans);letter-spacing:.15em;text-transform:uppercase;opacity:.65}
+.support-copy>span{font:500 14px/1.5 var(--sans);letter-spacing:.01em}
+@media(max-width:620px){.support-footer .support-button{width:100%;min-width:0;padding:16px}.support-footer>span.support-heading{font-size:25px}.wordmark-footer .original-brand-logo{width:210px}.original-brand-panel .original-brand-logo{padding:0}}
