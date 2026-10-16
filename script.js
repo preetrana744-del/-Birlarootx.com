@@ -2,35 +2,35 @@ const products = {
   carbs: {
     name: 'Carbs Slayer', slug: 'carbs-slayer', price: 2499, image: 'carbs-slayer.jpg', number: '01',
     type: '60 capsules · Partitioning complex', format: '60 capsules', category: 'Health supplement',
-    summary: "A 60-capsule health supplement labeled as a nutrient partitioning complex. Each label serving contains 290 mg Berberis Aristata Extract (Berberine Hcl 98%) and 10 mg Banaba.",
+    summary: "Better carb support begins with every daily capsule",
     packNotes: ['Cutting edge nutrient partitioning complex', '60 capsules', 'Health supplement'],
     tone: 'olive'
   },
   jacked: {
     name: 'Jacked Pre-Workout', slug: 'jacked-pre-workout', price: 2999, image: 'jacked-pre-workout.jpg', number: '02',
     type: '40 ultra-concentrated scoops', format: '40 ultra-concentrated scoops', category: 'Dietary supplement',
-    summary: "Blue Raspberry pre-workout with 40 servings per container. Each 5 g scoop lists 100 mg natural caffeine, 2 g L Arginine Hydrochloride, 2 g L Citrulline Malate, Theobroma Cacao Extract and Bacopa Monnieri Extract.",
+    summary: "Better performance begins with every daily scoop",
     packNotes: ['The ultimate pre-workout', 'Training matrix · advance formula', '40 ultra-concentrated scoops'],
     tone: 'purple'
   },
   spilan: {
     name: 'Spilan Test', slug: 'spilan-test', price: 2999, image: 'spilan-test.jpg', number: '03',
     type: '60 capsules · Featuring SA3X™', format: '60 capsules', category: 'Health supplement',
-    summary: "A 60-capsule health supplement featuring SA3X on the front label. Each label serving contains 500 mg Akarkara Extract in a vegetable cellulose capsule.",
+    summary: "Better vitality support begins with every daily capsule",
     packNotes: ['Featuring SA3X™', 'Specialised ultra potent extract', '60 capsules'],
     tone: 'sage'
   },
   epic: {
     name: 'Epic Burn Pro', slug: 'epic-burn-pro', price: 2499, image: 'epic-burn-pro.jpg', number: '04',
     type: '60 capsules · Thermogenic formula', format: '60 capsules', category: 'Nutraceutical',
-    summary: "A 60-capsule nutraceutical labeled as a thermogenic formula. Its ingredient panel lists natural caffeine, Theobroma Cacao Extract, Dandelion root extract and Coleus Forskohlii Extract.",
+    summary: "Better fat-burn support begins with every daily capsule",
     packNotes: ['Super thermogenic', '60 capsules', 'Nutraceutical'],
     tone: 'rose'
   },
   growth: {
     name: 'Growth Factor', slug: 'growth-factor', price: 2499, image: 'growth-factor.jpg', number: '05',
     type: '60 capsules · Sleep support formula', format: '60 capsules', category: 'Health supplement',
-    summary: "A 60-capsule health supplement labeled as a sleep support formula. Each label serving contains 375 mg Mucuna Pruriens Seed Extract (Velvet Bean) and 375 mg Chlorophytum Borivilianum Extract.",
+    summary: "Better recovery support begins with every daily capsule",
     packNotes: ['Sleep support formula', '60 capsules', 'Health supplement'],
     tone: 'blue'
   }
@@ -837,3 +837,4 @@ $$('.mobile-menu a').forEach((link) => link.addEventListener('click', () => {
   $('.site-header').classList.remove('menu-open');
   $('.menu-button').setAttribute('aria-expanded', 'false');
 }));
+

@@ -13,3 +13,6 @@
 
 
 [data-account-name]{display:inline-block;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}@media(max-width:600px){[data-account-name]{max-width:140px}}
+
+
+.brand .original-brand-logo{display:block;width:195px;max-width:100%;height:auto;background:#fff;padding:8px;border-radius:3px}@media(max-width:600px){.brand .original-brand-logo{width:150px}}
