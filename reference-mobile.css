@@ -130,3 +130,6 @@
  .reference-mobile-footer .reference-footer-copyright{font-size:14px}
  #products,#faq{scroll-margin-top:84px}
 }
+
+/* The shared opening already shows the original five-product photograph. */
+.deck-range-banner{display:none}
