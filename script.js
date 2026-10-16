@@ -477,8 +477,6 @@ function renderProductPage() {
   const stickyName = $('[data-sticky-name]');
   if (stickyName) stickyName.textContent = product.name;
   detailImage.src = product.image;
-  const brandGallery = document.querySelector('[data-deck-product-gallery]');
-  if (brandGallery) brandGallery.innerHTML = [12,15,17,19,21,23,24].map((page,index) => `<figure><img src="/assets/brand-deck/range-${page}.jpg" alt="${product.name} in the original Birla RootX product range, view ${index+1}" width="1600" height="900" loading="lazy" /></figure>`).join('');
   detailImage.alt = `${product.name} by Birla RootX, ${product.format}`;
   $('[data-detail-add]').dataset.product = Object.keys(products).find((key) => products[key] === product);
   const stickyAdd = $('[data-sticky-add]');

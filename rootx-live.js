@@ -53,7 +53,7 @@
         if(!item)return;
         const n=Number(item.price);
         if(!Number.isFinite(n)||n<=0)return;
-        const image=resolveImage(item.image_url);
+        const image=product.image.startsWith('/assets/brand-deck/')?product.image:resolveImage(item.image_url);
         product.price=n;
         if(image)product.image=image;
         const card=document.querySelector('.product-card [data-product="'+cartKey+'"]')?.closest('.product-card');
@@ -70,8 +70,6 @@
         const product=Object.values(local)[index]||Object.values(local)[0];
         if(product)heroPrice.textContent='₹'+product.price.toLocaleString('en-IN');
       }
-      const from=document.querySelector('.hero-price-note b');
-      if(from)from.textContent='₹'+Math.min(...Object.values(local).map(p=>p.price)).toLocaleString('en-IN');
       if(typeof renderProductPage==='function')renderProductPage();
       if(typeof renderBag==='function')renderBag();
       document.querySelectorAll('[data-detail-price]').forEach(node=>node.textContent='₹'+
