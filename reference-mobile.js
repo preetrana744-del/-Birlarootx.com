@@ -26,10 +26,37 @@
  const media=matchMedia('all');
  const sync=()=>{if(media.matches){if(support)mobileFooter.querySelector('.reference-contact-slot').append(support);journalSection?.classList.add('reference-journal-moved');}else{if(support)anchor.after(support);journalSection?.classList.remove('reference-journal-moved');}};
  sync();media.addEventListener('change',sync);
- const dialog=document.createElement('dialog');dialog.className='reference-search-dialog';
- dialog.innerHTML='<form><label for="rootx-product-search">Search Birla RootX products</label><input id="rootx-product-search" name="query" type="search" placeholder="Product name" autocomplete="off"><button type="submit">SEARCH</button><button type="button" class="reference-close-search">CLOSE</button><p role="status" class="reference-search-status"></p></form>';
+
+ const dialog=document.createElement('dialog');dialog.className='reference-search-dialog';dialog.setAttribute('aria-label','Search Birla RootX');
+ dialog.innerHTML='<div class="rootx-search-bar"><form role="search"><label class="rootx-search-label" for="rootx-product-search">Search products</label><span class="rootx-search-icon" aria-hidden="true">'+icons.search+'</span><input id="rootx-product-search" name="query" type="search" placeholder="Search for products" autocomplete="off" aria-controls="rootx-search-results"><button class="rootx-clear-search" type="button" aria-label="Clear search" hidden>×</button></form><button type="button" class="reference-close-search" aria-label="Close search">×</button></div><div class="rootx-search-content"><p role="status" aria-live="polite" class="reference-search-status"></p><div id="rootx-search-results" class="rootx-search-results"></div></div>';
  document.body.append(dialog);
- header.querySelector('.reference-search-button')?.addEventListener('click',()=>dialog.showModal());
- dialog.querySelector('.reference-close-search').addEventListener('click',()=>dialog.close());
- dialog.querySelector('form').addEventListener('submit',e=>{e.preventDefault();const q=dialog.querySelector('input').value.trim().toLowerCase();const cards=[...document.querySelectorAll('.product-card')];const match=cards.find(card=>card.querySelector('h3').textContent.toLowerCase().includes(q));if(match){dialog.close();match.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth',block:'center'});}else dialog.querySelector('.reference-search-status').textContent='No matching product. Try Carbs Slayer, Jacked, Spilan, Epic Burn or Growth Factor.';});
+ const input=dialog.querySelector('input'),results=dialog.querySelector('.rootx-search-results'),status=dialog.querySelector('.reference-search-status'),clear=dialog.querySelector('.rootx-clear-search'),trigger=header.querySelector('.reference-search-button');
+ const normalize=t=>t.toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+ const distance=(a,b)=>{const row=Array.from({length:b.length+1},(_,i)=>i);for(let i=1;i<=a.length;i++){let prev=row[0];row[0]=i;for(let j=1;j<=b.length;j++){const old=row[j];row[j]=Math.min(row[j]+1,row[j-1]+1,prev+(a[i-1]===b[j-1]?0:1));prev=old;}}return row[b.length];};
+ const render=()=>{
+ const q=normalize(input.value),terms=q.split(' ').filter(Boolean),cards=[...document.querySelectorAll('.product-card')];
+ const matches=cards.filter(card=>{const hay=normalize(card.textContent),words=hay.split(' ');return terms.every(term=>hay.includes(term)||(term.length>=4&&words.some(word=>distance(term,word)<=1)));});
+ clear.hidden=!input.value;
+ status.textContent=q?(matches.length?matches.length+' product'+(matches.length===1?'':'s')+' found':'No products found. Try another name or explore our range below.'):'Explore the range';
+ results.replaceChildren();
+ const shown=matches.length?matches:cards;
+ shown.forEach(card=>{
+ const source=card.querySelector('h3 a'),image=card.querySelector('.product-image img'),price=card.querySelector('.product-price'),cart=card.querySelector('.add-button');
+ const tile=document.createElement('article');tile.className='rootx-search-product';
+ const link=document.createElement('a');link.className='rootx-search-product-link';link.href=source.href;
+ const img=document.createElement('img');img.src=image.currentSrc||image.src;img.alt=source.textContent;img.width=280;img.height=280;
+ const name=document.createElement('h3');name.textContent=source.textContent;
+ link.append(img,name);tile.append(link);
+ const cost=document.createElement('p');cost.className='rootx-search-price';cost.textContent=price.textContent;tile.append(cost);
+ const add=document.createElement('button');add.type='button';add.className='rootx-search-add';add.textContent=cart.getAttribute('aria-pressed')==='true'?'REMOVE FROM CART':'ADD TO CART';add.setAttribute('aria-label',cart.getAttribute('aria-label')||('Add '+source.textContent+' to cart'));add.addEventListener('click',()=>{cart.click();render();});tile.append(add);results.append(tile);
+ });
+ };
+ const close=()=>dialog.close();
+ trigger?.setAttribute('aria-haspopup','dialog');trigger?.setAttribute('aria-expanded','false');
+ trigger?.addEventListener('click',()=>{render();dialog.showModal();document.documentElement.classList.add('rootx-search-open');trigger.setAttribute('aria-expanded','true');input.focus();});
+ dialog.addEventListener('close',()=>{document.documentElement.classList.remove('rootx-search-open');trigger?.setAttribute('aria-expanded','false');trigger?.focus();});
+ dialog.querySelector('.reference-close-search').addEventListener('click',close);
+ dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientY>r.bottom||e.clientY<r.top)close();}});
+ input.addEventListener('input',render);clear.addEventListener('click',()=>{input.value='';render();input.focus();});
+ dialog.querySelector('form').addEventListener('submit',e=>{e.preventDefault();render();results.querySelector('a')?.focus();});
 })();
