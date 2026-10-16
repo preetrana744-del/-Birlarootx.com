@@ -1,0 +1,77 @@
+
+@font-face{font-family:"RootX Reference";src:url("https://superyou.in/cdn/shop/t/51/assets/HelveticaNowVar.ttf?v=85829420661730474241766521971") format("truetype");font-weight:100 900;font-style:normal;font-display:swap}
+.reference-search-button,.reference-mobile-footer,.reference-shop-label,.reference-account-icon,.reference-bag-icon{display:none}
+.reference-search-dialog{border:1px solid #ef1400;padding:24px;max-width:calc(100% - 32px);width:440px;box-sizing:border-box}.reference-search-dialog::backdrop{background:#0008}.reference-search-dialog form{display:flex;flex-direction:column;gap:15px}.reference-search-dialog input{min-height:46px;font:16px Arial;border:1px solid #999;padding:10px}.reference-search-dialog button{min-height:44px;background:#ef1400;color:white;border:0;font-weight:700}.reference-search-dialog .reference-close-search{background:white;color:#111}
+@media(max-width:620px){
+  body{--reference-font:"RootX Reference",Helvetica,Arial,sans-serif}
+  .announcement{height:42px;min-height:42px;background:#fff;color:#111;border-bottom:1px solid #f5e4df;font:700 11px/1.3 var(--reference-font);letter-spacing:.07em;gap:8px}
+  .site-header{height:64px;min-height:64px;padding:0;display:grid;grid-template-columns:44px minmax(0,1fr) 136px;align-items:center;position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid #eee;gap:0}
+  .site-header .wordmark{grid-column:2;grid-row:1;justify-self:center;margin:0;max-width:100%}
+  .site-header .wordmark .original-brand-logo{width:128px;max-width:100%;height:auto}
+  .site-header .header-actions{display:contents}
+  .site-header .header-domain,.site-header .desktop-nav{display:none}
+  .site-header .menu-button{position:absolute;left:0;top:0;width:44px;height:64px;border:0;border-right:1px solid #eee;border-radius:0;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:0 10px}
+  .site-header .menu-button span{width:22px;height:4px;border-radius:3px;background:#171713}
+  .site-header .reference-search-button{position:absolute;right:90px;top:0;width:46px;height:64px;display:grid;place-items:center;background:#fff;border:0;border-left:1px solid #eee;color:#111;padding:9px}
+  .reference-search-button svg,.reference-account-icon svg,.reference-bag-icon svg{width:26px;height:26px;display:block}
+  .site-header .rootx-account-link{position:absolute;right:45px;top:0;width:45px;max-width:45px!important;height:64px;margin:0!important;padding:0!important;border:0!important;border-left:1px solid #eee!important;font-size:0!important;display:grid!important;place-items:center;white-space:nowrap;background:#fff}
+  .reference-account-icon{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;color:#111}
+  .site-header .bag-button{position:absolute;right:0;top:0;width:45px;height:64px;min-width:0;display:grid;place-items:center;padding:0;border:0;border-left:1px solid #eee;border-radius:0;background:white;font-size:0;color:#111}
+  .reference-bag-icon{display:block;position:absolute;left:9px;top:19px;pointer-events:none}
+  .site-header .bag-count{position:absolute;right:2px;top:9px;min-width:14px;width:auto;height:14px;padding:0 3px;background:#ef1400;color:#fff;border-radius:8px;font:700 8px/14px var(--reference-font);z-index:1}
+  .site-header .mobile-menu{top:64px;background:#fff;font:700 15px/1.3 var(--reference-font)}
+  .reference-shop-label{display:block;background:#fff;padding:16px 15px 18px;font:800 17px/1 var(--reference-font);font-stretch:75%;text-transform:uppercase;color:#ef1400}
+  .reference-shop-label span{display:block;color:#777;font:500 10px/1 var(--reference-font);letter-spacing:.08em;margin-bottom:27px}
+  .hero{display:block;background:#fff;padding:0;overflow:hidden}
+  .hero .hero-copy{display:contents}
+  .hero .hero-copy>:not(.mobile-hero-range){display:none}
+  .hero .mobile-hero-range{display:block;margin:0;border:0;border-radius:0}
+  .hero .mobile-hero-range img{width:100%;height:auto;display:block}
+  .hero .hero-visual,.marquee{display:none}
+  .products.section-pad{padding:42px 15px 40px;background:#fafafa;background-image:radial-gradient(#e5e5e5 .5px,transparent .5px);background-size:3px 3px}
+  .products .section-head{display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px;margin:0 0 30px}
+  .products .section-head .eyebrow{display:none}
+  .products .section-head h2{font:800 31px/.95 var(--reference-font);font-stretch:75%;letter-spacing:0;text-transform:uppercase;color:#ef1400;max-width:none}
+  .products .section-head h2 em{font:inherit;color:inherit}
+  .products .section-intro{font:700 16px/1.35 var(--reference-font);margin:0;max-width:300px;color:#333}
+  .products .product-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 12px}
+  .products .product-card,.products .product-card:nth-child(5){grid-column:auto;width:100%;min-width:0;justify-self:stretch;background:#fff;border:1px solid #ff2f17;border-radius:0;box-shadow:none;padding:10px;display:flex;flex-direction:column;text-align:center;transform:none}
+  .products .product-image{aspect-ratio:1;border-radius:0;background:#eee;flex-shrink:0}
+  .products .product-image img{object-fit:cover;width:100%;height:100%}
+  .products .product-card-info{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:16px;padding:0;margin-top:22px;min-height:0}
+  .products .product-card-info>div{width:100%}
+  .products .product-type{font:500 8px/1.35 var(--reference-font);letter-spacing:0;margin:0 0 8px;min-height:22px;color:#666}
+  .products .product-card h3{font:800 18px/1.05 var(--reference-font);font-stretch:75%;letter-spacing:0;text-transform:uppercase;min-height:38px;margin:0}
+  .products .product-card h3 a{font:inherit;font-stretch:inherit}
+  .products .product-price{font:750 18px/1.1 var(--reference-font);margin:0;letter-spacing:0}
+  .products .deck-product-dialogue{font:400 11px/1.4 var(--reference-font);letter-spacing:0;margin:14px 0;min-height:46px;color:#333}
+  .products .product-details-link{font:600 9px/1.3 var(--reference-font);letter-spacing:0;text-transform:uppercase;padding:8px 0;margin:0 0 12px;border:0}
+  .products .add-button{width:100%;min-height:40px;margin:auto 0 5px;padding:9px 3px;border:0;border-radius:0;background:#ef1400;color:#fff;box-shadow:2px 4px 0 #000;justify-content:center;font:800 13px/1.1 var(--reference-font);letter-spacing:0;text-transform:uppercase}
+  .products .add-button span{display:none}
+  .products .add-button.is-added{background:#111;color:#fff}
+  .products .add-button:active{transform:translate(2px,3px);box-shadow:none}
+  .faq.section-pad{padding:32px 15px 30px;background:#ffe7ca}
+  .faq-intro{margin-bottom:22px}.faq-intro .eyebrow{display:none}
+  .faq h2,.faq h2 em{font:800 32px/.95 var(--reference-font);font-stretch:75%;text-transform:uppercase;letter-spacing:0;color:#111}
+  .faq-intro>p:not(.eyebrow){font:400 13px/1.4 var(--reference-font);margin-top:12px}
+  .faq .faq-list details{border:1px solid #efd2aa;background:#ffe1b8;margin:0 0 14px;padding:0}
+  .faq .faq-list summary{font:800 12px/1.2 var(--reference-font);text-transform:uppercase;letter-spacing:0;padding:19px 16px;gap:18px;min-height:72px;box-sizing:border-box;align-items:center}
+  .faq .faq-list summary>span{display:grid;place-items:center;width:30px;height:30px;min-width:30px;border-radius:50%;background:#000;color:#fff;font:300 26px/1 var(--reference-font);transform:none}
+  .faq .faq-list details[open] summary>span{transform:rotate(45deg)}
+  .faq .faq-list details>p{font:400 13px/1.6 var(--reference-font);padding:0 16px 18px;margin:0;color:#333}
+  .reference-mobile-footer{display:block}
+  .site-footer{background:#ef1400;color:#fff;padding:0 20px 25px}
+  .site-footer>.support-footer,.site-footer>.footer-main,.site-footer>.footer-bottom{display:none}
+  .reference-footer-group{border:0;border-bottom:1px solid #fff8}
+  .reference-footer-group summary{display:flex;justify-content:space-between;align-items:center;padding:22px 0;font:800 23px/1 var(--reference-font);font-stretch:75%;text-transform:uppercase;list-style:none}
+  .reference-footer-group summary::-webkit-details-marker{display:none}
+  .reference-footer-group summary:after{content:"+";font:400 18px/1 var(--reference-font)}
+  .reference-footer-group[open] summary:after{content:"−"}
+  .reference-footer-group a{display:block;font:400 13px/1.5 var(--reference-font);color:#fff;padding:8px 0;text-decoration:none}
+  .reference-footer-group p{font:400 13px/1.65 var(--reference-font);color:#fff}
+  .reference-mobile-footer .support-footer{display:flex;color:#fff;border:0;margin:0;padding:0 0 20px}
+  .reference-mobile-footer .support-heading{display:none}
+  .reference-mobile-footer .support-button{min-width:0;width:100%;border-color:#fff8;background:transparent}
+  .reference-mobile-footer .reference-footer-copyright{font:700 11px/1.4 var(--reference-font);margin:25px 0 0;text-transform:uppercase}
+  .journal-preview.reference-journal-moved{display:none}
+}
