@@ -9,9 +9,14 @@
   let authMode='signin',currentUser=null,isAdmin=false,orderToken=null;
   let shopifyCheckoutEnabled=false,checkoutBusy=false;
   const checkoutEndpoint='https://lbqgdfbpuxjkwldhwpvi.supabase.co/functions/v1/rootx-shopify-checkout';
-  let recoveryPending=location.hash.includes('type=recovery')||new URLSearchParams(location.search).get('type')==='recovery';
+  let recoveryPending=Boolean(window.rootxRecoveryRequested)||location.hash.includes('type=recovery')||new URLSearchParams(location.search).get('type')==='recovery';
   const setNotice=(message,error=false)=>{ const box=$('notice');box.hidden=!message;box.textContent=message||'';box.classList.toggle('error',error);if(message)box.scrollIntoView({block:'nearest',behavior:'smooth'}); };
-  const showAuth=()=>{ $('auth-panel').hidden=false; $('dashboard').hidden=true; $('logout').hidden=true; };
+  let dashboardVersion=0;
+  const intentKey='rootx-return-intent-v1';
+  function rememberCheckout(){if(new URLSearchParams(location.search).has('checkout')){try{localStorage.setItem(intentKey,JSON.stringify({checkout:true,expires:Date.now()+86400000}));}catch{}}}
+  rememberCheckout();
+  function restoreCheckout(){try{if(window.ROOTX_ACCOUNT_HELPERS.returnIntent(localStorage.getItem(intentKey))&&!new URLSearchParams(location.search).has('checkout'))history.replaceState(null,'','account.html?checkout=1');}catch{}}
+  const showAuth=()=>{ dashboardVersion++;currentUser=null;isAdmin=false;['customer-orders','admin-orders','admin-products','admin-customers'].forEach(id=>$(id).replaceChildren()); $('auth-panel').hidden=false; $('dashboard').hidden=true; $('logout').hidden=true; };
   const setMode=mode=>{
     authMode=mode;
     $('google-auth-options').hidden=mode!=='signin'&&mode!=='signup';
@@ -73,8 +78,8 @@
       if(authMode==='signin'){result=await db.auth.signInWithPassword({email,password});}
       if(authMode==='signup'){
         if(name.length<2)throw Error('Enter your full name.');
-        result=await db.auth.signUp({email,password,options:{data:{full_name:name},emailRedirectTo:new URL('account.html',location.href).href}});
-        if(!result.error){setNotice('Account request received. If email confirmation is enabled, check your inbox and verify before signing in.');setMode('signin');return;}
+        result=await db.auth.signUp({email,password,options:{data:{full_name:name,app:'birlarootx'},emailRedirectTo:new URL('account.html',location.href).href}});
+        if(!result.error){if(result.data?.session){await showDashboard();setNotice('Your account is ready.');}else{setNotice('Check your inbox and spam folder for the confirmation link before signing in. Request accepted does not prove email delivery.');setMode('signin');}return;}
       }
       if(authMode==='reset'){
         result=await db.auth.resetPasswordForEmail(email,{redirectTo:new URL('account.html',location.href).href});
@@ -118,8 +123,10 @@
     return result+'</article>';
   }
   async function getOrders(){
+    let ordersQuery=db.from('rootx_orders').select('id,order_number,customer_id,status,expected_delivery_date,tracking_number,courier,admin_note,shipping_name,shipping_phone,shipping_address,subtotal,created_at,source,payment_status,total,currency,shopify_order_id').order('created_at',{ascending:false});
+    if(!isAdmin)ordersQuery=ordersQuery.eq('customer_id',currentUser.id);
     const q=await Promise.all([
-      db.from('rootx_orders').select('id,order_number,customer_id,status,expected_delivery_date,tracking_number,courier,admin_note,shipping_name,shipping_phone,shipping_address,subtotal,created_at,source,payment_status,total,currency,shopify_order_id').order('created_at',{ascending:false}),
+      ordersQuery,
       db.from('rootx_order_items').select('order_id,product_name,quantity,unit_price,image_url'),
       db.from('rootx_order_events').select('order_id,status,note,created_at').order('created_at',{ascending:true})
     ]);
@@ -127,7 +134,8 @@
     return {orders:q[0].data||[],items:q[1].data||[],events:q[2].data||[]};
   }
   async function loadCustomer(){
-    const all=await getOrders();
+    const owner=currentUser?.id;
+    const all=await getOrders();if(!owner||currentUser?.id!==owner||isAdmin)return;
     $('customer-orders').innerHTML=all.orders.length ? all.orders.map(o=>orderView(o,all.items.filter(i=>i.order_id===o.id),all.events.filter(e=>e.order_id===o.id))).join('') : '<p class="muted">No orders yet. Your order history and delivery updates will appear here after an order request is submitted.</p>';
     let cart;
     try{cart=readCart();}catch(error){$('checkout-section').hidden=false;$('checkout-form').hidden=true;$('checkout-items').textContent=error.message;return;}
@@ -139,13 +147,15 @@
       $('place-order').disabled=true;
       const checkoutStatus=checkoutAvailable();
       const productResult=await db.from('rootx_products').select('slug,name,price,active').eq('active',true);
+      if(currentUser?.id!==owner||isAdmin)return;
       if(productResult.error)throw productResult.error;
       const details=cart.map(i=>({...i,product:productResult.data.find(p=>p.slug===i.slug)}));
       if(details.some(i=>!i.product)){$('checkout-items').textContent='A cart item is no longer available. Please update your cart.';$('place-order').disabled=true;return;}
       $('checkout-items').innerHTML='<div class="order">'+details.map(i=>'<div class="order-top"><span>'+safe(i.product.name)+' × '+i.quantity+'</span><b>'+money(i.product.price*i.quantity)+'</b></div>').join('')+'<hr><div class="order-top"><strong>Estimated total</strong><strong>'+money(details.reduce((n,i)=>n+i.product.price*i.quantity,0))+'</strong></div></div>';
       const profile=await db.from('rootx_profiles').select('full_name,phone').eq('id',currentUser.id).maybeSingle();
+      if(currentUser?.id!==owner||isAdmin)return;
       if(profile.data){$('checkout-form').elements.shipping_name.value=profile.data.full_name||'';$('checkout-form').elements.shipping_phone.value=profile.data.phone||'';}
-      setCheckoutMode(await checkoutStatus);
+      const enabled=await checkoutStatus;if(currentUser?.id!==owner||isAdmin)return;setCheckoutMode(enabled);
       $('place-order').disabled=checkoutBusy;
     } else if(params.has('checkout')){$('checkout-section').hidden=false;$('checkout-items').textContent='Your cart is empty. Add a product first.';$('checkout-form').hidden=true;}
   }
@@ -214,22 +224,31 @@
     location.assign(destination.href);
   }
   $('checkout-form').addEventListener('submit',async e=>{
-    e.preventDefault();if(checkoutBusy)return;let items;try{items=readCart();}catch(error){return setNotice(error.message,true);}if(!items.length)return setNotice('Your cart is empty.',true);
+    e.preventDefault();const formElement=e.currentTarget;if(checkoutBusy)return;let items;try{items=readCart();}catch(error){return setNotice(error.message,true);}if(!items.length)return setNotice('Your cart is empty.',true);
     checkoutBusy=true;
     const button=$('place-order');button.disabled=true;setNotice('');
     try{
       if(shopifyCheckoutEnabled){await startSecureCheckout(items);return;}
+      const {data:{user},error:sessionError}=await db.auth.getUser();
+      if(sessionError||!user||user.id!==currentUser?.id){const expired=Error();expired.code='session_expired';throw expired;}
+      const form=new FormData(formElement);
+      const validated=window.ROOTX_ACCOUNT_HELPERS.shipping(Object.fromEntries(form));
+      const errorBox=$('address-error');errorBox.hidden=true;
+      Object.keys(validated.errors).forEach(name=>{const input=formElement.elements[name];input.setAttribute('aria-invalid','true');});
+      if(Object.keys(validated.errors).length){errorBox.hidden=false;errorBox.textContent=Object.values(validated.errors).join(' ');formElement.elements[Object.keys(validated.errors)[0]].focus();throw Error('Please correct the highlighted delivery details.');}
       if(!orderToken)orderToken=crypto.randomUUID();
-      const form=new FormData(e.currentTarget);
-      const payload={client_request_id:orderToken,shipping_name:String(form.get('shipping_name')||'').trim(),shipping_phone:String(form.get('shipping_phone')||'').trim(),shipping_address:String(form.get('shipping_address')||'').trim(),items};
+      const payload={client_request_id:orderToken,...validated.value,items};
+      const requestUser=currentUser.id;
       const {data,error}=await db.rpc('rootx_place_order',{payload});if(error)throw error;
-      localStorage.removeItem('birlarootx-cart-v1');orderToken=null;
+      if(currentUser?.id!==requestUser){showAuth();setNotice('Your request may have been received. Sign in to the same account to check its status.');return;}
+      localStorage.removeItem('birlarootx-cart-v1');localStorage.removeItem(intentKey);orderToken=null;
       history.replaceState(null,'','account.html');
       $('checkout-section').hidden=true;
       setNotice('Order request '+data.order_number+' received. No online payment has been charged. Your request is visible to the RootX team.');
+      void flushNotifications();
       await loadCustomer();
     }catch(err){
-      if(err.code==='session_expired'){currentUser=null;showAuth();setMode('signin');setNotice('Please sign in again to continue with your cart.',true);}
+      if(err.code==='session_expired'||err.code==='PGRST301'||err.status===401){currentUser=null;showAuth();setMode('signin');setNotice('Please sign in again to continue with your cart.',true);}
       else setNotice(err.message||'Order request failed.',true);
     }finally{checkoutBusy=false;button.disabled=false;}
   });
@@ -244,16 +263,19 @@
       '<label>Expected delivery date<input name="expected_delivery_date" type="date" value="'+safe(order.expected_delivery_date||'')+'"></label>'+
       '<label>Courier name<input name="courier" maxlength="100" value="'+safe(order.courier||'')+'"></label>'+
       '<label>Tracking number<input name="tracking_number" maxlength="100" value="'+safe(order.tracking_number||'')+'"></label>'+
+      '<label>Message template<select name="message_template"><option value="">Choose a starting message</option><option value="dispatch">Dispatch update</option><option value="delay">Delay update</option><option value="cancellation">Cancellation update</option><option value="support">Support acknowledgement</option></select></label>'+
       '<label>Customer-visible update<input name="admin_note" maxlength="1000" value="'+safe(order.admin_note||'')+'"></label>'+
       '<button type="submit" class="btn">Save delivery update</button></form>'+
       (events.length?'<div class="line">History: '+events.map(e=>safe(e.status.replaceAll('_',' '))+' ('+stamp(e.created_at)+')').join(' → ')+'</div>':'')+'</article>';
   }
   async function loadAdmin(){
+    const owner=currentUser?.id;
     const [all,profiles,products]=await Promise.all([
       getOrders(),
       db.from('rootx_profiles').select('id,email,full_name,phone,created_at').order('created_at',{ascending:false}),
       db.from('rootx_products').select('slug,name,price,image_url,active').order('name')
     ]);
+    if(!isAdmin||currentUser?.id!==owner)return;
     if(profiles.error)throw profiles.error;if(products.error)throw products.error;
     const people=profiles.data||[];
     const byId=new Map(people.map(p=>[p.id,p]));
@@ -268,6 +290,8 @@
       '<label>Replace product photo<input name="image" type="file" accept="image/jpeg,image/png,image/webp"></label>'+
       '<button type="submit" class="btn">Save product</button></form>').join('');
   }
+  const communicationTemplates={dispatch:'Your order has been dispatched. Please see the confirmed courier and tracking details above. Delivery dates are estimates. This update is not a payment receipt.',delay:'Your order is delayed. We are checking the cause and next delivery estimate. Please contact support to discuss your available options. This update is not a payment receipt.',cancellation:'Your cancellation has been confirmed. If a payment was collected, support will confirm the refund status separately. This message is not a refund receipt.',support:'We have received your enquiry and are reviewing it. Please keep your order reference for follow-up. Never share passwords, OTPs or card details.'};
+  $('admin-orders').addEventListener('change',e=>{if(e.target.name!=='message_template')return;const value=communicationTemplates[e.target.value];if(value)e.target.closest('form').elements.admin_note.value=value;});
   $('admin-orders').addEventListener('submit',async e=>{
     const form=e.target.closest('form[data-order-id]');if(!form)return;e.preventDefault();const button=form.querySelector('button[type=submit]');button.disabled=true;setNotice('');
     try{
@@ -276,7 +300,7 @@
       if(!statuses.includes(record.status))throw Error('Invalid status.');
       const {data,error}=await db.from('rootx_orders').update(record).eq('id',form.dataset.orderId).select('id');
       if(error)throw error;if(!data?.length)throw Error('Update denied.');
-      setNotice('Delivery details saved. Customer tracking updated.');await loadAdmin();
+      setNotice('Delivery details saved. Customer tracking updated; this does not confirm payment.');void flushNotifications();await loadAdmin();
     }catch(err){setNotice(err.message||'Could not update order.',true);}finally{button.disabled=false;}
   });
   $('admin-products').addEventListener('submit',async e=>{
@@ -300,10 +324,11 @@
     }catch(err){setNotice(err.message||'Could not save product.',true);}finally{button.disabled=false;}
   });
   async function showDashboard(){
+    const version=++dashboardVersion;
     if(recoveryPending){showAuth();setMode('newpassword');return;}
-    const {data:{user},error}=await db.auth.getUser();
+    const {data:{user},error}=await db.auth.getUser();if(version!==dashboardVersion)return;
     if(error||!user){currentUser=null;showAuth();return;}
-    currentUser=user;
+    currentUser=user;restoreCheckout();
     if(sessionStorage.getItem('rootx-google-return-checkout')==='1'){
       sessionStorage.removeItem('rootx-google-return-checkout');
       if(!new URLSearchParams(location.search).has('checkout')){
@@ -311,6 +336,7 @@
       }
     }
     const admin=await db.from('rootx_admin_users').select('user_id').eq('user_id',user.id).maybeSingle();
+    if(version!==dashboardVersion)return;
     if(admin.error)throw admin.error;
     isAdmin=Boolean(admin.data);
     $('auth-panel').hidden=true;$('dashboard').hidden=false;$('logout').hidden=false;
@@ -318,12 +344,23 @@
     $('role-label').textContent=isAdmin?'AUTHORIZED ADMIN':'CUSTOMER ACCOUNT';
     $('welcome').textContent=isAdmin?'Store management':'My orders & tracking';
     $('account-email').textContent=user.email||'';
-    if(isAdmin)await loadAdmin();else await loadCustomer();
+    if(isAdmin){await loadAdmin();void flushNotifications();}else await loadCustomer();
   }
   db.auth.onAuthStateChange((event)=>{
     if(event==='PASSWORD_RECOVERY'){recoveryPending=true;showAuth();setMode('newpassword');setNotice('Please choose a new password.');}
-    else if(event==='SIGNED_OUT'){currentUser=null;showAuth();}
+    else if(event==='SIGNED_OUT'){currentUser=null;showAuth();setNotice('Your session ended. Sign in again; your bag is saved.');}
+    else if((event==='SIGNED_IN'||event==='TOKEN_REFRESHED')&&!recoveryPending){setTimeout(()=>showDashboard().catch(err=>{showAuth();setNotice(err.message||'Could not load your account.',true);}),0);}
   });
+  async function flushNotifications(){
+    try{const {data,error}=await db.functions.invoke('rootx-order-notifications',{body:{}});
+      if(isAdmin&&$('notification-status'))$('notification-status').textContent=error?'Notification service is unavailable. Order records are saved.':data?.configured?((data.sent||0)+' email(s) accepted by provider; pending or failed messages remain queued.'):'Automatic email is paused: verified sender and sending-service configuration are required. Order requests remain visible in the account.';
+    }catch{if(isAdmin)$('notification-status').textContent='Notification service unavailable; order records are saved.';}
+  }
+  $('retry-notifications').addEventListener('click',async e=>{const button=e.currentTarget;button.disabled=true;try{await flushNotifications();}finally{button.disabled=false;}});
+  const delivery=$('checkout-delivery');
+  const stateSelect=delivery.querySelector('[name=shipping_state]');
+  window.ROOTX_ACCOUNT_HELPERS.states.forEach(state=>{const option=document.createElement('option');option.value=state;option.textContent=state;stateSelect.append(option);});
+  delivery.addEventListener('input',e=>e.target.removeAttribute('aria-invalid'));
   setMode('signin');
   showDashboard().catch(err=>{showAuth();setNotice(err.message||'Could not load your account.',true);});
 })();

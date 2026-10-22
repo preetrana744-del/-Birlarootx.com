@@ -1,6 +1,7 @@
 /* One persistent Supabase session shared by the storefront and account page. */
 (() => {
   'use strict';
+  window.rootxRecoveryRequested=location.hash.includes('type=recovery')||new URLSearchParams(location.search).get('type')==='recovery';
   const db = window.rootxAuth = window.supabase.createClient(
     'https://lbqgdfbpuxjkwldhwpvi.supabase.co',
     'sb_publishable_rS7URzLNbhXhdPp50Te_Qg_9LtpKOI_',
@@ -31,3 +32,4 @@
     } finally { button.disabled = false; }
   }));
 })();
+

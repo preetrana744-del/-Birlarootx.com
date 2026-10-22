@@ -7,3 +7,8 @@ verify_jwt = false
 [functions.rootx-shopify-webhook]
 # Shopify raw-body HMAC and fixed source domain are verified in the handler.
 verify_jwt = false
+
+[functions.rootx-order-notifications]
+# Function verifies a real confirmed Supabase user and scopes leases server-side.
+verify_jwt = false
+
