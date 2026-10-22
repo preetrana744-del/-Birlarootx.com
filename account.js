@@ -16,7 +16,7 @@
   function rememberCheckout(){if(new URLSearchParams(location.search).has('checkout')){try{localStorage.setItem(intentKey,JSON.stringify({checkout:true,expires:Date.now()+86400000}));}catch{}}}
   rememberCheckout();
   function restoreCheckout(){try{if(window.ROOTX_ACCOUNT_HELPERS.returnIntent(localStorage.getItem(intentKey))&&!new URLSearchParams(location.search).has('checkout'))history.replaceState(null,'','account.html?checkout=1');}catch{}}
-  const showAuth=()=>{ dashboardVersion++;currentUser=null;isAdmin=false;['customer-orders','admin-orders','admin-products','admin-customers'].forEach(id=>$(id).replaceChildren()); $('auth-panel').hidden=false; $('dashboard').hidden=true; $('logout').hidden=true; };
+  const showAuth=()=>{ dashboardVersion++;currentUser=null;isAdmin=false;['customer-orders','admin-orders','admin-products','admin-customers'].forEach(id=>$(id).replaceChildren());$('checkout-form').reset();$('account-email').textContent=''; $('auth-panel').hidden=false; $('dashboard').hidden=true; $('logout').hidden=true; };
   const setMode=mode=>{
     authMode=mode;
     $('google-auth-options').hidden=mode!=='signin'&&mode!=='signup';
@@ -32,7 +32,7 @@
     $('auth-title').textContent=({signin:'Sign in to RootX',signup:'Create your account',reset:'Reset your password',newpassword:'Choose a new password'})[mode];
     $('auth-submit').firstChild.textContent=({signin:'Sign in ',signup:'Create account ',reset:'Send reset link ',newpassword:'Save new password '})[mode];
   };
-  document.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>{setNotice('');setMode(b.dataset.mode);}));
+  document.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>{recoveryPending=false;setNotice('');setMode(b.dataset.mode);}));
   // OAuth uses the backend Supabase provider, not Google API credentials in client code.
   // An exact return URL avoids dependency on wildcard redirect allowlisting.
   $('google-signin').addEventListener('click',async()=>{
@@ -92,7 +92,7 @@
       }
       if(result?.error)throw result.error;
       await showDashboard();
-    }catch(err){setNotice(err.message||'Could not complete request.',true);}finally{button.disabled=false;}
+    }catch(err){const emailFailure=/sending.*email|email.*sending|smtp/i.test(err.message||'');setNotice(emailFailure?'Email could not be sent right now. Please contact rootx1212@gmail.com or use Google sign-in. Your bag is saved.':(err.message||'Could not complete request.'),true);}finally{button.disabled=false;}
   });
   $('logout').addEventListener('click',async()=>{const {error}=await db.auth.signOut();if(error){setNotice('Could not sign out. Please try again.',true);return;}currentUser=null;isAdmin=false;setNotice('You have signed out.');setMode('signin');showAuth();});
   $('refresh').addEventListener('click',()=>showDashboard());
@@ -109,7 +109,7 @@
     return money(amount);
   }
   function paymentDetails(order){
-    return order.source==='shopify'?'<div class="line">Shopify order · Payment: '+safe(String(order.payment_status||'pending').replaceAll('_',' '))+'</div>':'';
+    return order.source==='shopify'?'<div class="line">Shopify order · Payment: '+safe(String(order.payment_status||'pending').replaceAll('_',' '))+'</div>':'<div class="line">Order request · No online payment was collected by this request flow.</div>';
   }
   function orderView(order,items,events){
     const date=order.expected_delivery_date ? safe(order.expected_delivery_date) : 'Not assigned yet';
