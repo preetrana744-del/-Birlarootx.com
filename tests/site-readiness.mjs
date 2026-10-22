@@ -22,3 +22,5 @@ f=fixture({uploadError:true});await assert.rejects(()=>saveProduct(f.db,args),/u
 f=fixture();await assert.rejects(()=>saveProduct(f.db,{...args,file:{type:'image/svg+xml',size:100}}),/JPG, PNG or WebP/);check(f.calls.length===0,'Disallowed image rejected before upload');
 await assert.rejects(()=>saveProduct(f.db,{...args,slug:'../other'}),/valid product/);check(true,'Unsafe image path rejected');
 console.log(count+' readiness checks passed.');
+
+const home=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');assert(home.includes('id="products-title"'),'Health probe identifies the actual homepage section');

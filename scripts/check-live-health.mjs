@@ -2,7 +2,7 @@
 const timeout=()=>AbortSignal.timeout(15000);
 async function text(url,needle){const response=await fetch(url,{cache:'no-store',signal:timeout()});if(!response.ok)throw Error(url+' HTTP '+response.status);const body=await response.text();if(!body.includes(needle))throw Error(url+' missing expected page content');}
 const probes=[
- text('https://birlarootx.com/','OUR PRODUCT'),
+ text('https://birlarootx.com/','id="products-title"'),
  text('https://birlarootx.com/account.html','auth-form'),
  text('https://birlarootx.com/products/growth-factor/','Growth Factor | Birla RootX'),
  text('https://birlarootx.com/policies/support.html','Customer Support'),
