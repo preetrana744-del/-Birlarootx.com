@@ -18,6 +18,7 @@ for(const file of files){
 for(const slug of ['carbs-slayer','jacked-pre-workout','spilan-test','epic-burn-pro','growth-factor']){
  const html=fs.readFileSync(new URL('products/'+slug+'/index.html',root),'utf8');
  assert(html.includes('data-product-slug="'+slug+'"'));
+ assert(html.includes('href="'+base+'products/'+slug+'/#main"'),'Product skip link stays on its own page');
  assert(html.includes('content="'+base+'products/'+slug+'/"'));
  assert(html.includes('href="'+base+'products/'+slug+'/"'));
  const json=JSON.parse(html.match(/id="product-structured-data"[^>]*>(.*?)<\/script>/s)[1]);

@@ -27,6 +27,7 @@ for(const product of context.catalogue){
  const meta={description,'og:title':product.name+' | Birla RootX','og:description':description,'og:url':url,'og:image':image,'twitter:title':product.name+' | Birla RootX','twitter:description':description,'twitter:image':image};
  for(const [name,value] of Object.entries(meta))html=html.replace(new RegExp('(<meta (?:name|property)="'+name+'" content=")[^"]*("[^>]*>)'),(_,a,b)=>a+escape(value)+b);
  html=html.replace('</head>','<link rel="canonical" href="'+url+'"></head>');
+ html=html.replace(/href="#([^"]+)"/g,(_,fragment)=>'href="'+url+'#'+fragment+'"');
  const schema={'@context':'https://schema.org','@type':'Product',name:product.name,url,image:[image],description:product.summary,category:product.category,brand:{'@type':'Brand',name:'Birla RootX'}};
  html=html.replace(/(<script id="product-structured-data" type="application\/ld\+json">)[\s\S]*?(<\/script>)/,(_,a,b)=>a+JSON.stringify(schema).replace(/</g,'\\u003c')+b);
  html=html.replace(/(<h1 id="detail-title" data-detail-name>)[^<]*(<\/h1>)/,(_,a,b)=>a+escape(product.name)+b).replace(/(<p class="detail-summary" data-detail-summary>)[^<]*(<\/p>)/,(_,a,b)=>a+escape(product.summary)+b);
