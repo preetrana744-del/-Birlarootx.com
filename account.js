@@ -129,7 +129,8 @@
   async function loadCustomer(){
     const all=await getOrders();
     $('customer-orders').innerHTML=all.orders.length ? all.orders.map(o=>orderView(o,all.items.filter(i=>i.order_id===o.id),all.events.filter(e=>e.order_id===o.id))).join('') : '<p class="muted">No orders yet. Your order history and delivery updates will appear here after an order request is submitted.</p>';
-    const cart=readCart();
+    let cart;
+    try{cart=readCart();}catch(error){$('checkout-section').hidden=false;$('checkout-form').hidden=true;$('checkout-items').textContent=error.message;return;}
     const params=new URLSearchParams(location.search);
     const checkout=params.has('checkout')&&cart.length;
     $('checkout-section').hidden=!checkout;
@@ -149,7 +150,15 @@
     } else if(params.has('checkout')){$('checkout-section').hidden=false;$('checkout-items').textContent='Your cart is empty. Add a product first.';$('checkout-form').hidden=true;}
   }
   function readCart(){
-    try{let array=JSON.parse(localStorage.getItem('birlarootx-cart-v1')||'[]');const lookup={carbs:'carbs-slayer',jacked:'jacked-pre-workout',spilan:'spilan-test',epic:'epic-burn-pro',growth:'growth-factor'};return Array.isArray(array)?array.filter(i=>Array.isArray(i)&&lookup[i[0]]&&Number.isInteger(i[1])&&i[1]>0&&i[1]<=99).map(i=>({slug:lookup[i[0]],quantity:i[1]})):[];}catch{return [];}
+    let array;try{array=JSON.parse(localStorage.getItem('birlarootx-cart-v1')||'[]');}catch{throw Error('Your saved bag could not be read. Please return to the storefront and review your bag.');}
+    const lookup={carbs:'carbs-slayer',jacked:'jacked-pre-workout',spilan:'spilan-test',epic:'epic-burn-pro',growth:'growth-factor'};
+    if(!Array.isArray(array)||array.some(i=>!Array.isArray(i)||!lookup[i[0]]||!Number.isSafeInteger(i[1])||i[1]<1))throw Error('Your saved bag contains an invalid item. Please return to the storefront and review it.');
+    if(array.some(i=>i[1]>99)){
+      array=array.map(([key,quantity])=>[key,Math.min(quantity,99)]);
+      localStorage.setItem('birlarootx-cart-v1',JSON.stringify(array));
+      setNotice('Maximum quantity is 99 per product. Your bag has been adjusted; please review the quantities before ordering.');
+    }
+    return array.map(i=>({slug:lookup[i[0]],quantity:i[1]}));
   }
   async function checkoutAvailable(){
     const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),5000);
@@ -205,7 +214,7 @@
     location.assign(destination.href);
   }
   $('checkout-form').addEventListener('submit',async e=>{
-    e.preventDefault();if(checkoutBusy)return;const items=readCart();if(!items.length)return setNotice('Your cart is empty.',true);
+    e.preventDefault();if(checkoutBusy)return;let items;try{items=readCart();}catch(error){return setNotice(error.message,true);}if(!items.length)return setNotice('Your cart is empty.',true);
     checkoutBusy=true;
     const button=$('place-order');button.disabled=true;setNotice('');
     try{
@@ -318,4 +327,5 @@
   setMode('signin');
   showDashboard().catch(err=>{showAuth();setNotice(err.message||'Could not load your account.',true);});
 })();
+
 

@@ -1,9 +1,8 @@
 
-@font-face{font-family:"RootX Reference";src:url("https://superyou.in/cdn/shop/t/51/assets/HelveticaNowVar.ttf?v=85829420661730474241766521971") format("truetype");font-weight:100 900;font-style:normal;font-display:swap}
 .reference-search-button,.reference-mobile-footer,.reference-shop-label,.reference-account-icon,.reference-bag-icon{display:none}
 .reference-search-dialog{border:1px solid #223d1e;padding:24px;max-width:calc(100% - 32px);width:440px;box-sizing:border-box}.reference-search-dialog::backdrop{background:#0008}.reference-search-dialog form{display:flex;flex-direction:column;gap:15px}.reference-search-dialog input{min-height:46px;font:16px Arial;border:1px solid #999;padding:10px}.reference-search-dialog button{min-height:44px;background:#223d1e;color:white;border:0;font-weight:700}.reference-search-dialog .reference-close-search{background:white;color:#111}
 @media all{
-  body{--reference-font:"RootX Reference",Helvetica,Arial,sans-serif}
+  body{--reference-font:Helvetica,Arial,sans-serif}
   .announcement{height:42px;min-height:42px;background:#fff;color:#111;border-bottom:1px solid #f5e4df;font:700 11px/1.3 var(--reference-font);letter-spacing:.07em;gap:8px}
   .site-header{height:64px;min-height:64px;padding:0;display:grid;grid-template-columns:44px minmax(0,1fr) 136px;align-items:center;position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid #eee;gap:0}
   .site-header .wordmark{grid-column:2;grid-row:1;justify-self:center;margin:0;max-width:100%}
@@ -24,7 +23,7 @@
   .reference-shop-label span{display:block;color:#777;font:500 10px/1 var(--reference-font);letter-spacing:.08em;margin-bottom:27px}
   .hero{display:block;background:#fff;padding:0;overflow:hidden;min-height:0;height:auto}
   .hero .hero-copy{display:contents}
-  .hero .hero-copy>:not(.mobile-hero-range){display:none}
+  .hero .hero-copy>:not(.mobile-hero-range):not(h1){display:none}
   .hero .mobile-hero-range{display:block;margin:0;border:0;border-radius:0}
   .hero .mobile-hero-range img{width:100%;height:auto;display:block}
   .hero .hero-visual,.marquee{display:none}
@@ -137,7 +136,7 @@
 /* Reference proportions, with the original Birla RootX brand and content. */
 .site-header .wordmark{position:absolute;left:50%;transform:translateX(-50%);grid-column:auto}
 .site-header .menu-button{background:#fff}
-.reference-search-dialog,.reference-search-dialog input,.reference-search-dialog button{font-family:"RootX Reference",Helvetica,Arial,sans-serif}
+.reference-search-dialog,.reference-search-dialog input,.reference-search-dialog button{font-family:Helvetica,Arial,sans-serif}
 .products .product-card,.products .product-card:nth-child(5){padding-bottom:15px}
 .products .product-card h3{font-size:16px;line-height:1;min-height:32px}
 .products .add-button{font-size:14px;line-height:1.19;padding:12px 4px 9px;min-height:40px}
@@ -166,7 +165,7 @@
  .products .add-button{font-size:18px;line-height:1.19;padding:12px;min-height:48px}
  .products .section-head h2{font-size:48px}
  .products .section-intro{font-weight:600}
- .site-header .reference-desktop-shop{display:flex;position:absolute;left:48px;top:0;height:64px;align-items:center;padding:0 40px;border-left:1px solid #eee;border-right:1px solid #eee;font:800 20px/1 "RootX Reference",Helvetica,Arial,sans-serif;text-decoration:none}
+ .site-header .reference-desktop-shop{display:flex;position:absolute;left:48px;top:0;height:64px;align-items:center;padding:0 40px;border-left:1px solid #eee;border-right:1px solid #eee;font:800 20px/1 Helvetica,Arial,sans-serif;text-decoration:none}
  #products,#faq{scroll-margin-top:64px}
 }
 .reference-desktop-shop{display:none}
@@ -176,7 +175,7 @@
 
 /* Full-width predictive search; scoped to the search surface only. */
 html.rootx-search-open{overflow:hidden}
-dialog.reference-search-dialog{position:fixed;inset:0 0 auto;margin:0;width:100%;max-width:100%;height:auto;max-height:90dvh;padding:0;border:0;border-bottom:1px solid #dce3da;background:#fff;color:#17281f;box-shadow:0 12px 32px #17281f14;overflow:auto;font-family:"RootX Reference",Helvetica,Arial,sans-serif}
+dialog.reference-search-dialog{position:fixed;inset:0 0 auto;margin:0;width:100%;max-width:100%;height:auto;max-height:90dvh;padding:0;border:0;border-bottom:1px solid #dce3da;background:#fff;color:#17281f;box-shadow:0 12px 32px #17281f14;overflow:auto;font-family:Helvetica,Arial,sans-serif}
 .reference-search-dialog[open]{animation:rootx-search-enter .22s ease-out}
 .reference-search-dialog::backdrop{background:#17281f55}
 .rootx-search-bar{position:sticky;top:0;z-index:1;display:flex;align-items:center;justify-content:center;gap:12px;padding:20px 32px;background:#fff;border-bottom:1px solid #e8ece6}
@@ -184,23 +183,27 @@ dialog.reference-search-dialog{position:fixed;inset:0 0 auto;margin:0;width:100%
 .rootx-search-label{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
 .rootx-search-icon{position:absolute;left:15px;top:14px;color:#6d7869}
 .rootx-search-icon svg{display:block;width:22px;height:22px}
-.reference-search-dialog .rootx-search-bar input{width:100%;height:50px;min-height:50px;padding:12px 46px;border:1px solid #ced7ca;border-radius:4px;background:#fff;color:#17281f;font:400 16px/1.4 "RootX Reference",Helvetica,Arial,sans-serif;outline:none;box-sizing:border-box}
+.reference-search-dialog .rootx-search-bar input{width:100%;height:50px;min-height:50px;padding:12px 46px;border:1px solid #ced7ca;border-radius:4px;background:#fff;color:#17281f;font:400 16px/1.4 Helvetica,Arial,sans-serif;outline:none;box-sizing:border-box}
 .reference-search-dialog .rootx-search-bar input:focus{border-color:#223d1e;box-shadow:0 0 0 2px #223d1e12}
 .rootx-search-bar input::-webkit-search-cancel-button{display:none}
 .reference-search-dialog .reference-close-search{width:44px;min-width:44px;height:44px;min-height:44px;padding:0;background:transparent;color:#223d1e;font:300 32px/1 Arial;border:0}
 .reference-search-dialog .rootx-clear-search{position:absolute;right:6px;top:4px;width:38px;min-height:42px;padding:0;background:transparent;color:#65715f;font-size:24px}
 .rootx-clear-search[hidden]{display:none}
 .rootx-search-content{max-width:1200px;margin:auto;padding:24px 32px 32px}
-.reference-search-status{font:600 16px/1.5 "RootX Reference",Helvetica,Arial,sans-serif;margin:0 0 18px}
+.reference-search-status{font:600 16px/1.5 Helvetica,Arial,sans-serif;margin:0 0 18px}
 .rootx-search-results{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:20px}
 .rootx-search-product{display:flex;flex-direction:column;min-width:0;text-align:center}
 .rootx-search-product-link{color:#17281f;text-decoration:none}
 .rootx-search-product img{display:block;width:100%;height:auto;aspect-ratio:1;object-fit:cover;background:#f4f5f1}
-.rootx-search-product h3{font:800 19px/1.1 "RootX Reference",Helvetica,Arial,sans-serif;font-stretch:75%;text-transform:uppercase;margin:14px 0 10px}
-.rootx-search-price{font:700 18px/1.3 "RootX Reference",Helvetica,Arial,sans-serif;margin:auto 0 12px;padding-top:5px}
-.reference-search-dialog .rootx-search-add{width:100%;min-height:44px;padding:10px 5px;border:0;border-radius:3px;background:#223d1e;color:#fff;font:800 13px/1.2 "RootX Reference",Helvetica,Arial,sans-serif;cursor:pointer}
+.rootx-search-product h3{font:800 19px/1.1 Helvetica,Arial,sans-serif;font-stretch:75%;text-transform:uppercase;margin:14px 0 10px}
+.rootx-search-price{font:700 18px/1.3 Helvetica,Arial,sans-serif;margin:auto 0 12px;padding-top:5px}
+.reference-search-dialog .rootx-search-add{width:100%;min-height:44px;padding:10px 5px;border:0;border-radius:3px;background:#223d1e;color:#fff;font:800 13px/1.2 Helvetica,Arial,sans-serif;cursor:pointer}
 .rootx-search-product-link:focus-visible,.rootx-search-add:focus-visible,.reference-close-search:focus-visible{outline:2px solid #223d1e;outline-offset:3px}
 @keyframes rootx-search-enter{from{opacity:0;transform:translateY(-15px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:900px){.rootx-search-results{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:620px){.rootx-search-bar{padding:14px 12px;gap:6px}.rootx-search-content{padding:20px 16px 24px}.rootx-search-results{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 14px}.rootx-search-product h3{font-size:17px}.rootx-search-price{font-size:17px}.reference-search-dialog .rootx-search-add{font-size:12px}.reference-search-status{font-size:14px}}
 @media(prefers-reduced-motion:reduce){.reference-search-dialog[open]{animation:none}}
+
+
+/* Keep the existing image-led design while exposing its primary heading. */
+.hero .hero-copy h1{display:block!important;position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important}

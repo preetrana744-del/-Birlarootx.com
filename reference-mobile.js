@@ -48,7 +48,7 @@
  const name=document.createElement('h3');name.textContent=source.textContent;
  link.append(img,name);tile.append(link);
  const cost=document.createElement('p');cost.className='rootx-search-price';cost.textContent=price.textContent;tile.append(cost);
- const add=document.createElement('button');add.type='button';add.className='rootx-search-add';add.textContent=cart.getAttribute('aria-pressed')==='true'?'REMOVE FROM CART':'ADD TO CART';add.setAttribute('aria-label',cart.getAttribute('aria-label')||('Add '+source.textContent+' to cart'));add.addEventListener('click',()=>{cart.click();render();});tile.append(add);results.append(tile);
+ const add=document.createElement('button');add.type='button';add.className='rootx-search-add';add.disabled=cart.disabled;add.textContent=cart.getAttribute('aria-pressed')==='true'?'REMOVE FROM CART':cart.disabled?cart.textContent.trim():'ADD TO CART';add.setAttribute('aria-label',cart.getAttribute('aria-label')||('Add '+source.textContent+' to cart'));add.addEventListener('click',()=>{cart.click();render();});tile.append(add);results.append(tile);
  });
  };
  const close=()=>dialog.close();
@@ -58,5 +58,7 @@
  dialog.querySelector('.reference-close-search').addEventListener('click',close);
  dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientY>r.bottom||e.clientY<r.top)close();}});
  input.addEventListener('input',render);clear.addEventListener('click',()=>{input.value='';render();input.focus();});
+ document.addEventListener('rootx:catalogue-update',()=>{if(dialog.open)render();});
  dialog.querySelector('form').addEventListener('submit',e=>{e.preventDefault();render();results.querySelector('a')?.focus();});
 })();
+

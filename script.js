@@ -277,8 +277,9 @@ const productLabels = {
     "barcode": "8937636690720"
   }
 };
-Object.entries(productLabels).forEach(([key, label]) => { products[key].label = label; products[key].labelImage = products[key].slug + '-label.svg'; });
+Object.entries(productLabels).forEach(([key, label]) => { products[key].label = label; products[key].labelImage = products[key].slug + '-label.svg'; products[key].availability = 'loading'; });
 window.BIRLAROOTX_PRODUCTS = products;
+const MAX_CART_QUANTITY = 99;
 const CART_STORAGE_KEY = 'birlarootx-cart-v1';
 const bag = new Map();
 
@@ -291,10 +292,14 @@ function loadBag() {
       if (!Array.isArray(entry) || entry.length !== 2) return;
       const [key, quantity] = entry;
       const qty = Math.floor(Number(quantity));
-      if (Object.hasOwn(products, key) && Number.isSafeInteger(qty) && qty > 0) latest.set(key, qty);
+      if (Object.hasOwn(products, key) && Number.isSafeInteger(qty) && qty > 0) {
+        latest.set(key, Math.min(qty, MAX_CART_QUANTITY));
+        if (qty > MAX_CART_QUANTITY) window.rootxCartNotice = 'Maximum quantity is 99 per product. Your bag has been adjusted; please review it before ordering.';
+      }
     });
     bag.clear();
     latest.forEach((quantity, key) => bag.set(key, quantity));
+    if (window.rootxCartNotice) saveBag();
   } catch (_) {}
 }
 
@@ -322,9 +327,14 @@ function setSeoMetaContent(selector, attributes, content) {
 function updateCartButtons() {
   document.querySelectorAll('[data-product]').forEach((button) => {
     const isAdded = bag.has(button.dataset.product);
-    button.innerHTML = isAdded ? 'Remove from cart <span>−</span>' : 'Add to cart <span>+</span>';
+    const product = products[button.dataset.product];
+    if (!product) return;
+    const unavailable = product.availability !== 'ready';
+    const label = product.availability === 'loading' ? 'Checking availability…' : product.availability === 'error' ? 'Temporarily unavailable' : 'Unavailable';
+    button.disabled = unavailable && !isAdded;
+    button.innerHTML = isAdded ? 'Remove from cart <span>−</span>' : unavailable ? label : 'Add to cart <span>+</span>';
     button.setAttribute('aria-pressed', String(isAdded));
-    button.setAttribute('aria-label', `${isAdded ? 'Remove' : 'Add'} ${products[button.dataset.product].name} ${isAdded ? 'from' : 'to'} cart`);
+    button.setAttribute('aria-label', isAdded ? `Remove ${product.name} from cart` : unavailable ? `${product.name}: ${label}` : `Add ${product.name} to cart`);
   });
 }
 
@@ -338,17 +348,27 @@ function renderBag() {
   const subtotalNode = $('.cart-subtotal');
   const emptyNode = $('.cart-empty');
   const itemsNode = $('.cart-items');
+  const blocked = entries.some(([key]) => products[key].availability !== 'ready');
+  const checkout = $('.cart-checkout');
+  if (checkout) checkout.disabled = entries.length === 0 || blocked;
 
   if (bagCount) bagCount.textContent = itemCount;
   if (drawerCount) drawerCount.textContent = `(${itemCount})`;
-  if (subtotalNode) subtotalNode.textContent = rupees(subtotal);
+  if (subtotalNode) subtotalNode.textContent = blocked ? '—' : rupees(subtotal);
   if (emptyNode) emptyNode.classList.toggle('visible', entries.length === 0);
 
   if (itemsNode) {
     itemsNode.innerHTML = entries.map(([key, quantity]) => {
       const product = products[key];
-      return `<div class="cart-line"><img src="${product.image}" alt="" /><div class="cart-line-copy"><h3>${product.name}</h3><p>${rupees(product.price)} each</p></div><span class="cart-line-price">${rupees(product.price * quantity)}</span><div class="cart-quantity" role="group" aria-label="${product.name} quantity"><button type="button" data-quantity="${key}" data-quantity-change="-1" aria-label="Decrease ${product.name} quantity" ${quantity === 1 ? 'disabled' : ''}>−</button><output aria-label="${product.name} quantity">${quantity}</output><button type="button" data-quantity="${key}" data-quantity-change="1" aria-label="Increase ${product.name} quantity">+</button></div><button class="cart-line-remove" type="button" data-remove="${key}" aria-label="Remove ${product.name} from bag">Remove <span aria-hidden="true">×</span></button></div>`;
+      const available = product.availability === 'ready';
+      return `<div class="cart-line"><img src="${product.image}" alt="" /><div class="cart-line-copy"><h3>${product.name}</h3><p>${available ? rupees(product.price) + ' each' : 'Unavailable — remove this item or retry the catalogue.'}</p></div><span class="cart-line-price">${available ? rupees(product.price * quantity) : '—'}</span><div class="cart-quantity" role="group" aria-label="${product.name} quantity"><button type="button" data-quantity="${key}" data-quantity-change="-1" aria-label="Decrease ${product.name} quantity" ${quantity === 1 ? 'disabled' : ''}>−</button><output aria-label="${product.name} quantity">${quantity}</output><button type="button" data-quantity="${key}" data-quantity-change="1" aria-label="Increase ${product.name} quantity" ${quantity >= MAX_CART_QUANTITY || !available ? 'disabled' : ''}>+</button></div><button class="cart-line-remove" type="button" data-remove="${key}" aria-label="Remove ${product.name} from bag">Remove <span aria-hidden="true">×</span></button></div>`;
     }).join('');
+    if (blocked || window.rootxCartNotice || entries.some(([, quantity]) => quantity >= MAX_CART_QUANTITY)) {
+      const message = document.createElement('p');
+      message.className = 'rootx-cart-notice'; message.setAttribute('role', 'status');
+      message.textContent = blocked ? 'Some items cannot be ordered right now. Remove unavailable items or retry the catalogue.' : window.rootxCartNotice || 'Maximum quantity is 99 per product.';
+      itemsNode.prepend(message);
+    }
   }
 
   updateCartButtons();
@@ -413,11 +433,25 @@ function renderProductPage() {
   if (!page) return;
 
   const requestedSlug = new URLSearchParams(window.location.search).get('product');
-  const product = productList.find((item) => item.slug === requestedSlug) || products.carbs;
+  const product = productList.find((item) => item.slug === requestedSlug);
+  const missing = $('[data-product-not-found]');
+  const content = $('[data-product-content]');
+  if (missing) missing.hidden = Boolean(product);
+  if (content) content.hidden = !product;
+  const purchaseBar = $('.mobile-purchase-bar');
+  if (purchaseBar) purchaseBar.hidden = !product;
+  if (!product) {
+    document.title = 'Product not found | Birla RootX';
+    $('meta[name="description"]')?.setAttribute('content', 'This product could not be found. Explore the Birla RootX range.');
+    $('meta[name="robots"]')?.setAttribute('content', 'noindex,follow');
+    const structuredData = document.getElementById('product-structured-data');
+    if (structuredData) structuredData.textContent = '{}';
+    return;
+  }
   const productIndex = productList.indexOf(product);
   const detailImage = $('[data-detail-image]');
 
-  const seoDescription = `${product.name} by Birla RootX. ${product.summary} MRP ${rupees(product.price)} (inclusive of all taxes).`;
+  const seoDescription = `${product.name} by Birla RootX. ${product.summary} ${product.availability === 'ready' ? 'Current selling price ' + rupees(product.price) + '.' : 'Check current price and availability on this page.'} Label MRP ${rupees(product.label.mrp)} (inclusive of all taxes).`;
   const canonicalUrl = `https://birlarootx.com/product.html?product=${encodeURIComponent(product.slug)}`;
   const imageUrl = new URL(product.image, 'https://birlarootx.com/').href;
 
@@ -473,7 +507,8 @@ function renderProductPage() {
   $('[data-detail-summary]').textContent = product.summary;
   $('[data-detail-format]').textContent = product.format;
   $('[data-detail-category]').textContent = product.category;
-  $$('[data-detail-price]').forEach((element) => { element.textContent = rupees(product.price); });
+  $$('[data-detail-price]').forEach((element) => { element.textContent = product.availability === 'ready' ? rupees(product.price) : '—'; });
+  $$('[data-label-mrp]').forEach((element) => { element.textContent = rupees(product.label.mrp); });
   const stickyName = $('[data-sticky-name]');
   if (stickyName) stickyName.textContent = product.name;
   detailImage.src = product.image;
@@ -612,6 +647,10 @@ document.addEventListener('click', (event) => {
       return;
     }
     const next = quantity + change;
+    if (change > 0 && (next > MAX_CART_QUANTITY || products[key].availability !== 'ready')) {
+      window.rootxCartNotice = next > MAX_CART_QUANTITY ? 'Maximum quantity is 99 per product.' : 'This product is currently unavailable.';
+      renderBag(); return;
+    }
     if (!Number.isSafeInteger(next) || next < 1 || !Number.isSafeInteger(next * products[key].price)) return;
     bag.set(key, next);
     saveBag();
@@ -651,6 +690,7 @@ document.addEventListener('click', (event) => {
 
     loadBag();
     const isRemoving = addButton.getAttribute('aria-pressed') === 'true';
+    if (!isRemoving && product.availability !== 'ready') return;
     if (isRemoving) bag.delete(key);
     else if (!bag.has(key)) bag.set(key, 1);
     saveBag();
@@ -707,7 +747,7 @@ if (featureImage) {
     if (mobileCounter) mobileCounter.textContent = `${index + 1} / ${productList.length}`;
     const product = productList[index];
     featureName.textContent = product.name.toUpperCase();
-    $('[data-hero-price]').textContent = rupees(product.price);
+    $('[data-hero-price]').textContent = product.availability === 'ready' ? rupees(product.price) : '—';
     featureLink.href = `product.html?product=${product.slug}`;
     featureLink.setAttribute('aria-label', `Explore ${product.name}`);
     $$('[data-slide-to]').forEach((button, buttonIndex) => {
@@ -854,3 +894,4 @@ if (window.matchMedia('(max-width: 620px)').matches && !window.matchMedia('(pref
     revealObserver.observe(mobileFeature);
   }
 }
+
