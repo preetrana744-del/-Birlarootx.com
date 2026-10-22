@@ -1,0 +1,24 @@
+name: Order notification retries
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/10 * * * *'
+permissions:
+  contents: read
+concurrency:
+  group: rootx-notification-worker
+  cancel-in-progress: false
+jobs:
+  retry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Process queued notifications when activated
+        env:
+          ROOTX_NOTIFICATION_READY: ${{ vars.ROOTX_NOTIFICATION_READY }}
+          ROOTX_NOTIFICATION_WORKER_SECRET: ${{ secrets.ROOTX_NOTIFICATION_WORKER_SECRET }}
+        run: node scripts/run-notification-worker.mjs

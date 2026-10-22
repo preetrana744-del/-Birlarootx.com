@@ -23,12 +23,32 @@ jobs:
     steps:
       - name: Check out the site
         uses: actions/checkout@v6
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify accounts and checkout fixtures
+        run: |
+          node tests/catalogue-cart.cjs
+          node tests/account-communications.mjs
+          node tests/site-readiness.mjs
+          node tests/notification-worker.mjs
+          node tests/shopify/commerce.test.mjs
+          node tests/shopify/product-sync.test.mjs
+          node tests/shopify/checkout-frontend.test.cjs
+      - name: Build public website only
+        run: node scripts/build-site.mjs
+      - name: Verify public artifact
+        run: node scripts/check-public-site.mjs
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload site files
         uses: actions/upload-pages-artifact@v4
         with:
-          path: .
+          path: _site
       - name: Deploy site
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Verify deployed public pages and backend health
+        run: node scripts/check-live-health.mjs

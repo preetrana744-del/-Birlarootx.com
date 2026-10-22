@@ -1,4 +1,9 @@
 import {notificationMessage} from './notification-templates.mjs';
+export async function secretMatches(given,expected){
+ if(typeof expected!=='string'||expected.length<32||typeof given!=='string'||given.length>512)return false;
+ const digest=async value=>new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value)));
+ const [a,b]=await Promise.all([digest(given),digest(expected)]);let diff=0;for(let i=0;i<a.length;i++)diff|=a[i]^b[i];return diff===0;
+}
 export function createNotificationHandler({db,env,fetcher=fetch,now=()=>new Date()}){
  const origin='https://birlarootx.com';
  return async req=>{
@@ -7,14 +12,25 @@ export function createNotificationHandler({db,env,fetcher=fetch,now=()=>new Date
   if(req.headers.get('origin')&&req.headers.get('origin')!==origin)return reply(403,{error:'Origin denied'});
   if(req.method==='OPTIONS')return new Response(null,{status:204,headers});
   if(req.method!=='POST')return reply(405,{error:'Method not allowed'});
+  const workerHeader=req.headers.get('x-rootx-worker-secret');
   const token=req.headers.get('authorization')?.replace(/^Bearer /i,'');
-  if(!token)return reply(401,{error:'Sign in required'});
+  if(!token&&!workerHeader)return reply(401,{error:'Sign in required'});
   try{
-   const auth=await db.auth.getUser(token);
-   if(auth.error||!auth.data.user||!auth.data.user.email_confirmed_at||auth.data.user.is_anonymous)return reply(401,{error:'Verified sign-in required'});
-   const actor=auth.data.user.id;
-   const adminResult=await db.from('rootx_admin_users').select('user_id').eq('user_id',actor).maybeSingle();
-   if(adminResult.error)return reply(503,{error:'Account role could not be verified'});
+   let actor,adminResult;
+   if(workerHeader){
+    if(req.headers.get('origin'))return reply(403,{error:'Worker calls must be server-side'});
+    if(!await secretMatches(workerHeader,env('ROOTX_NOTIFICATION_WORKER_SECRET')))return reply(401,{error:'Worker authentication failed'});
+    actor=env('ROOTX_NOTIFICATION_ADMIN_ID');
+    if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(actor||''))return reply(503,{error:'Worker administrator is not configured'});
+    adminResult=await db.from('rootx_admin_users').select('user_id').eq('user_id',actor).maybeSingle();
+    if(adminResult.error||!adminResult.data)return reply(403,{error:'Worker administrator is not authorized'});
+   }else{
+    const auth=await db.auth.getUser(token);
+    if(auth.error||!auth.data.user||!auth.data.user.email_confirmed_at||auth.data.user.is_anonymous)return reply(401,{error:'Verified sign-in required'});
+    actor=auth.data.user.id;
+    adminResult=await db.from('rootx_admin_users').select('user_id').eq('user_id',actor).maybeSingle();
+    if(adminResult.error)return reply(503,{error:'Account role could not be verified'});
+   }
    const apiKey=env('RESEND_API_KEY'),from=env('ROOTX_FROM_EMAIL');
    const configured=Boolean(apiKey&&/^[^\s<>@]+@[^\s<>@]+\.[^\s<>@]+$/.test(from||''));
    if(!configured)return reply(200,{configured:false,sent:0,pending:true});
@@ -40,3 +56,4 @@ export function createNotificationHandler({db,env,fetcher=fetch,now=()=>new Date
   }catch{return reply(503,{error:'Notification processing unavailable; order records are saved'});}
  };
 }
+

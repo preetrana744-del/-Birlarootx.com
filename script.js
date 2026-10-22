@@ -432,7 +432,7 @@ function renderProductPage() {
   const page = $('[data-product-page]');
   if (!page) return;
 
-  const requestedSlug = new URLSearchParams(window.location.search).get('product');
+  const requestedSlug = new URLSearchParams(window.location.search).get('product') || page.dataset.productSlug;
   const product = productList.find((item) => item.slug === requestedSlug);
   const missing = $('[data-product-not-found]');
   const content = $('[data-product-content]');
@@ -452,7 +452,7 @@ function renderProductPage() {
   const detailImage = $('[data-detail-image]');
 
   const seoDescription = `${product.name} by Birla RootX. ${product.summary} ${product.availability === 'ready' ? 'Current selling price ' + rupees(product.price) + '.' : 'Check current price and availability on this page.'} Label MRP ${rupees(product.label.mrp)} (inclusive of all taxes).`;
-  const canonicalUrl = `https://birlarootx.com/product.html?product=${encodeURIComponent(product.slug)}`;
+  const canonicalUrl = `https://birlarootx.com/products/${encodeURIComponent(product.slug)}/`;
   const imageUrl = new URL(product.image, 'https://birlarootx.com/').href;
 
   document.title = `${product.name} | Birla RootX`;
@@ -528,16 +528,16 @@ function renderProductPage() {
   }
   const related = productList.filter((item) => item !== product);
   $('[data-related-products]').innerHTML = related.map((item) => `
-    <a class="related-card" href="product.html?product=${item.slug}">
+    <a class="related-card" href="/products/${item.slug}/">
       <span class="related-image related-image-${item.tone}"><img src="${item.image}" alt="" loading="lazy" /></span>
       <span class="related-card-copy"><span>BIRLA ROOTX</span><b>${item.name}</b><i>Explore</i></span>
     </a>`).join('');
 
   const previous = productList[(productIndex + productList.length - 1) % productList.length];
   const next = productList[(productIndex + 1) % productList.length];
-  $('[data-detail-prev]').href = `product.html?product=${previous.slug}`;
+  $('[data-detail-prev]').href = `/products/${previous.slug}/`;
   $('[data-detail-prev] span').textContent = previous.name;
-  $('[data-detail-next]').href = `product.html?product=${next.slug}`;
+  $('[data-detail-next]').href = `/products/${next.slug}/`;
   $('[data-detail-next] span').textContent = next.name;
 }
 renderProductPage();
@@ -748,7 +748,7 @@ if (featureImage) {
     const product = productList[index];
     featureName.textContent = product.name.toUpperCase();
     $('[data-hero-price]').textContent = product.availability === 'ready' ? rupees(product.price) : '—';
-    featureLink.href = `product.html?product=${product.slug}`;
+    featureLink.href = `/products/${product.slug}/`;
     featureLink.setAttribute('aria-label', `Explore ${product.name}`);
     $$('[data-slide-to]').forEach((button, buttonIndex) => {
       button.setAttribute('aria-current', String(buttonIndex === index));
@@ -894,4 +894,5 @@ if (window.matchMedia('(max-width: 620px)').matches && !window.matchMedia('(pref
     revealObserver.observe(mobileFeature);
   }
 }
+
 

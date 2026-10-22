@@ -113,10 +113,11 @@
   }
   function orderView(order,items,events){
     const date=order.expected_delivery_date ? safe(order.expected_delivery_date) : 'Not assigned yet';
+    const tracking=window.ROOTX_ACCOUNT_HELPERS.tracking(order.courier,order.tracking_number);
     let result='<article class="order"><div class="order-top"><span class="order-title">'+safe(order.order_number)+'</span><span class="chip">'+safe(order.status.replaceAll('_',' '))+'</span></div>'+
       '<div class="line">Placed '+stamp(order.created_at)+' · Total '+orderTotal(order)+' · Expected delivery: '+date+'</div>'+paymentDetails(order)+
       (order.courier?'<div class="line">Courier: '+safe(order.courier)+'</div>':'')+
-      (order.tracking_number?'<div class="line">Tracking reference: '+safe(order.tracking_number)+'</div>':'')+
+      (order.tracking_number?'<div class="line">Tracking reference: '+safe(order.tracking_number)+(tracking?' · <a href="'+safe(tracking.url)+'" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">Track with '+safe(tracking.name)+'</a> <small>(enter the reference on the courier site)</small>':'')+'</div>':'')+
       (order.admin_note?'<div class="line">'+safe(order.admin_note)+'</div>':'')+
       itemDetails(items);
     if(events?.length)result+='<ol class="timeline">'+events.map(event=>'<li><b>'+safe(event.status.replaceAll('_',' '))+'</b><small>'+stamp(event.created_at)+(event.note?' · '+safe(event.note):'')+'</small></li>').join('')+'</ol>';
@@ -308,18 +309,7 @@
     try{
       const f=new FormData(form),price=Number(f.get('price'));
       if(!Number.isFinite(price)||price<=0||price>100000)throw Error('Price must be between ₹1 and ₹100,000.');
-      const patch={price,updated_at:new Date().toISOString()};
-      const file=form.querySelector('[name=image]').files[0];
-      if(file){
-        if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5*1024*1024)throw Error('Use JPG, PNG or WebP up to 5 MB.');
-        const ext=({ 'image/jpeg':'jpg','image/png':'png','image/webp':'webp'})[file.type];
-        const path=form.dataset.slug+'/'+crypto.randomUUID()+'.'+ext;
-        const up=await db.storage.from('rootx-product-images').upload(path,file,{cacheControl:'3600',upsert:false,contentType:file.type});
-        if(up.error)throw up.error;
-        patch.image_url=db.storage.from('rootx-product-images').getPublicUrl(path).data.publicUrl;
-      }
-      const {data,error}=await db.from('rootx_products').update(patch).eq('slug',form.dataset.slug).select('slug');
-      if(error)throw error;if(!data?.length)throw Error('Update denied.');
+      await window.ROOTX_ACCOUNT_HELPERS.saveProduct(db,{slug:form.dataset.slug,price,file:form.querySelector('[name=image]').files[0],uuid:()=>crypto.randomUUID()});
       setNotice('Product updated. New price/image will appear on the storefront after refresh.');await loadAdmin();
     }catch(err){setNotice(err.message||'Could not save product.',true);}finally{button.disabled=false;}
   });
@@ -364,5 +354,6 @@
   setMode('signin');
   showDashboard().catch(err=>{showAuth();setNotice(err.message||'Could not load your account.',true);});
 })();
+
 
 

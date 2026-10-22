@@ -18,10 +18,10 @@ async function fixture(options = {}) {
     id, hidden: false, disabled: false, value: '', textContent: '', innerHTML: '', required: false,
     firstChild: { textContent: '' }, parentElement: { hidden: false }, classList: { toggle() {} },
     listeners: new Map(), addEventListener(name, callback) { this.listeners.set(name, callback); },
-    scrollIntoView() {}, querySelectorAll() { return []; }
+    scrollIntoView() {}, reset() {}, focus() {}, setAttribute() {}, removeAttribute() {}, replaceChildren() { this.innerHTML=''; }, append() {}, querySelector(selector) { return $(selector.match(/name=([^\]]+)/)?.[1] || selector); }, querySelectorAll() { return []; }
   });
   const $ = id => { if (!elements.has(id)) elements.set(id, makeElement(id)); return elements.get(id); };
-  const inputs = ['shipping_name', 'shipping_phone', 'shipping_address'].map($);
+  const inputs = ['shipping_name', 'shipping_phone', 'shipping_address', 'shipping_city', 'shipping_state', 'shipping_pin'].map($);
   $('checkout-form').elements = Object.fromEntries(inputs.map(input => [input.id, input]));
   $('checkout-delivery').querySelectorAll = () => inputs;
   const localStorage = storage({ 'birlarootx-cart-v1': originalCart });
@@ -57,11 +57,12 @@ async function fixture(options = {}) {
   };
   const location = { hash: '', search: '?checkout=1', href: 'https://birlarootx.com/account.html?checkout=1', assign: url => redirects.push(url) };
   class FakeFormData {
-    constructor() { this.data = { shipping_name: 'Buyer', shipping_phone: '9000000000', shipping_address: '123 Sample Road, Delhi' }; }
+    constructor() { this.data = { shipping_name: 'Buyer', shipping_phone: '9000000000', shipping_address: '123 Sample Road', shipping_city:'New Delhi', shipping_state:'Delhi', shipping_pin:'110030' }; }
     get(key) { return this.data[key]; }
+    [Symbol.iterator]() { return Object.entries(this.data)[Symbol.iterator](); }
   }
-  vm.runInNewContext(source, {
-    window: { rootxAuth: db }, document: { getElementById: $, querySelectorAll: () => [] },
+  const globals={
+    window: { rootxAuth: db }, document: { getElementById: $, createElement: () => makeElement('option'), querySelectorAll: () => [] },
     location, history: { replaceState: () => { location.search = ''; } }, localStorage, sessionStorage,
     crypto: webcrypto, URL, URLSearchParams, AbortController, FormData: FakeFormData,
     setTimeout, clearTimeout,
@@ -70,7 +71,9 @@ async function fixture(options = {}) {
       if (options.statusError) throw Error('unavailable');
       return { ok: options.statusHttpOk !== false, json: async () => ({ enabled: options.enabled === true }) };
     }
-  });
+  };
+  vm.runInNewContext(fs.readFileSync(__dirname+'/../../account-helpers.js','utf8'),globals);
+  vm.runInNewContext(source,globals);
   for (let i = 0; i < 20 && $('place-order').disabled; i++) await new Promise(resolve => setImmediate(resolve));
   // Startup begins with several database microtasks before the checkout button is disabled.
   for (let i = 0; i < 4; i++) await new Promise(resolve => setImmediate(resolve));
@@ -86,7 +89,7 @@ async function main() {
     assert.equal(app.$('checkout-delivery').hidden, false);
     await app.submit();
     assert.equal(app.rpcCalls[0].name, 'rootx_place_order');
-    assert.equal(app.calls.length, 0);
+    assert.equal(app.calls.filter(c=>c.name==='rootx-shopify-checkout').length, 0);
     assert.equal(app.localStorage.getItem('birlarootx-cart-v1'), null);
     assert.match(app.$('notice').textContent, /No online payment has been charged/);
   }
@@ -135,7 +138,7 @@ async function main() {
   {
     const app = await fixture({ enabled: true, session: null });
     await app.submit();
-    assert.equal(app.calls.length, 0);
+    assert.equal(app.calls.filter(c=>c.name==='rootx-shopify-checkout').length, 0);
     assert.equal(app.$('auth-panel').hidden, false);
     assert.match(app.$('notice').textContent, /sign in again/);
     assert.equal(app.localStorage.getItem('birlarootx-cart-v1'), originalCart);
@@ -199,3 +202,4 @@ async function main() {
   console.log('Checkout frontend: offline flow, readiness, secure request, cart retention, duplicate prevention, retry expiry, auth expiry, redirect safety, sign-out race, and payment display passed.');
 }
 main().catch(error => { console.error(error); process.exitCode = 1; });
+

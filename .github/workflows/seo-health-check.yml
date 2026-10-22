@@ -59,7 +59,7 @@ jobs:
                   root=ET.parse("sitemap.xml").getroot()
                   ns={"s":"http://www.sitemaps.org/schemas/sitemap/0.9"}
                   urls=[n.text.strip() for n in root.findall("s:url/s:loc",ns) if n.text]
-                  expected = {"https://birlarootx.com/"} | {"https://birlarootx.com/product.html?product="+slug for slug in ("carbs-slayer","jacked-pre-workout","spilan-test","epic-burn-pro","growth-factor")} | {"https://birlarootx.com/" + (p.as_posix().removesuffix("index.html") if p.name == "index.html" else p.as_posix()) for p in Path("blog").glob("*.html")}
+                  expected = {"https://birlarootx.com/"} | {"https://birlarootx.com/products/"+slug+"/" for slug in ("carbs-slayer","jacked-pre-workout","spilan-test","epic-burn-pro","growth-factor")} | {"https://birlarootx.com/" + (p.as_posix().removesuffix("index.html") if p.name == "index.html" else p.as_posix()) for p in Path("blog").glob("*.html")}
                   if set(urls) != expected:
                       errors.append(f"sitemap.xml: sitemap does not match catalog and blog pages ({len(urls)} URLs)")
                   if "https://birlarootx.com/" not in urls:
@@ -122,3 +122,4 @@ jobs:
           check_url "https://birlarootx.com/robots.txt" "Sitemap: https://birlarootx.com/sitemap.xml"
           check_url "https://birlarootx.com/sitemap.xml" "https://birlarootx.com/"
           check_url "https://birlarootx.com/${INDEXNOW_KEY}.txt" "${INDEXNOW_KEY}"
+

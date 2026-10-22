@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {createNotificationHandler,secretMatches} from '../supabase/functions/rootx-order-notifications/notification-handler.mjs';
+const secret='fixture-only-not-a-real-secret-123456789';const actor='00000000-0000-4000-8000-000000000001';
+assert(await secretMatches(secret,secret));assert(!await secretMatches(secret+'x',secret));assert(!await secretMatches('short','short'));assert(!await secretMatches(secret,undefined));
+let claims=0,authCalls=0,authorized=true;
+const db={auth:{getUser:async()=>{authCalls++;return{error:Error()};}},from:()=>({select(){return this;},eq(){return this;},maybeSingle:async()=>({data:authorized?{user_id:actor}:null})}),rpc:async(name,args)=>{claims++;assert.equal(args.actor_id,actor);return{data:[]};}};
+let config={ROOTX_NOTIFICATION_WORKER_SECRET:secret,ROOTX_NOTIFICATION_ADMIN_ID:actor,RESEND_API_KEY:'fixture-only',ROOTX_FROM_EMAIL:'orders@example.invalid'};
+const handler=createNotificationHandler({db,env:name=>config[name],fetcher:async()=>{throw Error('Empty queue must not send');}});
+const request=(key=secret,origin)=>new Request('https://example.invalid/worker',{method:'POST',headers:{'x-rootx-worker-secret':key,...(origin?{origin}:{})},body:JSON.stringify({actor_id:'attacker'})});
+assert.equal((await handler(request('wrong'))).status,401);assert.equal(claims,0);
+assert.equal((await handler(request(secret,'https://birlarootx.com'))).status,403);assert.equal(claims,0);
+config.ROOTX_NOTIFICATION_ADMIN_ID='attacker';assert.equal((await handler(request())).status,503);assert.equal(claims,0);
+config.ROOTX_NOTIFICATION_ADMIN_ID=actor;authorized=false;assert.equal((await handler(request())).status,403);assert.equal(claims,0);
+authorized=true;config.RESEND_API_KEY=undefined;let result=await handler(request());assert.equal((await result.json()).configured,false);assert.equal(claims,0);
+config.RESEND_API_KEY='fixture-only';result=await handler(request());assert.equal(result.status,200);assert.equal((await result.json()).sent,0);assert.equal(claims,1);assert.equal(authCalls,0);
+console.log('Worker authentication: secret comparison, wrong/missing configuration, origin, admin authorization, fail-closed sender and server-derived queue scope passed.');

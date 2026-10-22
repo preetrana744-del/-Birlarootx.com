@@ -4,7 +4,7 @@
   'use strict';
   const api='https://lbqgdfbpuxjkwldhwpvi.supabase.co/rest/v1/rootx_products?select=slug,name,price,image_url,active&active=eq.true';
   const key='sb_publishable_rS7URzLNbhXhdPp50Te_Qg_9LtpKOI_';
-  const account='account.html';
+  const account='/account.html';
   document.querySelectorAll('.header-actions').forEach(node=>{
     if(node.querySelector('.rootx-account-link'))return;
     const link=document.createElement('a');
@@ -105,4 +105,5 @@
   refreshCatalogue();
   window.addEventListener('pageshow',e=>{if(e.persisted)refreshCatalogue();});
 })();
+
 
