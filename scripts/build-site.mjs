@@ -45,7 +45,7 @@ function refreshTypographyVersion(dir) {
   if(entry.isDirectory())refreshTypographyVersion(target);
   else if(entry.name.endsWith('.html')){
    const html=fs.readFileSync(target,'utf8');
-   fs.writeFileSync(target,html.replace(/customer-info\\.css\\?v=[^"']+/g,'customer-info.css?v=leaf-green-20261024'));
+   fs.writeFileSync(target,html.replaceAll('customer-info.css?v=20261022','customer-info.css?v=leaf-green-20261024'));
   }
  }
 }
