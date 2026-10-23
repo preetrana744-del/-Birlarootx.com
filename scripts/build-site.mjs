@@ -37,3 +37,16 @@ for(const product of context.catalogue){
  const dest=path.join(output,'products',product.slug,'index.html');fs.mkdirSync(path.dirname(dest),{recursive:true});fs.writeFileSync(dest,html);
 }
 console.log('Built '+manifest.length+' public files and '+context.catalogue.length+' product preview pages.');
+
+// Version the shared typography stylesheet in every published HTML page.
+function refreshTypographyVersion(dir) {
+ for (const entry of fs.readdirSync(dir,{withFileTypes:true})) {
+  const target=path.join(dir,entry.name);
+  if(entry.isDirectory())refreshTypographyVersion(target);
+  else if(entry.name.endsWith('.html')){
+   const html=fs.readFileSync(target,'utf8');
+   fs.writeFileSync(target,html.replace(/customer-info\\.css\\?v=[^"']+/g,'customer-info.css?v=leaf-green-20261024'));
+  }
+ }
+}
+refreshTypographyVersion(output);
