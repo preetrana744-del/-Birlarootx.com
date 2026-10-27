@@ -45,7 +45,7 @@ function refreshTypographyVersion(dir) {
   if(entry.isDirectory())refreshTypographyVersion(target);
   else if(entry.name.endsWith('.html')){
    const html=fs.readFileSync(target,'utf8');
-   fs.writeFileSync(target,html.replaceAll('customer-info.css?v=20261022','customer-info.css?v=original-colours-20261024'));
+   fs.writeFileSync(target,html.replaceAll('customer-info.css?v=20261022','customer-info.css?v=original-colours-20261024').replaceAll('customer-contact.css?v=20261022','customer-contact.css?v=aligned-20261027'));
   }
  }
 }
