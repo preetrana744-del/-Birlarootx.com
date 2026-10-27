@@ -83,7 +83,7 @@
   }
   async function refreshCatalogue(){
     const request=++requestNumber;
-    notice.hidden=false;message.textContent='Checking current product prices and availability…';retry.hidden=true;
+    notice.hidden=false;message.textContent='Checking prices and availability…';retry.hidden=true;
     Object.values(local).forEach(p=>p.availability='loading');updateDisplay();
     const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),9000);
     try{
@@ -128,19 +128,27 @@
   const section = document.createElement('section');
   section.id = 'compare-formulas'; section.className = 'rootx-comparison';
   section.setAttribute('aria-labelledby','rootx-compare-title');
-  section.innerHTML = '<h2 id="rootx-compare-title">Find your formula</h2><p>Compare pack formats and label information. Check each product label for directions and cautions.</p><div class="rootx-comparison-scroll" role="region" aria-label="Product comparison — scroll horizontally" tabindex="0"><table><caption class="rootx-sr-only">Birla RootX product comparison</caption><thead><tr><th scope="col">Formula</th><th scope="col">Pack format</th><th scope="col">Label category</th><th scope="col">Current price</th><th scope="col">Details</th></tr></thead><tbody></tbody></table></div>';
+  section.innerHTML = '<h2 id="rootx-compare-title">Find your formula</h2><p>Compare pack formats and label information. Check each product label for directions and cautions.</p><div class="rootx-comparison-scroll" role="region" aria-label="Product comparison" tabindex="0"><table><caption class="rootx-sr-only">Birla RootX product comparison</caption><thead><tr><th scope="col">Formula</th><th scope="col">Pack format</th><th scope="col">Label category</th><th scope="col">Current price</th><th scope="col">Details</th></tr></thead><tbody></tbody></table></div>';
   home.after(section);
+  const jumpToComparison=()=>{
+    const header=document.querySelector('.site-header');
+    const top=section.getBoundingClientRect().top+window.scrollY-(header?.getBoundingClientRect().height||64)-16;
+    window.scrollTo({top:Math.max(0,top),behavior:'instant'});
+  };
+  cta.querySelector('.rootx-compare-link').addEventListener('click',e=>{e.preventDefault();history.replaceState(null,'','#compare-formulas');jumpToComparison();});
+  if(location.hash==='#compare-formulas')requestAnimationFrame(jumpToComparison);
+
   function renderComparison() {
     const body = section.querySelector('tbody'); body.replaceChildren();
     Object.values(window.BIRLAROOTX_PRODUCTS || {}).forEach(p => {
       const row = document.createElement('tr');
       [p.name,p.format,p.category,p.availability === 'ready' ? '₹'+p.price.toLocaleString('en-IN') : p.availability==='loading' ? 'Checking…' : 'Unavailable'].forEach((value,i) => {
-        const cell = document.createElement(i===0?'th':'td'); if(i===0)cell.scope='row';cell.textContent=value;row.append(cell);
+        const cell = document.createElement(i===0?'th':'td'); if(i===0)cell.scope='row';cell.textContent=value;cell.dataset.label=['Formula','Pack format','Label category','Current price'][i];row.append(cell);
       });
-      const cell=document.createElement('td'),link=document.createElement('a');link.href='/products/'+p.slug+'/';link.textContent='View '+p.name;cell.append(link);row.append(cell);body.append(row);
+      const cell=document.createElement('td'),link=document.createElement('a');cell.dataset.label='Details';link.href='/products/'+p.slug+'/';link.textContent='View '+p.name;cell.append(link);row.append(cell);body.append(row);
     });
   }
-  renderComparison();document.addEventListener('rootx:catalogue-update',renderComparison);
+  renderComparison();document.addEventListener('rootx:catalogue-update',()=>{renderComparison();if(location.hash==='#compare-formulas'&&section.getBoundingClientRect().top<0)jumpToComparison();});
   const steps=document.createElement('section');steps.className='rootx-request-guide';steps.setAttribute('aria-labelledby','rootx-request-title');
   steps.innerHTML='<h2 id="rootx-request-title">How to request an order</h2><ol><li><strong>Choose your formulas</strong><span>Add products to your bag and review quantities.</span></li><li><strong>Send your request</strong><span>Sign in and provide your delivery address.</span></li><li><strong>Get confirmation</strong><span>Our team confirms stock, shipping and the final total before acceptance.</span></li></ol><p>No payment is collected on this site at this stage. A request is not a confirmed order.</p><a href="/account.html">Track your request →</a><a href="/policies/shipping.html">Shipping information →</a>';
   section.after(steps);
