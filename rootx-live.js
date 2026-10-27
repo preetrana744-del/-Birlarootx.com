@@ -5,6 +5,15 @@
   const api='https://lbqgdfbpuxjkwldhwpvi.supabase.co/rest/v1/rootx_products?select=slug,name,price,image_url,active&active=eq.true';
   const key='sb_publishable_rS7URzLNbhXhdPp50Te_Qg_9LtpKOI_';
   const account='/account.html';
+  const empty=document.querySelector('.cart-empty');
+  if(empty){empty.textContent='Your bag is empty. Explore the formulas to get started.';}
+  const cartFooter=document.querySelector('.cart-checkout')?.parentElement;
+  if(cartFooter){
+    const continueButton=document.createElement('button');continueButton.type='button';continueButton.className='rootx-continue-shopping';continueButton.textContent='Continue shopping';
+    continueButton.addEventListener('click',()=>document.querySelector('.cart-close')?.click());
+    cartFooter.append(continueButton);
+  }
+
   document.querySelectorAll('.header-actions').forEach(node=>{
     if(node.querySelector('.rootx-account-link'))return;
     const link=document.createElement('a');
@@ -57,7 +66,7 @@
       const card=document.querySelector('.product-card [data-product="'+cartKey+'"]')?.closest('.product-card');
       if(card){
         const price=card.querySelector('.product-price');if(price)price.textContent=product.availability==='ready'?'₹'+product.price.toLocaleString('en-IN'):'—';
-        const img=card.querySelector('.product-image img');if(img)img.src=product.image;
+        const img=card.querySelector('.product-image img');if(img && img.getAttribute('src')!==product.image)img.src=product.image;
         let state=card.querySelector('.rootx-product-availability');
         if(!state){state=document.createElement('p');state.className='rootx-product-availability';card.append(state);}
         state.textContent=product.availability==='ready'?'':product.availability==='loading'?'Checking availability…':product.availability==='unavailable'?'Currently unavailable':'Availability could not be confirmed';
@@ -107,3 +116,32 @@
 })();
 
 
+
+/* Storefront usability: comparison, shopping guidance and clear request steps. */
+(() => {
+  const home = document.querySelector('.products');
+  if (!home) return;
+  const cta = document.createElement('nav');
+  cta.className = 'rootx-shopping-actions'; cta.setAttribute('aria-label','Shopping shortcuts');
+  cta.innerHTML = '<a href="#products" class="button button-dark">Shop all formulas →</a><a href="#compare-formulas" class="rootx-compare-link">Compare the range</a>';
+  document.querySelector('.hero')?.after(cta);
+  const section = document.createElement('section');
+  section.id = 'compare-formulas'; section.className = 'rootx-comparison';
+  section.setAttribute('aria-labelledby','rootx-compare-title');
+  section.innerHTML = '<h2 id="rootx-compare-title">Find your formula</h2><p>Compare pack formats and label information. Check each product label for directions and cautions.</p><div class="rootx-comparison-scroll" role="region" aria-label="Product comparison — scroll horizontally" tabindex="0"><table><caption class="rootx-sr-only">Birla RootX product comparison</caption><thead><tr><th scope="col">Formula</th><th scope="col">Pack format</th><th scope="col">Label category</th><th scope="col">Current price</th><th scope="col">Details</th></tr></thead><tbody></tbody></table></div>';
+  home.after(section);
+  function renderComparison() {
+    const body = section.querySelector('tbody'); body.replaceChildren();
+    Object.values(window.BIRLAROOTX_PRODUCTS || {}).forEach(p => {
+      const row = document.createElement('tr');
+      [p.name,p.format,p.category,p.availability === 'ready' ? '₹'+p.price.toLocaleString('en-IN') : p.availability==='loading' ? 'Checking…' : 'Unavailable'].forEach((value,i) => {
+        const cell = document.createElement(i===0?'th':'td'); if(i===0)cell.scope='row';cell.textContent=value;row.append(cell);
+      });
+      const cell=document.createElement('td'),link=document.createElement('a');link.href='/products/'+p.slug+'/';link.textContent='View '+p.name;cell.append(link);row.append(cell);body.append(row);
+    });
+  }
+  renderComparison();document.addEventListener('rootx:catalogue-update',renderComparison);
+  const steps=document.createElement('section');steps.className='rootx-request-guide';steps.setAttribute('aria-labelledby','rootx-request-title');
+  steps.innerHTML='<h2 id="rootx-request-title">How to request an order</h2><ol><li><strong>Choose your formulas</strong><span>Add products to your bag and review quantities.</span></li><li><strong>Send your request</strong><span>Sign in and provide your delivery address.</span></li><li><strong>Get confirmation</strong><span>Our team confirms stock, shipping and the final total before acceptance.</span></li></ol><p>No payment is collected on this site at this stage. A request is not a confirmed order.</p><a href="/account.html">Track your request →</a><a href="/policies/shipping.html">Shipping information →</a>';
+  section.after(steps);
+})();
