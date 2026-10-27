@@ -4,15 +4,15 @@
 <meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#f4f2e9">
 <title>My Account · Birla RootX</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<link rel="stylesheet" href="account.css?v=brand-polish-20261016">
+<link rel="stylesheet" href="account.css?v=usability-20261027">
 <link rel="stylesheet" href="/customer-info.css?v=20261022"><link rel="stylesheet" href="/customer-contact.css?v=20261022"></head><body>
 <header class="top"><a href="index.html" class="brand"><img class="original-brand-logo" src="/birla-rootx-original-logo.png" alt="Birla RootX" width="2153" height="359" /></a><nav><a href="index.html#products">Shop formulas</a><a href="account.html" data-account-name data-account-guest="My account">My account</a><button id="logout" type="button" hidden>Sign out</button></nav></header>
 <main class="shell">
 <div class="eyebrow">SECURE ROOTX ACCOUNTS</div>
-<h1>Everything in <em>one place.</em></h1><p class="sub">Sign in as a customer to track orders, or use your authorized admin account to manage your store.</p>
+<h1>Your orders, <em>in one place.</em></h1><p class="sub">Sign in to send an order request, view its status and track delivery updates.</p>
 <p id="notice" role="status" aria-live="polite" class="notice" hidden></p>
-<section id="auth-panel" class="panel auth-layout">
- <div><div class="eyebrow">WELCOME BACK</div><h2 id="auth-title">Sign in to RootX</h2><p class="muted">One login for customers and authorized administrators. Admin rights are checked securely on the server.</p><p class="info">Your account data and orders are private. We use them to process and support your order.</p></div>
+<div class="request-entry" id="request-entry" hidden><strong>Ready to request an order?</strong> Sign in below, review your delivery details, then submit your request. <a href="/index.html#products">Continue shopping →</a></div><section id="auth-panel" class="panel auth-layout">
+ <div><div class="eyebrow">WELCOME BACK</div><h2 id="auth-title">Sign in to RootX</h2><p class="muted">Your bag stays saved while you sign in. You can review your products and delivery details before submitting a request.</p><p class="info">Your account data and orders are private. We use them to process and support your order.</p></div>
  <form id="auth-form" autocomplete="on"><p class="muted">Read our <a href="/policies/privacy.html">Privacy Policy</a> for account data, browser storage and data requests, and our <a href="/policies/terms.html">Terms &amp; Conditions</a> before creating an account.</p><div id="google-auth-options" class="google-auth-options">
  <button id="google-signin" class="google-signin" type="button" aria-label="Continue with Google">
   <svg aria-hidden="true" class="google-icon" viewBox="0 0 48 48" width="21" height="21" xmlns="http://www.w3.org/2000/svg"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5Z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.77 7.18l7.73 6C44.41 38.03 46.98 31.81 46.98 24.55Z"/><path fill="#FBBC05" d="M10.53 28.59a14.4 14.4 0 0 1 0-9.18l-7.98-6.19A24 24 0 0 0 0 24c0 3.87.93 7.51 2.56 10.78l7.97-6.19Z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.9-5.8l-7.73-6c-2.15 1.45-4.92 2.3-8.17 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.97 6.19C6.51 42.62 14.62 48 24 48Z"/></svg>
@@ -29,7 +29,7 @@
 <section id="dashboard" hidden>
  <div class="dash-heading"><div><div class="eyebrow" id="role-label">YOUR ACCOUNT</div><h2 id="welcome">My orders</h2><p class="muted" id="account-email"></p></div><button id="refresh" class="btn secondary" type="button">Refresh</button></div>
  <div id="customer-view">
- <div id="checkout-section" class="panel" hidden><div class="eyebrow" id="checkout-label">ORDER REQUEST</div><h3>Review your cart</h3><p id="checkout-description" class="muted">This submits an order request only. No online payment is collected or charged.</p><div id="checkout-items"></div>
+ <div id="checkout-section" class="panel" hidden><div class="eyebrow" id="checkout-label">ORDER REQUEST</div><h3>Review your request</h3><p id="checkout-description" class="muted">This submits an order request only. No online payment is collected or charged.</p><div id="checkout-items"></div><p class="request-total-help">Product subtotal only. Shipping charges, stock availability and the final payable total will be confirmed by our team before acceptance. No payment is collected here.</p>
  <p>Before submitting, review our <a href="/policies/terms.html">terms</a>, <a href="/policies/shipping.html">shipping</a>, <a href="/policies/returns.html">returns and refunds</a>, <a href="/policies/cancellation.html">cancellation</a> and <a href="/policies/privacy.html">privacy</a> information. This is an order request; stock, delivery and the final total require confirmation.</p><form id="checkout-form"><div id="checkout-delivery"><div class="two"><label>Full name<input name="shipping_name" maxlength="120" required autocomplete="name"></label><label>Indian mobile number<input name="shipping_phone" type="tel" maxlength="25" required autocomplete="tel" inputmode="tel" placeholder="10 digits or +91" aria-describedby="delivery-help"></label></div><p id="delivery-help" class="muted">Delivery within serviceable Indian PIN codes. Enter the recipient’s mobile number and complete address.</p><label>House/building, street and locality<textarea name="shipping_address" minlength="10" maxlength="700" required autocomplete="address-line1" placeholder="House or flat, building, street and locality"></textarea></label><div class="two"><label>City / town<input name="shipping_city" minlength="2" maxlength="100" required autocomplete="address-level2"></label><label>State / union territory<select name="shipping_state" required autocomplete="address-level1"><option value="">Choose state / union territory</option></select></label></div><label>PIN code<input name="shipping_pin" type="text" inputmode="numeric" pattern="[1-9][0-9]{5}" maxlength="6" required autocomplete="postal-code" placeholder="6-digit PIN code"></label><p id="address-error" role="alert" class="notice error" hidden></p></div><button id="place-order" type="submit" class="btn">Submit order request →</button></form></div>
  <div class="panel"><div class="eyebrow">DELIVERY TRACKING</div><h3>My orders</h3><div id="customer-orders" class="stack"><p class="muted">Loading orders…</p></div></div>
  </div>
@@ -44,7 +44,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
 <script src="rootx-session.js?v=readiness-20261022b" defer></script>
 <script src="account-helpers.js?v=readiness-20261022b" defer></script><script src="account.js?v=readiness-20261022b" defer></script>
-<script src="/customer-contact.js?v=20261022" defer></script></body></html>
+<script src="/customer-contact.js?v=20261022" defer></script><script>document.getElementById("request-entry").hidden=!new URLSearchParams(location.search).has("checkout");</script></body></html>
 
 
 
