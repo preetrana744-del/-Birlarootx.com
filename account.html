@@ -5,8 +5,8 @@
 <title>My Account · Birla RootX</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="stylesheet" href="account.css?v=usability-20261027">
-<link rel="stylesheet" href="/customer-info.css?v=20261022"><link rel="stylesheet" href="/customer-contact.css?v=20261022"></head><body>
-<header class="top"><a href="index.html" class="brand"><img class="original-brand-logo" src="/birla-rootx-original-logo.png" alt="Birla RootX" width="2153" height="359" /></a><nav><a href="index.html#products">Shop formulas</a><a href="account.html" data-account-name data-account-guest="My account">My account</a><button id="logout" type="button" hidden>Sign out</button></nav></header>
+<link rel="stylesheet" href="/customer-info.css?v=20261022"><link rel="stylesheet" href="/customer-contact.css?v=20261022"><link rel="stylesheet" href="/rootx-live.css?v=audit-fixes-20261027"></head><body>
+<header class="site-header top rootx-account-header" id="top"><a href="/index.html" class="wordmark brand" aria-label="Birla RootX home"><img class="original-brand-logo" src="/birla-rootx-original-logo.png" alt="Birla RootX" width="2153" height="359"></a><div class="header-actions"><a href="/account.html" class="rootx-account-link" data-account-name data-account-guest="My account">My account</a><a href="/index.html?bag=1" class="bag-button" aria-label="View shopping bag">Bag</a><button class="menu-button" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Open menu"><span></span><span></span></button></div><nav class="mobile-menu" id="mobile-menu" aria-label="Mobile navigation"><a href="/index.html#products">The formulas</a><a href="/index.html#story">Our approach</a><a href="/index.html#faq">FAQs</a><a href="/blog/">Journal</a><button id="logout" type="button" hidden>Sign out</button></nav></header>
 <main class="shell">
 <div class="eyebrow">SECURE ROOTX ACCOUNTS</div>
 <h1>Your orders, <em>in one place.</em></h1><p class="sub">Sign in to send an order request, view its status and track delivery updates.</p>
@@ -44,7 +44,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
 <script src="rootx-session.js?v=readiness-20261022b" defer></script>
 <script src="account-helpers.js?v=readiness-20261022b" defer></script><script src="account.js?v=readiness-20261022b" defer></script>
-<script src="/customer-contact.js?v=20261022" defer></script><script>document.getElementById("request-entry").hidden=!new URLSearchParams(location.search).has("checkout");</script></body></html>
+<script src="/customer-contact.js?v=20261022" defer></script><script>document.getElementById("request-entry").hidden=!new URLSearchParams(location.search).has("checkout");</script><script src="/reference-mobile.js?v=audit-fixes-20261027" defer></script><script>const menu=document.querySelector(".menu-button"),nav=document.getElementById("mobile-menu");menu.addEventListener("click",()=>{const open=menu.getAttribute("aria-expanded")!=="true";menu.setAttribute("aria-expanded",String(open));menu.setAttribute("aria-label",open?"Close menu":"Open menu");nav.classList.toggle("open",open);});nav.addEventListener("click",e=>{if(e.target.closest("a")){menu.setAttribute("aria-expanded","false");nav.classList.remove("open");}});</script></body></html>
 
 
 
