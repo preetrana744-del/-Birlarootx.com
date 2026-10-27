@@ -26,6 +26,9 @@
  const media=matchMedia('all');
  const sync=()=>{if(media.matches){if(support)mobileFooter.querySelector('.reference-contact-slot').append(support);journalSection?.classList.add('reference-journal-moved');}else{if(support)anchor.after(support);journalSection?.classList.remove('reference-journal-moved');}};
  sync();media.addEventListener('change',sync);
+ const desktopFooter=matchMedia('(min-width:900px)');
+ const syncFooter=()=>mobileFooter.querySelectorAll('details').forEach(d=>{d.open=desktopFooter.matches;});
+ syncFooter();desktopFooter.addEventListener('change',syncFooter);
 
  const dialog=document.createElement('dialog');dialog.className='reference-search-dialog';dialog.setAttribute('aria-label','Search Birla RootX');
  dialog.innerHTML='<div class="rootx-search-bar"><form role="search"><label class="rootx-search-label" for="rootx-product-search">Search products</label><span class="rootx-search-icon" aria-hidden="true">'+icons.search+'</span><input id="rootx-product-search" name="query" type="search" placeholder="Search for products" autocomplete="off" aria-controls="rootx-search-results"><button class="rootx-clear-search" type="button" aria-label="Clear search" hidden>×</button></form><button type="button" class="reference-close-search" aria-label="Close search">×</button></div><div class="rootx-search-content"><p role="status" aria-live="polite" class="reference-search-status"></p><div id="rootx-search-results" class="rootx-search-results"></div></div>';
