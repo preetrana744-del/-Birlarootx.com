@@ -44,13 +44,19 @@ jobs:
         run: node scripts/apply-site-status.mjs
       - name: Verify final site status
         run: node scripts/check-site-status.mjs
+      - name: Read publishing status
+        id: publishing
+        run: node --input-type=module -e "import fs from 'node:fs'; import {siteStatus} from './scripts/site-status.mjs'; fs.appendFileSync(process.env.GITHUB_OUTPUT, 'enabled='+(!siteStatus.unpublished)+'\n');"
       - name: Configure Pages
+        if: steps.publishing.outputs.enabled == 'true'
         uses: actions/configure-pages@v5
       - name: Upload site files
+        if: steps.publishing.outputs.enabled == 'true'
         uses: actions/upload-pages-artifact@v4
         with:
           path: _site
       - name: Deploy site
+        if: steps.publishing.outputs.enabled == 'true'
         id: deployment
         uses: actions/deploy-pages@v4
 

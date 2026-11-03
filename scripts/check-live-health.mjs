@@ -2,6 +2,18 @@
 import {siteStatus, holdMarker} from './site-status.mjs';
 const timeout=()=>AbortSignal.timeout(15000);
 async function text(url,needle){const response=await fetch(url,{cache:'no-store',signal:timeout()});if(!response.ok)throw Error(url+' HTTP '+response.status);const body=await response.text();if(!body.includes(needle))throw Error(url+' missing expected page content');}
+if(siteStatus.unpublished){
+ const routes=['/','/account.html','/product.html','/products/growth-factor/','/policies/support.html'];
+ const results=await Promise.allSettled(routes.map(async route=>{
+  const response=await fetch('https://birlarootx.com'+route,{cache:'no-store',signal:timeout()});
+  if(response.status!==404)throw Error(route+' should be unpublished, received HTTP '+response.status);
+ }));
+ const errors=results.filter(r=>r.status==='rejected');
+ for(const failure of errors)console.error(failure.reason.message);
+ if(errors.length)process.exitCode=1;
+ else console.log('5 live routes verified unavailable (HTTP 404): website intentionally unpublished.');
+ process.exit(process.exitCode||0);
+}
 if(siteStatus.hold){
  const routes=['/','/account.html','/product.html','/products/growth-factor/','/policies/support.html'];
  const results=await Promise.allSettled(routes.map(async route=>{
