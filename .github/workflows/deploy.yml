@@ -40,6 +40,10 @@ jobs:
         run: node scripts/build-site.mjs
       - name: Verify public artifact
         run: node scripts/check-public-site.mjs
+      - name: Apply temporary site status
+        run: node scripts/apply-site-status.mjs
+      - name: Verify final site status
+        run: node scripts/check-site-status.mjs
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload site files

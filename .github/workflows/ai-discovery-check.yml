@@ -100,6 +100,10 @@ jobs:
       - name: Check live discovery endpoints when available
         shell: bash
         run: |
+          if node --input-type=module -e "import {siteStatus} from './scripts/site-status.mjs'; process.exit(siteStatus.hold ? 0 : 1)"; then
+            node scripts/check-live-health.mjs
+            exit 0
+          fi
           set +e
           if ! getent hosts birlarootx.com >/dev/null 2>&1; then
             echo "::warning::birlarootx.com does not resolve from this runner yet; live checks skipped."

@@ -86,6 +86,10 @@ jobs:
         env:
           INDEXNOW_KEY: 0b7c4c2a2b68db13f1fbac1c20436b7e
         run: |
+          if node --input-type=module -e "import {siteStatus} from './scripts/site-status.mjs'; process.exit(siteStatus.hold ? 0 : 1)"; then
+            node scripts/check-live-health.mjs
+            exit 0
+          fi
           set +e
           if ! getent hosts birlarootx.com >/dev/null 2>&1; then
             echo "::warning::birlarootx.com does not currently resolve. Static SEO checks passed."
